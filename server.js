@@ -20,7 +20,7 @@ function template(data)
     var body=data.body;
     var html_data=`<html>
     <title>${title}</title>
-<body>    <head>     <link href="/ui/style.css" rel="s></head>
+<body>
     ${body}</body>
     </html>`
     return html_data
