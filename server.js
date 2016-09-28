@@ -3,12 +3,12 @@ var morgan = require('morgan');
 var path = require('path');
 
 var app = express();
-app.use(morgan('combined'))
+app.use(morgan('combined'));
 
 var article={
     title:"new article",
     body:"The quick brown fox jumped over the lazy dog"
-}
+};
 
 app.get('/article', function (req, res) {
   res.send(template(article));
@@ -21,9 +21,9 @@ function template(data)
     var html_data=`<html>
     <title>${title}</title>
 <body>
-    ${body}</body>
-    </html>`
-    return html_data
+    ${body}</body
+    </html>`;
+    return html_data;
 }
 
 app.get('/', function (req, res) {
