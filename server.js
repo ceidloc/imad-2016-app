@@ -11,7 +11,7 @@ var article={
     body:"The quick brown fox jumped over the lazy dog"
 }
 
-app.get('/aiticle', function (req, res) {
+app.get('/article', function (req, res) {
   res.send(template(article));
 });
 
