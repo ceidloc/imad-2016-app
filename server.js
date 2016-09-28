@@ -22,8 +22,8 @@ function template(data)
     var body=data.body;
     var html_data=`<html>
     <title>${title}</title>
-    <head>${head}</head>
-    <body>${body}</body>
+<body>    <head>${head}</head>
+    ${body}</body>
     </html>`
     return html_data
 }
