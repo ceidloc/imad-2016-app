@@ -9,7 +9,7 @@ var article={
     title:"new article",
     body:"The quick brown fox jumped over the lazy dog"
 }
-     <link href="/ui/style.css" rel="stylesheet" />
+<link href="/ui/style.css" rel="stylesheet" />
 app.get('/article', function (req, res) {
   res.send(template(article));
 });
