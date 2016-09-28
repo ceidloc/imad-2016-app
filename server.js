@@ -7,10 +7,9 @@ app.use(morgan('combined'))
 
 var article={
     title:"new article",
-    head:"Test Article",
     body:"The quick brown fox jumped over the lazy dog"
 }
-
+<link 
 app.get('/article', function (req, res) {
   res.send(template(article));
 });
@@ -18,11 +17,10 @@ app.get('/article', function (req, res) {
 function template(data)
 {
     var title=data.title;
-    var head=data.head;
     var body=data.body;
     var html_data=`<html>
     <title>${title}</title>
-<body>    <head>${head}</head>
+<body>    <head     <link href="/ui/style.css" rel="s></head>
     ${body}</body>
     </html>`
     return html_data
