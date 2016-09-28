@@ -3,7 +3,30 @@ var morgan = require('morgan');
 var path = require('path');
 
 var app = express();
-app.use(morgan('combined'));
+app.use(morgan('combined'))
+
+var article={
+    title:"new article",
+    head:"Test Article",
+    body:"The quick brown fox jumped over the lazy dog"
+}
+
+app.get('/aiticle', function (req, res) {
+  res.send(template(article));
+});
+
+function template(data)
+{
+    var title=data.title;
+    var head=data.head;
+    var body=databody;
+    var html_data=`<html>
+    <title>${title}</title>
+    <head>${head}</head>
+    <body>${body}</body>
+    </html>`
+    return html_data
+}
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
