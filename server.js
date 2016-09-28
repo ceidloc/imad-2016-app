@@ -19,7 +19,7 @@ function template(data)
 {
     var title=data.title;
     var head=data.head;
-    var body=databody;
+    var body=data.body;
     var html_data=`<html>
     <title>${title}</title>
     <head>${head}</head>
