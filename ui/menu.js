@@ -50,7 +50,7 @@ function comment_template(id)
 	//making request
 	input=document.getElementById('in_id_'+id.toString());
 	data=input.value;
-	request.open('GET','http://localhost:8080/ui/3/comments?comment='+data,true);
+	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/3/comments?comment='+data,true);
 	request.send(null);
 
 };
