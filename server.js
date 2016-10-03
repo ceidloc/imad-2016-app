@@ -174,6 +174,18 @@ function comment_template(id)
 
     submit_btn=document.getElementById('sub_id_${id}');
 
+
+    //use send_req_and_get_res when page is loaded and when submit_btn is clicked
+
+    submit_btn.onclick=function ()
+      {
+        send_req_and_get_res(${id});
+      }   
+
+     send_req_and_get_res(${id});  
+
+     //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
+
     function send_req_and_get_res()
     {
       var request=new XMLHttpRequest();
@@ -185,12 +197,12 @@ function comment_template(id)
             {//take comments from the request and parse them into array 
               var comment=JSON.parse(request.responseText);
               var new_list="";
-              //creating a string to render in the inner html of ul on this article page
+              //creating a string to render in the inner html of ol on this article page
               for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
                {
                   new_list+="<li>"+comment[i]+"</li>";
                 };
-              var old_list=document.getElementById('ul_id_${id}');
+              var old_list=document.getElementById('ol_id_${id}');
               old_list.innerHTML=new_list;
             }
           }
@@ -205,13 +217,6 @@ function comment_template(id)
         request.send(null);
       };
 
-
-    submit_btn.onclick=function ()
-      {
-        send_req_and_get_res(${id});
-      }   
-
-     send_req_and_get_res(${id});  
     `
 
   return js_data;
@@ -242,12 +247,16 @@ function menu_item_template(data)
         </div>
         <div class='center'>
         ${body}
+        <hr>
         </div>
-        <input type='text' id ='in_id_${item_id}' placeholder="type here!"></input>
-        <input type='submit' id ='sub_id_${item_id}' value='submit'></input>
-        <ul id = 'ul_id_${item_id}'>
-
-        </ul>
+        <div class="comment_head">
+        Comments
+        </div>
+        <ol id = 'ol_id_${item_id}' class="comment_list">
+        </ol>
+        <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
+        <br>
+        <input type='submit' id ='sub_id_${item_id}' class = "submit_btn" value='Submit'></input>
         <script type="text/javascript" src="/ui/menu_comment/${item_id}">
         </script>
       </body>
