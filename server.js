@@ -120,10 +120,47 @@ app.get('/ui/:id/comments', function (req, res) {//url type: ui/3/comments?comme
 
 
 
-app.get('/menu_item/:no', function (req, res) {
-  var no=req.params.no;
-  res.send(template(menu_item[no]));
-});
+function comment_template(id)
+{   var js_data=`
+      //get the submit element on this page by referencing it with given item_id
+      submit_btn=document.getElementById('sub_id_${id}'); 
+
+      submit_btn.onclick=function ()
+        {
+          var request=new XMLHttpRequest();
+          request.onreadystatechange= function()
+          {
+            if (request.readyState===XMLHttpRequest.DONE)
+            {
+              if (request.status === 200)
+              {//take comments from the request and parse them into array 
+                var comment=JSON.parse(request.responseText);
+                var new_list="";
+                //creating a string to render in the inner html of ul on this article page
+                for (var i=comment.length;i>1;i--)    //i>1 and not i==1 as the first comment's value is undefined
+                  {
+                    new_list+="<li>"+comment[i]+"</li>";
+                  };
+                old_list=document.getElementById('ul_id_${id}');
+                old_list.innerHTML=new_list;
+              }
+            }
+
+          };
+
+          //making request
+          input=document.getElementById('in_id_${id}');
+          data=input.value;
+          //sending request to page with id=current_id
+          request.open('GET','http://ceidloc.imad.hasura-app.io/ui/id/comments?comment='+data,true);
+          request.send(null);
+        };`
+
+    return js_data;
+      
+}
+
+
 
 function template(data)
 {   
@@ -153,7 +190,7 @@ function template(data)
         <ul id = 'ul_id_${item_id}'>
 
         </ul>
-        <script type="text/javascript" src="/ui/menu.js">
+        <script type="text/javascript" src="/ui/menu_comment/${item_id}">
         </script>
       </body>
     </html>`;
@@ -164,14 +201,18 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
 
-
+app.get('/ui/menu_item/:no', function (req, res) {
+  var no=req.params.no;
+  res.send(template(menu_item[no]));
+});
 
 app.get('/ui/style.css', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'style.css'));
 });
 
-app.get('/ui/menu.js', function (req, res) {
-  res.sendFile(path.join(__dirname, 'ui', 'menu.js'));
+app.get('/ui/menu_comment/:id', function (req, res) {
+  id=req.params.id;
+  res.send(comment_template(id));
 });
 
 app.get('/ui/images/:image_no', function (req, res) {
