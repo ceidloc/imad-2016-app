@@ -119,8 +119,9 @@ app.get('/ui/:id/comments', function (req, res)
   var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
   id_no-=1;
   var comment=req.query.comment;
-  if (comment!==null)
+  if (comment!=="")
     {list[id_no].push(comment);}
+  //returning only the row containing the comments from current page as JSON string represntation of that row,stored in a 2-D array
   res.send(JSON.stringify(list[id_no]));
 });
 
@@ -131,7 +132,7 @@ app.get('/', function (req, res) {
 
 app.get('/ui/menu_item/:no', function (req, res) {
   var no=req.params.no;
-  res.send(menu_item_template(menu_item[no]));
+  res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
 });
 
 app.get('/ui/style.css', function (req, res) {
@@ -140,6 +141,7 @@ app.get('/ui/style.css', function (req, res) {
 
 app.get('/ui/menu_comment/:id', function (req, res) {
   id=req.params.id;
+  //using menu_item_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
   res.send(comment_template(id));
 });
 
@@ -153,44 +155,67 @@ app.get('/ui/index.js',function(req, res){
   res.sendFile(path.join(__dirname,'ui','main.js'));
 });
 
+
+
+
+function generate_comment_list_from_array(comment)
+{
+
+
+    return new_list;//return's string
+};
+
+
 function comment_template(id)
-{   var js_data=`
-      //get the submit element on this page by referencing it with given item_id
-      submit_btn=document.getElementById('sub_id_${id}'); 
+{   
 
-      submit_btn.onclick=function ()
+  var js_data=`
+    //get the submit element on this page by referencing it with given item_id
+
+    submit_btn=document.getElementById('sub_id_${id}');
+
+    function send_req_and_get_res()
+    {
+      var request=new XMLHttpRequest();
+        request.onreadystatechange= function()
         {
-          var request=new XMLHttpRequest();
-          request.onreadystatechange= function()
+          if (request.readyState===XMLHttpRequest.DONE)
           {
-            if (request.readyState===XMLHttpRequest.DONE)
-            {
-              if (request.status === 200)
-              {//take comments from the request and parse them into array 
-                var comment=JSON.parse(request.responseText);
-                var new_list="";
-                //creating a string to render in the inner html of ul on this article page
-                for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
-                  {
-                    new_list+="<li>"+comment[i]+"</li>";
-                  };
-                old_list=document.getElementById('ul_id_${id}');
-                old_list.innerHTML=new_list;
-              }
+            if (request.status === 200)
+            {//take comments from the request and parse them into array 
+              var comment=JSON.parse(request.responseText);
+              var new_list="";
+              //creating a string to render in the inner html of ul on this article page
+              for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
+               {
+                  new_list+="<li>"+comment[i]+"</li>";
+                };
+              var old_list=document.getElementById('ul_id_${id}');
+              old_list.innerHTML=new_list;
             }
+          }
 
-          };
+        };
 
-          //making request
-          input=document.getElementById('in_id_${id}');
-          data=input.value;
-          //sending request to page with id=current_id
-          request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
-          request.send(null);
-        };`
+        //making request
+        input=document.getElementById('in_id_${id}');
+        data=input.value;
+        //sending request to page with id=current_id
+        request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
+        request.send(null);
+      };
 
-    return js_data;
-      
+
+    submit_btn.onclick=function ()
+      {
+        send_req_and_get_res(${id});
+      }   
+
+     send_req_and_get_res(${id});  
+    `
+
+  return js_data;
+    
 }
 
 
@@ -221,11 +246,13 @@ function menu_item_template(data)
         <input type='text' id ='in_id_${item_id}' placeholder="type here!"></input>
         <input type='submit' id ='sub_id_${item_id}' value='submit'></input>
         <ul id = 'ul_id_${item_id}'>
+
         </ul>
         <script type="text/javascript" src="/ui/menu_comment/${item_id}">
         </script>
       </body>
     </html>`;
+
     return html_data;
 }
 
