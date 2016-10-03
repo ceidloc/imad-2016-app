@@ -109,7 +109,6 @@ var menu_item=
 
 };
 
-<<<<<<< HEAD
 //storing comments in a 2-d array as [page][comments]
 var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
 
@@ -126,95 +125,6 @@ app.get('/ui/:id/comments', function (req, res)
   res.send(JSON.stringify(list[id_no]));
 });
 
-=======
-
-var list=[];
-app.get('/ui/:id/comments', function (req, res) {//url type: ui/3/comments?comment=... here id = 3
-  var id_no=req.params.id;
-  var comment=req.query.comment;
-  list.push(comment);
-  res.send(JSON.stringify(list));
-});
-
-
-
-function comment_template(id)
-{   var js_data=`
-      //get the submit element on this page by referencing it with given item_id
-      submit_btn=document.getElementById('sub_id_${id}'); 
-
-      submit_btn.onclick=function ()
-        {
-          var request=new XMLHttpRequest();
-          request.onreadystatechange= function()
-          {
-            if (request.readyState===XMLHttpRequest.DONE)
-            {
-              if (request.status === 200)
-              {//take comments from the request and parse them into array 
-                var comment=JSON.parse(request.responseText);
-                var new_list="";
-                //creating a string to render in the inner html of ul on this article page
-                for (var i=comment.length;i>1;i--)    //i>1 and not i==1 as the first comment's value is undefined
-                  {
-                    new_list+="<li>"+comment[i]+"</li>";
-                  };
-                old_list=document.getElementById('ul_id_${id}');
-                old_list.innerHTML=new_list;
-              }
-            }
-
-          };
-
-          //making request
-          input=document.getElementById('in_id_${id}');
-          data=input.value;
-          //sending request to page with id=current_id
-          request.open('GET','http://ceidloc.imad.hasura-app.io/ui/id/comments?comment='+data,true);
-          request.send(null);
-        };`
-
-    return js_data;
-      
-}
-
-
-
-function template(data)
-{   
-    var item_id=data.item_id;
-    var title=data.title;
-    var body=data.body;
-    var head=data.head;
-
-    var html_data=`<html>
-    <head>
-        <link href="/ui/style.css" rel="stylesheet" />
-    </head>
-    <title>${title}</title>
-      <body>
-        <div class="header">
-            SleepyHead Cafe
-        </div>
-        <hr>
-        <div class='menu_head'>
-          ${head}
-        </div>
-        <div class='center'>
-        ${body}
-        </div>
-        <input type='text' id ='in_id_${item_id}' placeholder="type here!"></input>
-        <input type='submit' id ='sub_id_${item_id}' value='submit'></input>
-        <ul id = 'ul_id_${item_id}'>
-
-        </ul>
-        <script type="text/javascript" src="/ui/menu_comment/${item_id}">
-        </script>
-      </body>
-    </html>`;
-    return html_data;
-}
->>>>>>> 4105e68955927bd6fef36e6aded0bf60d1cc783a
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
@@ -222,11 +132,7 @@ app.get('/', function (req, res) {
 
 app.get('/ui/menu_item/:no', function (req, res) {
   var no=req.params.no;
-<<<<<<< HEAD
   res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
-=======
-  res.send(template(menu_item[no]));
->>>>>>> 4105e68955927bd6fef36e6aded0bf60d1cc783a
 });
 
 app.get('/ui/style.css', function (req, res) {
@@ -235,25 +141,13 @@ app.get('/ui/style.css', function (req, res) {
 
 app.get('/ui/menu_comment/:id', function (req, res) {
   id=req.params.id;
-<<<<<<< HEAD
   //using menu_item_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
-=======
->>>>>>> 4105e68955927bd6fef36e6aded0bf60d1cc783a
   res.send(comment_template(id));
 });
 
 app.get('/ui/images/:image_no', function (req, res) {
   var image_no=req.params.image_no
-<<<<<<< HEAD
   res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.jpg'));
-=======
-  res.sendFile(path.join(__dirname, 'ui', 'images',image_no));
-});
-
-
-app.get('/ui/index.js',function(req, res){
-  res.sendFile(path.join(__dirname,'ui','index.js'));
->>>>>>> 4105e68955927bd6fef36e6aded0bf60d1cc783a
 });
 
 
