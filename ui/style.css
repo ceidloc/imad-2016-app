@@ -2,6 +2,7 @@
 body {
     font-family: sans-serif;
     background-color: #FDD692;
+<<<<<<< HEAD
 }
 
 .header {
@@ -67,6 +68,40 @@ body {
     font-size: 150%
 }
 
+=======
+}
+
+.header {
+	background-color: #754F44;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.menu_head {
+	margin-top: 30px;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 290%;
+}
+
+.center {
+	margin-top: 50px;
+	margin-left:150px;
+	text-align: left;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.menu {
+
+    margin-top: 100px;
+    margin-left: 100px;
+    font-weight: bold;
+    font-size: 150%
+}
+
+>>>>>>> 4105e68955927bd6fef36e6aded0bf60d1cc783a
 .menu_icon {
     height: 100px;
     width: 100px
