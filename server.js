@@ -147,7 +147,7 @@ app.get('/ui/menu_comment/:id', function (req, res) {
 
 app.get('/ui/images/:image_no', function (req, res) {
   var image_no=req.params.image_no
-  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.jpg'));
+  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.png'));
 });
 
 
@@ -181,7 +181,7 @@ function comment_template(id)
         send_req_and_get_res(${id});
       }   
 
-     send_req_and_get_res(${id});  
+     send_req_and_get_res(${id});//when page is loaded
 
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
 
@@ -213,6 +213,7 @@ function comment_template(id)
         data=input.value;
         //sending request to page with id=current_id
         request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
+        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/${id}/comments?comment='+data,true);
         request.send(null);
       };
 
