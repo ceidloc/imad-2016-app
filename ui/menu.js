@@ -1,5 +1,3 @@
-
-
 var submit_btn_id=[];
 for (var i=1; i <= 12; i++) 
 {	//getting elements by id and storing them in an array
@@ -10,13 +8,66 @@ for (var i=1; i <= 12; i++)
 
 
 
+submit_btn_id[1].onclick=function ()
+{
+	comment_template(1);
+};
+
+submit_btn_id[2].onclick=function ()
+{
+	comment_template(2);
+};
+
 submit_btn_id[3].onclick=function ()
 {
 	comment_template(3);
-
-	
-
 };
+
+submit_btn_id[4].onclick=function ()
+{
+	comment_template(4);
+};
+
+submit_btn_id[5].onclick=function ()
+{
+	comment_template(5);
+};
+
+submit_btn_id[6].onclick=function ()
+{
+	comment_template(6);
+};
+
+submit_btn_id[7].onclick=function ()
+{
+	comment_template(7);
+};
+
+submit_btn_id[8].onclick=function ()
+{
+	comment_template(8);
+};
+
+submit_btn_id[9].onclick=function ()
+{
+	comment_template(9);
+};
+
+submit_btn_id[10].onclick=function ()
+{
+	comment_template(10);
+};
+
+submit_btn_id[11].onclick=function ()
+{
+	comment_template(11);
+};
+
+submit_btn_id[12].onclick=function ()
+{
+	comment_template(12);
+};
+
 
 
 
@@ -32,7 +83,7 @@ function comment_template(id)
 				var comment=JSON.parse(request.responseText);
 				var new_list="";
 				//creating a string to render in the inner html of ul on this article page
-				for (var i=1;i<=comment.length;i++)
+				for (var i=comment.length;i>1;i--)		//i>1 and not i==1 as the first comment's value is undefined
 					{
 						new_list+="<li>"+comment[i]+"</li>";
 					};
@@ -48,16 +99,5 @@ function comment_template(id)
 	data=input.value;
 	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/3/comments?comment='+data,true);
 	request.send(null);
-	
+
 }
-
-
-
-
-
-
-
-
-
-
-
