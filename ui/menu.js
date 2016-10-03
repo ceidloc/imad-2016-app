@@ -8,18 +8,10 @@ for (var i=1; i <= 12; i++)
 };
 
 
-submit_btn_id[1].onclick=comment_template(1);
-submit_btn_id[2].onclick=comment_template(2);
+
+
 submit_btn_id[3].onclick=comment_template(3);
-submit_btn_id[4].onclick=comment_template(4);
-submit_btn_id[5].onclick=comment_template(5);
-submit_btn_id[6].onclick=comment_template(6);
-submit_btn_id[7].onclick=comment_template(7);
-submit_btn_id[8].onclick=comment_template(8);
-submit_btn_id[9].onclick=comment_template(9);
-submit_btn_id[10].onclick=comment_template(10);
-submit_btn_id[11].onclick=comment_template(11);
-submit_btn_id[12].onclick=comment_template(12);
+
 
 
 function comment_template(id)
