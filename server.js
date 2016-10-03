@@ -109,11 +109,14 @@ var menu_item=
 
 };
 
-
+//storing comments in a 2-d array as [page][comments]
 var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
-app.get('/ui/:id/comments', function (req, res) {//url type: ui/3/comments?comment=... here id = 3
+
+app.get('/ui/:id/comments', function (req, res)
+{
+  //url type: ui/3/comments?comment=... here id = 3
   var id=req.params.id;
-  var id_no=parseInt(id,10);
+  var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
   id_no-=1;
   var comment=req.query.comment;
   if (comment!==null)
@@ -122,6 +125,33 @@ app.get('/ui/:id/comments', function (req, res) {//url type: ui/3/comments?comme
 });
 
 
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'ui', 'index.html'));
+});
+
+app.get('/ui/menu_item/:no', function (req, res) {
+  var no=req.params.no;
+  res.send(menu_item_template(menu_item[no]));
+});
+
+app.get('/ui/style.css', function (req, res) {
+  res.sendFile(path.join(__dirname, 'ui', 'style.css'));
+});
+
+app.get('/ui/menu_comment/:id', function (req, res) {
+  id=req.params.id;
+  res.send(comment_template(id));
+});
+
+app.get('/ui/images/:image_no', function (req, res) {
+  var image_no=req.params.image_no
+  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.jpg'));
+});
+
+
+app.get('/ui/index.js',function(req, res){
+  res.sendFile(path.join(__dirname,'ui','main.js'));
+});
 
 function comment_template(id)
 {   var js_data=`
@@ -199,33 +229,6 @@ function menu_item_template(data)
     return html_data;
 }
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'ui', 'index.html'));
-});
-
-app.get('/ui/menu_item/:no', function (req, res) {
-  var no=req.params.no;
-  res.send(menu_item_template(menu_item[no]));
-});
-
-app.get('/ui/style.css', function (req, res) {
-  res.sendFile(path.join(__dirname, 'ui', 'style.css'));
-});
-
-app.get('/ui/menu_comment/:id', function (req, res) {
-  id=req.params.id;
-  res.send(comment_template(id));
-});
-
-app.get('/ui/images/:image_no', function (req, res) {
-  var image_no=req.params.image_no
-  res.sendFile(path.join(__dirname, 'ui', 'images',image_no));
-});
-
-
-app.get('/ui/index.js',function(req, res){
-  res.sendFile(path.join(__dirname,'ui','index.js'));
-});
 
 
 var port = 8080; // Use 8080 for local development because you might already have apache running on 80
