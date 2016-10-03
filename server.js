@@ -168,7 +168,7 @@ function generate_comment_list_from_array(comment)
 
 function comment_template(id)
 {   
-
+  id=1
   var js_data=`
     //get the submit element on this page by referencing it with given item_id
 
@@ -252,12 +252,12 @@ function menu_item_template(data)
         <div class="comment_head">
         Comments
         </div>
-        <ol id = 'ol_id_${item_id}' class="comment_list">
+        <ol id = 'ol_id_1' class="comment_list">
         </ol>
-        <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
+        <input type='text' id ='in_id_1' class ="input_box" placeholder="Submit a new comment!"></input>
         <br>
-        <input type='submit' id ='sub_id_${item_id}' class = "submit_btn" value='Submit'></input>
-        <script type="text/javascript" src="/ui/menu_comment/${item_id}">
+        <input type='submit' id ='sub_id_1' class = "submit_btn" value='Submit'></input>
+        <script type="text/javascript" src="/ui/menu_comment/1">
         </script>
       </body>
     </html>`;
