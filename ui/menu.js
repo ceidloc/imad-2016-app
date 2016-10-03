@@ -1,3 +1,5 @@
+
+
 var submit_btn_id=[];
 for (var i=1; i <= 12; i++) 
 {	//getting elements by id and storing them in an array
@@ -87,7 +89,7 @@ function comment_template(id)
 					{
 						new_list+="<li>"+comment[i]+"</li>";
 					};
-				old_list=document.getElementById('ul_id_3');
+				old_list=document.getElementById('ul_id_'+id.toString());
 				old_list.innerHTML=new_list;
 			}
 		}
@@ -95,9 +97,16 @@ function comment_template(id)
 	};
 
 	//making request
-	input=document.getElementById('in_id_3');
+	input=document.getElementById('in_id_'+id.toString());
 	data=input.value;
-	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/3/comments?comment='+data,true);
+	//sending request to page with id=current_id
+	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/id/comments?comment='+data,true);
 	request.send(null);
 
 }
+
+
+
+
+
+
