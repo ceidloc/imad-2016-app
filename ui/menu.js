@@ -12,6 +12,20 @@ for (var i=1; i <= 12; i++)
 
 submit_btn_id[3].onclick=function ()
 {
+	comment_template(3);
+
+	//making request
+	input=document.getElementById('in_id_3');
+	data=input.value;
+	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/3/comments?comment='+data,true);
+	request.send(null);
+
+};
+
+
+
+function comment_template(id)
+{
 	var request=new XMLHttpRequest();
 	request.onreadystatechange= function()
 	{
@@ -32,16 +46,7 @@ submit_btn_id[3].onclick=function ()
 		}
 
 	};
-
-
-
-	//making request
-	input=document.getElementById('in_id_3');
-	data=input.value;
-	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/3/comments?comment='+data,true);
-	request.send(null);
-
-};
+}
 
 
 
