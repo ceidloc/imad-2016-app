@@ -110,12 +110,15 @@ var menu_item=
 };
 
 
-var list=[];
+var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
 app.get('/ui/:id/comments', function (req, res) {//url type: ui/3/comments?comment=... here id = 3
-  var id_no=req.params.id;
+  var id=req.params.id;
+  var id_no=parseInt(id,10);
+  id_no-=1;
   var comment=req.query.comment;
-  list.push(comment);
-  res.send(JSON.stringify(list));
+  if (comment!==null)
+    {list[id_no].push(comment);}
+  res.send(JSON.stringify(list[id_no]));
 });
 
 
@@ -137,7 +140,7 @@ function comment_template(id)
                 var comment=JSON.parse(request.responseText);
                 var new_list="";
                 //creating a string to render in the inner html of ul on this article page
-                for (var i=comment.length;i>1;i--)    //i>1 and not i==1 as the first comment's value is undefined
+                for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
                   {
                     new_list+="<li>"+comment[i]+"</li>";
                   };
@@ -152,7 +155,7 @@ function comment_template(id)
           input=document.getElementById('in_id_${id}');
           data=input.value;
           //sending request to page with id=current_id
-          request.open('GET','http://ceidloc.imad.hasura-app.io/ui/id/comments?comment='+data,true);
+          request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
           request.send(null);
         };`
 
@@ -162,7 +165,7 @@ function comment_template(id)
 
 
 
-function template(data)
+function menu_item_template(data)
 {   
     var item_id=data.item_id;
     var title=data.title;
@@ -188,7 +191,6 @@ function template(data)
         <input type='text' id ='in_id_${item_id}' placeholder="type here!"></input>
         <input type='submit' id ='sub_id_${item_id}' value='submit'></input>
         <ul id = 'ul_id_${item_id}'>
-
         </ul>
         <script type="text/javascript" src="/ui/menu_comment/${item_id}">
         </script>
@@ -203,7 +205,7 @@ app.get('/', function (req, res) {
 
 app.get('/ui/menu_item/:no', function (req, res) {
   var no=req.params.no;
-  res.send(template(menu_item[no]));
+  res.send(menu_item_template(menu_item[no]));
 });
 
 app.get('/ui/style.css', function (req, res) {
