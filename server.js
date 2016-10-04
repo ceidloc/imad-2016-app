@@ -199,21 +199,41 @@ app.get('/ui/images/:image_no', function (req, res) {
 
 
 app.get('/ui/index.js',function(req, res){
-  res.sendFile(path.join(__dirname,'ui','main.js'));
+  //res.sendFile(path.join(__dirname,'ui','main.js'));
+  res.send(index_template());
 });
 
 
 
-
-function generate_comment_list_from_array(comment)
+function index_template() // returns js for index page 
 {
+  var js_data=``;
+  //writing events for each image,referenced by its id as mi_1,mi_2 ...
+  for(var i=1;i<=12; i++)
+  {
+    js_data+=`
+      menu_item_${i}=document.getElementById('mi_${i}');
+      menu_item_${i}.onmouseover=function()
+      {
+        menu_item_${i}.style.marginLeft ='200px';
+      };
 
-
-    return new_list;//return's string
+      menu_item_${i}.onmouseleave=function()
+      {
+        menu_item_${i}.style.marginLeft ='0px';
+      };
+    `;
+  };
+  return js_data;
 };
 
 
-function comment_template(id)
+
+
+
+
+
+function comment_template(id)//returns a js code unique for each page
 {   
   var js_data=`
     //get the submit element on this page by referencing it with given item_id
@@ -298,7 +318,7 @@ function menu_item_template(data)
         <div class="comment_head">
         Comments
         </div>
-        //creating seperate id's for each page by using the item_id from the js obj
+        <!-creating seperate id's for each page by using the item_id from the js obj->
         <ol id = 'ol_id_${item_id}' class="comment_list">
         </ol>
         <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
