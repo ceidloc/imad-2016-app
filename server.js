@@ -148,7 +148,7 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       title:'Menu',
       head:'Cafe au Late',
       body:`
-      Café au lait (pronounced: [kafe o lɛ]; French for "coffee with milk") is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
+      Café au lait is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
       `,
       item_id:'12'
     } 
@@ -285,8 +285,7 @@ function menu_item_template(data)
     </head>
     <title>${title}</title>
       <body>
-        <div class="header">
-            SleepyHead Cafe
+        <div class="header">SleepyHead Cafe
         </div>
         <hr>
         <div class='menu_head'>
@@ -299,7 +298,8 @@ function menu_item_template(data)
         <div class="comment_head">
         Comments
         </div>
-        <ol id = 'ol_id_${item_id}' class="comment_list">//creating seperate id's for each page by using the item_id from the js obj
+        //creating seperate id's for each page by using the item_id from the js obj
+        <ol id = 'ol_id_${item_id}' class="comment_list">
         </ol>
         <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
         <br>
