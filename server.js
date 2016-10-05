@@ -213,15 +213,32 @@ function index_template() // returns js for index page
   {
     js_data+=`
       menu_item_${i}=document.getElementById('mi_${i}');
-      menu_item_${i}.onmouseover=function()
-      {
-        menu_item_${i}.style.marginLeft ='200px';
+      var count_${i}=100;
+      var key_${i}=1;
+      function movearound_${i}()
+      { 
+        if(key_${i}==1)
+        { count_${i}=count_${i} + 10;
+          menu_item_${i}.style.marginLeft =count_${i} + 'px';
+          if (count_${i}==200)
+            key_${i}=0;
+        }
+        else
+        { if(count_${i} > 0)
+          {
+            count_${i}=count_${i} - 5;
+            menu_item_${i}.style.marginLeft =count_${i} + 'px';
+          }
+        }
       };
 
-      menu_item_${i}.onmouseleave=function()
-      {
-        menu_item_${i}.style.marginLeft ='0px';
+      menu_item_${i}.onmouseover=function()
+      { 
+        var interval=setInterval(movearound_${i},100);
+        //menu_item_${i}.style.marginLeft ='200px';
       };
+
+      
     `;
   };
   return js_data;
