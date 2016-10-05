@@ -213,8 +213,10 @@ function index_template() // returns js for index page
   {
     js_data+=`
       menu_item_${i}=document.getElementById('mi_${i}');
-      var count_${i}=100;
+      
+      var count_${i}=0;
       var key_${i}=1;
+
       function movearound_${i}()
       { 
         if(key_${i}==1)
@@ -229,16 +231,25 @@ function index_template() // returns js for index page
             count_${i}=count_${i} - 5;
             menu_item_${i}.style.marginLeft =count_${i} + 'px';
           }
+          //else
+           // key_${i}=1; 
         }
       };
 
       menu_item_${i}.onmouseover=function()
       { 
-        var interval=setInterval(movearound_${i},100);
-        //menu_item_${i}.style.marginLeft ='200px';
+      var interval=setInterval(movearound_${i},100);
       };
 
-      
+
+      menu_item_${i}.onmouseleave=function()
+      { 
+      if (key_${i}==0 && count_${i}==0);
+      {
+          count_${i}=0;
+          key_${i}=1;
+      } 
+      }; 
     `;
   };
   return js_data;
