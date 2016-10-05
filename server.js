@@ -244,11 +244,11 @@ function index_template() // returns js for index page
 
       menu_item_${i}.onmouseleave=function()
       { 
-      if (key_${i}==0 && count_${i}==0);
-      {
+       if (key_${i}==1);
+        {
           count_${i}=0;
           key_${i}=1;
-      } 
+        } 
       }; 
     `;
   };
