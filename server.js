@@ -245,7 +245,7 @@ function index_template() // returns js for index page
       menu_item_${i}.onmouseleave=function()
       { 
        //will upadte later
-        } 
+         
       }; 
     `;
   };
@@ -305,7 +305,7 @@ function comment_template(id)//returns a js code unique for each page
         data=input.value;
         //sending request to page with id=current_id
         request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/${id}/comments?comment='+data,true);
+        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/${id}/comments?comment='+data,true);
         request.send(null);
       };
 
