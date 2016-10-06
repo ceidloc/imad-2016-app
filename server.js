@@ -216,11 +216,12 @@ function index_template() // returns js for index page
       
       var count_${i}=0;
       var key_${i}=1;
+      var super_key_${i}=1;
 
       function movearound_${i}()
       { 
         if(key_${i}==1)
-        { count_${i}=count_${i} + 10;
+        { count_${i}=count_${i} + 25;
           menu_item_${i}.style.marginLeft =count_${i} + 'px';
           if (count_${i}==200)
             key_${i}=0;
@@ -228,23 +229,30 @@ function index_template() // returns js for index page
         else
         { if(count_${i} > 0)
           {
-            count_${i}=count_${i} - 5;
+            count_${i}=count_${i} - 25;
             menu_item_${i}.style.marginLeft =count_${i} + 'px';
+          
+          if (count_${i}==25)
+           super_key_${i}=1;  // entier back and forth animation is over 
+          
           }
-          //else
-           // key_${i}=1; 
         }
       };
 
       menu_item_${i}.onmouseover=function()
       { 
-      var interval=setInterval(movearound_${i},100);
+      if (super_key_${i}==1)
+        { 
+          super_key_${i}=0;//animation starts
+          var interval=setInterval(movearound_${i},100);
+        }
       };
 
+      super_key_${i}=1;
 
       menu_item_${i}.onmouseleave=function()
       { 
-       //will upadte later
+       //super_key_${i}=1;
          
       }; 
     `;
