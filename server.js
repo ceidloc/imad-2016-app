@@ -179,14 +179,24 @@ var bill={};
 
 app.get('/ui/get_bill_details_for_item_id/:id', function (req, res)
 {
+
   var id=req.params.id;
   var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
-  id_no-=1;
   bill[id_no][1]+=1; //increasing the quantity by 1
-  bill[id_no][2]+=menu_item[id_no][price]; //adding prise of 1 purchase
+  bill[id_no][2]+=menu_item[id_no].price; //adding prise of 1 purchase
+
+  var printed_bill="";
+  for (var i = 1;i<=12;i++)
+  {
+   if (bill[i][1]!=0)
+   {
+    printed_bill+="Coffee: "+bill[i][0] + " Qty: " +bill[i][1] + " price: "+bill[i][2] +"<br>";
+   }
+  }
+
 
   //for future commenting kappa
-  res.send(JSON.stringify(bill[id_no]));
+  res.send(JSON.stringify(printed_bill));
 });
 
 
@@ -441,7 +451,7 @@ function order_template(menu_item)
 
     html_data+=`
     </ol>
-    <ul id='bill'>bill?</ul>
+    <ul id='bill'></ul>
     <script type="text/javascript" src="/ui/order_page_js">
     </script>
     </body>
@@ -468,8 +478,7 @@ function order_template_js()
         {
           if (request.status === 200)
           {//take comments from the request and parse them into array 
-            var comment=JSON.parse(request.responseText);
-            bill.innerHTML="for AO use only";
+            bill.innerHTML=JSON.parse(request.responseText);
           }
         }
 
@@ -487,6 +496,7 @@ function order_template_js()
 
   return js_data;
 }
+
   
 
 var port = 8080; // Use 8080 for local development because you might already have apache running on 80
