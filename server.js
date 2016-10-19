@@ -9,7 +9,7 @@ app.use(morgan('combined'));
 
 var menu_item=
 {
-      '1':
+      '0':
     {
       title:'Menu',
       head:'Espresso',
@@ -21,11 +21,11 @@ Espresso is generally thicker than coffee brewed by other methods, has a higher 
 Espresso is also the base for other drinks such as a caffè latte, cappuccino, caffè macchiato, caffè mocha, flat white, or caffè Americano.
         `
       ,
-      item_id:'1',
+      item_id:'0',
       price:322
     },
 
-      '2':
+      '1':
     {
       title:'Menu',
       head:'Espresso Macchiato',
@@ -35,11 +35,11 @@ Espresso is also the base for other drinks such as a caffè latte, cappuccino, c
 
         Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
       `, 
-      item_id:'2',
+      item_id:'1',
       price:322
     },
 
-      '3':
+      '2':
     {
       title:'Menu',
       head:'Espresso con Panna',
@@ -48,11 +48,11 @@ Espresso is also the base for other drinks such as a caffè latte, cappuccino, c
 
 Historically served in a demitasse cup, it is perhaps a more old fashioned drink than a latte or cappuccino, though still very popular, whichever name it receives, at Coffeehouses in Budapest and Vienna.
       `, 
-      item_id:'3',
+      item_id:'2',
       price:322
     },
 
-      '4':
+      '3':
     {
       title:'Menu',
       head:'Caffe Latte',
@@ -65,11 +65,11 @@ Historically served in a demitasse cup, it is perhaps a more old fashioned drink
         Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
       `
       , 
-      item_id:'4',
+      item_id:'3',
       price:322
     },
 
-      '5':
+      '4':
     {
       title:'Menu',
       head:'Flat White',
@@ -77,22 +77,22 @@ Historically served in a demitasse cup, it is perhaps a more old fashioned drink
       `
       A flat white is an espresso based coffee beverage. The beverage is prepared by pouring microfoam (steamed milk consisting of small, fine bubbles with a glossy or velvety consistency) over a shot of espresso. It is somewhat similar to the traditional 140 ml (5 imp fl oz) cappuccino or the latte although smaller in volume, therefore having a higher proportion of coffee to milk, and milk that is more velvety in consistency – allowing the espresso to dominate the flavour, while being supported by the milk.
       `, 
-      item_id:'5',
+      item_id:'4',
       price:322
     },
 
-      '6':
+      '5':
     {
       title:'Menu',
       head:'Caffe Breve',
       body:`
       Caffe Breve is an American variation of a latte: a milk-based espresso drink using steamed half-and-half mixture of milk and cream instead of milk
       `, 
-      item_id:'6',
+      item_id:'5',
       price:322
     },
 
-      '7':
+      '6':
     {
       title:'Menu',
       head:'Cappuccino',
@@ -104,11 +104,11 @@ Cream may be used instead of milk and is often topped with cinnamon.It is typica
 
 The name comes from the Capuchin friars, referring to the colour of their habits,and in this context referring to the colour of the beverage when milk is added in small portion to dark, brewed coffee (today mostly espresso). The physical appearance of a modern cappuccino with espresso créma and steamed milk is a result of a long evolution of the drink.
       `, 
-      item_id:'7',
+      item_id:'6',
       price:322
     },
 
-      '8':
+      '7':
     {
       title:'Menu',
       head:'Caffe Mocha',
@@ -116,17 +116,28 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       `
       A caffè mocha also called mocaccino, is a chocolate-flavored variant of a caffè latte.
       `, 
-      item_id:'8',
+      item_id:'7',
       price:322
 
     },
 
-      '9':
+      '8':
     {
       title:'Menu',
       head:'Americano',
       body:`
       Caffè Americano or Americano (shortened from Italian: caffè americano or American Spanish: café americano, literally American coffee) is a style of coffee prepared by brewing espresso with added hot water, giving it a similar strength to, but different flavor from drip coffee. The strength of an Americano varies with the number of shots of espresso and the amount of water added. The name is also spelled with varying capitalization and use of diacritics: e.g., café americano.
+      `, 
+      item_id:'8',
+      price:322
+    },
+
+      '9':
+    {
+      title:'Menu',
+      head:'Latte Macchiato',
+      body:`
+      Latte macchiato is a coffee beverage; the name literally means stained milk. This refers to the method of preparation, wherein the milk is "stained" by the addition of espresso.
       `, 
       item_id:'9',
       price:322
@@ -135,33 +146,22 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       '10':
     {
       title:'Menu',
-      head:'Latte Macchiato',
+      head:'Red Eye',
       body:`
-      Latte macchiato is a coffee beverage; the name literally means stained milk. This refers to the method of preparation, wherein the milk is "stained" by the addition of espresso.
+      A red eye is a fortified coffee drink in which espresso is combined with normal drip coffee. It is known by various names, some of which refer to different variants.
       `, 
       item_id:'10',
       price:322
     },
 
-      '11':
-    {
-      title:'Menu',
-      head:'Red Eye',
-      body:`
-      A red eye is a fortified coffee drink in which espresso is combined with normal drip coffee. It is known by various names, some of which refer to different variants.
-      `, 
-      item_id:'11',
-      price:322
-    },
-
-    '12':
+    '11':
     {
       title:'Menu',
       head:'Cafe au Late',
       body:`
       Café au lait is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
       `,
-      item_id:'12',
+      item_id:'11',
       price:322
     } 
 
@@ -171,7 +171,7 @@ The name comes from the Capuchin friars, referring to the colour of their habits
 var bill={};
 //populating the bill
 
-  for (var i=1;i<=12;i++)
+  for (var i=0;i<=11;i++)
   {
     bill[i]=[0,0,0];
     bill[i][0]=menu_item[i].head;
@@ -182,11 +182,14 @@ app.get('/ui/get_bill_details_for_item_id/:id', function (req, res)
 
   var id=req.params.id;
   var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
-  bill[id_no][1]+=1; //increasing the quantity by 1
-  bill[id_no][2]+=menu_item[id_no].price; //adding prise of 1 purchase
+  if (id_no!=-1)
+  {
+    bill[id_no][1]+=1; //increasing the quantity by 1
+    bill[id_no][2]+=menu_item[id_no].price; //adding prise of 1 purchase
+  }
 
   var printed_bill="";
-  for (var i = 1;i<=12;i++)
+  for (var i = 0;i<=11;i++)
   {
    if (bill[i][1]!=0)
    {
@@ -208,7 +211,6 @@ app.get('/ui/:id/comments', function (req, res)
   //url type: ui/3/comments?comment=... here id = 3
   var id=req.params.id;
   var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
-  id_no-=1;
   var comment=req.query.comment;
   if (comment!=="")
     {list[id_no].push(comment);}
@@ -264,7 +266,7 @@ function index_template() // returns js for index page
 {
   var js_data=``;
   //writing events for each image,referenced by its id as mi_1,mi_2 ...
-  for(var i=1;i<=12; i++)
+  for(var i=0;i<=11; i++)
   {
     js_data+=`
       menu_item_${i}=document.getElementById('mi_${i}');
@@ -333,10 +335,10 @@ function comment_template(id)//returns a js code unique for each page
 
     submit_btn.onclick=function ()
       {
-        send_req_and_get_res(${id});
+        send_req_and_get_res();
       }   
 
-     send_req_and_get_res(${id});//when page is loaded
+     send_req_and_get_res();//when page is loaded
 
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
 
@@ -428,22 +430,28 @@ function order_template(menu_item)
     <head>
         <link href="/ui/style.css" rel="stylesheet" />
     </head>
-    <title>Place your order.<br>
-      Menu:<br>
+    <title>Place your order
     </title>
       <body>
         <div class="header">SleepyHead Cafe
         </div>
         <hr>
+        <div class="menu_head">
+        Place your order
+        </div>
+        <hr>
         <ol id = 'menu_page_item_list'>
   `
-  for (var i=1;i<=12;i++)
+  for (var i=0;i<=11;i++)
     {
       //extracting the item_id and head of each item present in the menu_list
       var item_id=menu_item[i].item_id;
       var head=menu_item[i].head;
+      var price=menu_item[i].price;
       html_data+=`<li>
-      ${head}   <div id='quantity_item_id_${item_id}'></div>
+      ${head}
+      <div id='quantity_item_id_${item_id}'></div>
+      <div id='price_item_id_${item_id}'>${price}</div>
       <input type='submit' id='place_this_item_id_${item_id}' class = "place_order_submit_btn" value='Add in cart'> </input>
       </li>
       `
@@ -463,35 +471,49 @@ function order_template(menu_item)
 
 function order_template_js()
 {
-  var js_data=`var bill=document.getElementById('bill');`;
+  var js_data=`var bill=document.getElementById('bill'); `;
 
-  for (var i= 1;i<=12;i++)
+  for (var i=-1;i<=11;i++)
   {
-    js_data+=`
-      var submit_for_item_id_${i}=document.getElementById('place_this_item_id_${i}');
-      submit_for_item_id_${i}.onclick=function()
+    if (i==-1)
+    {
+      js_data+=`send_req_and_get_res1(0);`;
+    }
+    else
+    {
+      js_data+=`
+        var submit_for_item_id_${i}=document.getElementById('place_this_item_id_${i}');
+        submit_for_item_id_${i}.onclick=function()
+          {
+            send_req_and_get_res${i}(${i});
+         };    
+      function send_req_and_get_res${i}(id_no)
       {
-      var request=new XMLHttpRequest();
-      request.onreadystatechange= function()
-      {
-        if (request.readyState===XMLHttpRequest.DONE)
+        var request=new XMLHttpRequest();
+        request.onreadystatechange= function()
         {
-          if (request.status === 200)
-          {//take comments from the request and parse them into array 
-            bill.innerHTML=JSON.parse(request.responseText);
+          if (request.readyState===XMLHttpRequest.DONE)
+          {
+            if (request.status === 200)
+            {
+              //take comments from the request and parse them into array 
+              bill.innerHTML=JSON.parse(request.responseText);
+            }
           }
-        }
 
-      };
+        };
 
-      //making request
-      request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${i}',true);
-      //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${i}',true);
-      request.send(null);
-    };
-
-    `
+        //making request
+        if (id_no === 0)
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/-1',true);
+        else 
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${i}',true);
+        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${i}',true);
+        request.send(null);
+      };`
+    }//else end
   }
+  
 
 
   return js_data;
