@@ -359,7 +359,10 @@ function comment_template(id)//returns a js code unique for each page
                 new_list+="<li>"+comment[i]+"</li>";
               };
             var old_list=document.getElementById('ol_id_${id}');
+            if (new_list!=="")
+            {
             old_list.innerHTML=new_list;
+            }
           }
         }
 
@@ -409,7 +412,7 @@ function menu_item_template(data)
         Comments
         </div>
         <!-creating seperate id's for each page by using the item_id from the js obj->
-        <ol id = 'ol_id_${item_id}' class="comment_list">
+        <ol id = 'ol_id_${item_id}' class="comment_list">Be the first to comment!
         </ol>
         <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
         <br>
@@ -459,7 +462,7 @@ function order_template(menu_item)
 
     html_data+=`
     </ol>
-    <ul id='bill'></ul>
+    <ul id='bill'>Your cart</ul>
     <script type="text/javascript" src="/ui/order_page_js">
     </script>
     </body>
@@ -497,7 +500,11 @@ function order_template_js()
             if (request.status === 200)
             {
               //take comments from the request and parse them into array 
-              bill.innerHTML=JSON.parse(request.responseText);
+              new_order=JSON.parse(request.responseText);
+              if(new_order!=="")
+              {
+              bill.innerHTML=new_order;
+              }
             }
           }
 

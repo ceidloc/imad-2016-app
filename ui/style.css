@@ -18,6 +18,20 @@ body {
 	font-size: 290%;
 }
 
+.menu {
+
+    margin-top: 100px;
+    margin-left: 100px;
+    font-weight: bold;
+    font-size: 150%
+}
+
+.menu_icon {
+    height: 216px;
+    width: 215px
+}
+
+
 .comment_head {
 	margin-top: 20px;
 	margin-left:150px;
@@ -54,15 +68,22 @@ body {
 .comment_list {
 	background-color:#FBFFB9;
 	margin-top: 25px;
-	margin-left:25px;
+	margin-left:150px;
+	border:3px solid #F6B352;
+	width:600px;
 	font-family: sans-serif;
 	font-size: 120%;
 }
 
 #menu_page_item_list {
+	margin: 0;
+    overflow: hidden;
+    float:left;
+    width:450px;
+	border:3px solid #F6B352;	
 	background-color:#FBFFB9;
+	margin-left:125px;
 	margin-top: 25px;
-	margin-left:25px;
 	font-family: sans-serif;
 	font-size: 120%;
 }
@@ -74,15 +95,14 @@ body {
 
 }
 
-.menu {
-
-    margin-top: 100px;
-    margin-left: 100px;
-    font-weight: bold;
-    font-size: 150%
-}
-
-.menu_icon {
-    height: 216px;
-    width: 215px
+#bill{
+	display: inline-block;
+    background-color:#77919d;
+    border: 3px solid ;
+    color: white;
+	margin-left:20px;
+	margin-top:25px;
+    padding: 14px 16px;
+    width:200px;
+    text-decoration: none;
 }
