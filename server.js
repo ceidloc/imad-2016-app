@@ -513,6 +513,7 @@ function order_template_js()
         //making request
         if (id_no === -1)
         request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/-1',true);
+        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/-1',true);
         else 
         request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${i}',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${i}',true);
