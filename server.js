@@ -480,7 +480,7 @@ function order_template_js()
   {
     if (i==-1)
     {
-      js_data+=`send_req_and_get_res1(0);`;
+      js_data+=`send_req_and_get_res0(-1);`;
     }
     else
     {
@@ -511,7 +511,7 @@ function order_template_js()
         };
 
         //making request
-        if (id_no === 0)
+        if (id_no === -1)
         request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/-1',true);
         else 
         request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${i}',true);
