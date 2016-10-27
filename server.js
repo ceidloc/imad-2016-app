@@ -1,17 +1,17 @@
 var express = require('express');
 var morgan = require('morgan');
 var path = require('path');
-var Pool =require('pg').POOL;
+var Pool =require('pg').Pool;
 var app = express();
 app.use(morgan('combined'));
 
 config=
 {
-  user:,
-  database:,
-  host:,
-  port:,
-  password:
+  user:'ceidloc',
+  database:'ceidloc',
+  host:'db.imad.hasura-app.io',
+  port:'5432',
+  password:process.env.DB_PASSWORD
 };
 
 pool =new Pool(config);
@@ -27,7 +27,7 @@ var menu_item=
           Espresso is coffee brewed by forcing a small amount of nearly boiling water under pressure through finely ground coffee beans. 
 Espresso is generally thicker than coffee brewed by other methods, has a higher concentration of suspended and dissolved solids, and has crema on top (a foam with a creamy consistency).As a result of the pressurized brewing process, the flavors and chemicals in a typical cup of espresso are very concentrated. 
 
-Espresso is also the base for other drinks such as a caffè latte, cappuccino, caffè macchiato, caffè mocha, flat white, or caffè Americano.
+Espresso is also the base for other drinks such as a caffÃ¨ latte, cappuccino, caffÃ¨ macchiato, caffÃ¨ mocha, flat white, or caffÃ¨ Americano.
         `
       ,
       item_id:'0',
@@ -40,7 +40,7 @@ Espresso is also the base for other drinks such as a caffè latte, cappuccino, c
       head:'Espresso Macchiato',
       body:
       `
-      In northern Europe and Scandinavia the term café au lait has traditionally been used for the combination of espresso and milk. In France, caffè latte is mostly known from the original Italian name of the drink (caffè latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crème and in German Milchkaffee or (in Austria) Wiener Melange.
+      In northern Europe and Scandinavia the term cafÃ© au lait has traditionally been used for the combination of espresso and milk. In France, caffÃ¨ latte is mostly known from the original Italian name of the drink (caffÃ¨ latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crÃ¨me and in German Milchkaffee or (in Austria) Wiener Melange.
 
         Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
       `, 
@@ -53,7 +53,7 @@ Espresso is also the base for other drinks such as a caffè latte, cappuccino, c
       title:'Menu',
       head:'Espresso con Panna',
       body:`
-      Espresso con panna, which means "espresso with cream" in Italian, is a single or double shot of espresso topped with whipped cream. In the United States it may also be called café Vienne. In France and in the United Kingdom it's called café Viennois.
+      Espresso con panna, which means "espresso with cream" in Italian, is a single or double shot of espresso topped with whipped cream. In the United States it may also be called cafÃ© Vienne. In France and in the United Kingdom it's called cafÃ© Viennois.
 
 Historically served in a demitasse cup, it is perhaps a more old fashioned drink than a latte or cappuccino, though still very popular, whichever name it receives, at Coffeehouses in Budapest and Vienna.
       `, 
@@ -69,7 +69,7 @@ Historically served in a demitasse cup, it is perhaps a more old fashioned drink
       `
         A latte is a coffee drink made with espresso and steamed milk.
 
-        In northern Europe and Scandinavia the term café au lait has traditionally been used for the combination of espresso and milk. In France, caffè latte is mostly known from the original Italian name of the drink (caffè latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crème and in German Milchkaffee or (in Austria) Wiener Melange.
+        In northern Europe and Scandinavia the term cafÃ© au lait has traditionally been used for the combination of espresso and milk. In France, caffÃ¨ latte is mostly known from the original Italian name of the drink (caffÃ¨ latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crÃ¨me and in German Milchkaffee or (in Austria) Wiener Melange.
 
         Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
       `
@@ -84,7 +84,7 @@ Historically served in a demitasse cup, it is perhaps a more old fashioned drink
       head:'Flat White',
       body:
       `
-      A flat white is an espresso based coffee beverage. The beverage is prepared by pouring microfoam (steamed milk consisting of small, fine bubbles with a glossy or velvety consistency) over a shot of espresso. It is somewhat similar to the traditional 140 ml (5 imp fl oz) cappuccino or the latte although smaller in volume, therefore having a higher proportion of coffee to milk, and milk that is more velvety in consistency – allowing the espresso to dominate the flavour, while being supported by the milk.
+      A flat white is an espresso based coffee beverage. The beverage is prepared by pouring microfoam (steamed milk consisting of small, fine bubbles with a glossy or velvety consistency) over a shot of espresso. It is somewhat similar to the traditional 140 ml (5 imp fl oz) cappuccino or the latte although smaller in volume, therefore having a higher proportion of coffee to milk, and milk that is more velvety in consistency â allowing the espresso to dominate the flavour, while being supported by the milk.
       `, 
       item_id:'4',
       price:322
@@ -109,9 +109,9 @@ Historically served in a demitasse cup, it is perhaps a more old fashioned drink
       `
       A cappuccino is an Italian coffee drink that is traditionally prepared with double espresso, hot milk, and steamed milk foam.
 
-Cream may be used instead of milk and is often topped with cinnamon.It is typically smaller in volume than a caffè latte, with a thicker layer of micro foam.
+Cream may be used instead of milk and is often topped with cinnamon.It is typically smaller in volume than a caffÃ¨ latte, with a thicker layer of micro foam.
 
-The name comes from the Capuchin friars, referring to the colour of their habits,and in this context referring to the colour of the beverage when milk is added in small portion to dark, brewed coffee (today mostly espresso). The physical appearance of a modern cappuccino with espresso créma and steamed milk is a result of a long evolution of the drink.
+The name comes from the Capuchin friars, referring to the colour of their habits,and in this context referring to the colour of the beverage when milk is added in small portion to dark, brewed coffee (today mostly espresso). The physical appearance of a modern cappuccino with espresso crÃ©ma and steamed milk is a result of a long evolution of the drink.
       `, 
       item_id:'6',
       price:322
@@ -123,7 +123,7 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       head:'Caffe Mocha',
       body:
       `
-      A caffè mocha also called mocaccino, is a chocolate-flavored variant of a caffè latte.
+      A caffÃ¨ mocha also called mocaccino, is a chocolate-flavored variant of a caffÃ¨ latte.
       `, 
       item_id:'7',
       price:322
@@ -135,7 +135,7 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       title:'Menu',
       head:'Americano',
       body:`
-      Caffè Americano or Americano (shortened from Italian: caffè americano or American Spanish: café americano, literally American coffee) is a style of coffee prepared by brewing espresso with added hot water, giving it a similar strength to, but different flavor from drip coffee. The strength of an Americano varies with the number of shots of espresso and the amount of water added. The name is also spelled with varying capitalization and use of diacritics: e.g., café americano.
+      CaffÃ¨ Americano or Americano (shortened from Italian: caffÃ¨ americano or American Spanish: cafÃ© americano, literally American coffee) is a style of coffee prepared by brewing espresso with added hot water, giving it a similar strength to, but different flavor from drip coffee. The strength of an Americano varies with the number of shots of espresso and the amount of water added. The name is also spelled with varying capitalization and use of diacritics: e.g., cafÃ© americano.
       `, 
       item_id:'8',
       price:322
@@ -168,7 +168,7 @@ The name comes from the Capuchin friars, referring to the colour of their habits
       title:'Menu',
       head:'Cafe au Late',
       body:`
-      Café au lait is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
+      CafÃ© au lait is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
       `,
       item_id:'11',
       price:322
@@ -246,9 +246,10 @@ app.get('/ui/menu_item/:no', function (req, res) {
       }
       else
       {
-        res.send(menu_item_template(result.rows));
+        res.send(menu_item_template(result.rows[0]));
+        //res.send(result.rows)
       }
-    };);
+    });
 
   //res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
 });
