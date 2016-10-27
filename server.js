@@ -173,8 +173,8 @@ var bill={};
 
   for (var i=0;i<=11;i++)
   {
-    bill[i]=[0,0,0];
-    bill[i][0]=menu_item[i].head;
+    bill[i]=[menu_item[i].head,0,0];
+    //bill[i][0]=menu_item[i].head;
   };
 
 app.get('/ui/get_bill_details_for_item_id/:id', function (req, res)
@@ -193,7 +193,7 @@ app.get('/ui/get_bill_details_for_item_id/:id', function (req, res)
   {
    if (bill[i][1]!=0)
    {
-    printed_bill+="Coffee: "+bill[i][0] + " Qty: " +bill[i][1] + " price: "+bill[i][2] +"<br>";
+    printed_bill+="Coffee: "+bill[i][0] + "<br>Qty: " +bill[i][1] + " price: "+bill[i][2] +"<br>";
    }
   }
 
@@ -304,7 +304,11 @@ function index_template() // returns js for index page
           var interval=setInterval(movearound_${i},100);
         }
       };
+      
 
+
+      //*******************************************************************************************************************************************************************
+      //experiment with setInterval
       super_key_${i}=1;
 
       menu_item_${i}.onmouseleave=function()
@@ -337,7 +341,9 @@ function comment_template(id)//returns a js code unique for each page
       {
         send_req_and_get_res();
       }   
-
+      
+      //*******************************************************************************************************************************************************************
+      //think!
      send_req_and_get_res();//when page is loaded
 
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
@@ -347,6 +353,8 @@ function comment_template(id)//returns a js code unique for each page
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
+        //*******************************************************************************************************************************************************************
+        //Loading
         if (request.readyState===XMLHttpRequest.DONE)
         {
           if (request.status === 200)
