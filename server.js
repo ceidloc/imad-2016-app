@@ -1,11 +1,20 @@
 var express = require('express');
 var morgan = require('morgan');
 var path = require('path');
-
+var Pool =require('pg').POOL;
 var app = express();
 app.use(morgan('combined'));
 
+config=
+{
+  user:,
+  database:,
+  host:,
+  port:,
+  password:
+};
 
+pool =new Pool(config);
 
 var menu_item=
 {
@@ -224,7 +233,24 @@ app.get('/', function (req, res) {
 
 app.get('/ui/menu_item/:no', function (req, res) {
   var no=req.params.no;
-  res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
+
+  pool.query('SELECT * FROM menu_items WHERE item_id=$1',[no],function(err,result)//* = item_id,title,body,head
+    {
+      if (err)
+      {
+        res.Status(500).send(err.toString());
+      }
+      else if (result.rows.length===0)
+      {
+        res.Status(404).send("item not present in menu."); 
+      }
+      else
+      {
+        res.send(menu_item_template(result.rows));
+      }
+    };);
+
+  //res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
 });
 
 app.get('/ui/style.css', function (req, res) {
