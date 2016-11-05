@@ -5,6 +5,15 @@ var Pool =require('pg').Pool;
 var app = express();
 app.use(morgan('combined'));
 
+//###############################
+//path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
+
+    var spawn = require('child_process').spawn,
+    py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    
+//##############################
+
+
 config=
 {
   user:'ceidloc',
@@ -16,243 +25,275 @@ config=
 
 pool =new Pool(config);
 
-var menu_item=
-{
-      '0':
-    {
-      title:'Menu',
-      head:'Espresso',
-      body:
-        ` 
-          Espresso is coffee brewed by forcing a small amount of nearly boiling water under pressure through finely ground coffee beans. 
-Espresso is generally thicker than coffee brewed by other methods, has a higher concentration of suspended and dissolved solids, and has crema on top (a foam with a creamy consistency).As a result of the pressurized brewing process, the flavors and chemicals in a typical cup of espresso are very concentrated. 
-
-Espresso is also the base for other drinks such as a caffÃ¨ latte, cappuccino, caffÃ¨ macchiato, caffÃ¨ mocha, flat white, or caffÃ¨ Americano.
-        `
-      ,
-      item_id:'0',
-      price:322
-    },
-
-      '1':
-    {
-      title:'Menu',
-      head:'Espresso Macchiato',
-      body:
-      `
-      In northern Europe and Scandinavia the term cafÃ© au lait has traditionally been used for the combination of espresso and milk. In France, caffÃ¨ latte is mostly known from the original Italian name of the drink (caffÃ¨ latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crÃ¨me and in German Milchkaffee or (in Austria) Wiener Melange.
-
-        Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
-      `, 
-      item_id:'1',
-      price:322
-    },
-
-      '2':
-    {
-      title:'Menu',
-      head:'Espresso con Panna',
-      body:`
-      Espresso con panna, which means "espresso with cream" in Italian, is a single or double shot of espresso topped with whipped cream. In the United States it may also be called cafÃ© Vienne. In France and in the United Kingdom it's called cafÃ© Viennois.
-
-Historically served in a demitasse cup, it is perhaps a more old fashioned drink than a latte or cappuccino, though still very popular, whichever name it receives, at Coffeehouses in Budapest and Vienna.
-      `, 
-      item_id:'2',
-      price:322
-    },
-
-      '3':
-    {
-      title:'Menu',
-      head:'Caffe Latte',
-      body:
-      `
-        A latte is a coffee drink made with espresso and steamed milk.
-
-        In northern Europe and Scandinavia the term cafÃ© au lait has traditionally been used for the combination of espresso and milk. In France, caffÃ¨ latte is mostly known from the original Italian name of the drink (caffÃ¨ latte or caffelatte); a combination of espresso and steamed milk equivalent to a "latte" is in French called grand crÃ¨me and in German Milchkaffee or (in Austria) Wiener Melange.
-
-        Variants include replacing the coffee with another drink base such as masala chai (spiced Indian tea), mate or matcha, and other types of milk, such as soy milk or almond milk are also used.
-      `
-      , 
-      item_id:'3',
-      price:322
-    },
-
-      '4':
-    {
-      title:'Menu',
-      head:'Flat White',
-      body:
-      `
-      A flat white is an espresso based coffee beverage. The beverage is prepared by pouring microfoam (steamed milk consisting of small, fine bubbles with a glossy or velvety consistency) over a shot of espresso. It is somewhat similar to the traditional 140 ml (5 imp fl oz) cappuccino or the latte although smaller in volume, therefore having a higher proportion of coffee to milk, and milk that is more velvety in consistency â allowing the espresso to dominate the flavour, while being supported by the milk.
-      `, 
-      item_id:'4',
-      price:322
-    },
-
-      '5':
-    {
-      title:'Menu',
-      head:'Caffe Breve',
-      body:`
-      Caffe Breve is an American variation of a latte: a milk-based espresso drink using steamed half-and-half mixture of milk and cream instead of milk
-      `, 
-      item_id:'5',
-      price:322
-    },
-
-      '6':
-    {
-      title:'Menu',
-      head:'Cappuccino',
-      body:
-      `
-      A cappuccino is an Italian coffee drink that is traditionally prepared with double espresso, hot milk, and steamed milk foam.
-
-Cream may be used instead of milk and is often topped with cinnamon.It is typically smaller in volume than a caffÃ¨ latte, with a thicker layer of micro foam.
-
-The name comes from the Capuchin friars, referring to the colour of their habits,and in this context referring to the colour of the beverage when milk is added in small portion to dark, brewed coffee (today mostly espresso). The physical appearance of a modern cappuccino with espresso crÃ©ma and steamed milk is a result of a long evolution of the drink.
-      `, 
-      item_id:'6',
-      price:322
-    },
-
-      '7':
-    {
-      title:'Menu',
-      head:'Caffe Mocha',
-      body:
-      `
-      A caffÃ¨ mocha also called mocaccino, is a chocolate-flavored variant of a caffÃ¨ latte.
-      `, 
-      item_id:'7',
-      price:322
-
-    },
-
-      '8':
-    {
-      title:'Menu',
-      head:'Americano',
-      body:`
-      CaffÃ¨ Americano or Americano (shortened from Italian: caffÃ¨ americano or American Spanish: cafÃ© americano, literally American coffee) is a style of coffee prepared by brewing espresso with added hot water, giving it a similar strength to, but different flavor from drip coffee. The strength of an Americano varies with the number of shots of espresso and the amount of water added. The name is also spelled with varying capitalization and use of diacritics: e.g., cafÃ© americano.
-      `, 
-      item_id:'8',
-      price:322
-    },
-
-      '9':
-    {
-      title:'Menu',
-      head:'Latte Macchiato',
-      body:`
-      Latte macchiato is a coffee beverage; the name literally means stained milk. This refers to the method of preparation, wherein the milk is "stained" by the addition of espresso.
-      `, 
-      item_id:'9',
-      price:322
-    },
-
-      '10':
-    {
-      title:'Menu',
-      head:'Red Eye',
-      body:`
-      A red eye is a fortified coffee drink in which espresso is combined with normal drip coffee. It is known by various names, some of which refer to different variants.
-      `, 
-      item_id:'10',
-      price:322
-    },
-
-    '11':
-    {
-      title:'Menu',
-      head:'Cafe au Late',
-      body:`
-      CafÃ© au lait is coffee with hot milk added. It differs from white coffee, which is coffee with cold milk or other whitener added.
-      `,
-      item_id:'11',
-      price:322
-    } 
 
 
-};
-
-var bill={};
+//var bill={};
 //populating the bill
 
-  for (var i=0;i<=11;i++)
-  {
-    bill[i]=[menu_item[i].head,0,0];
-    //bill[i][0]=menu_item[i].head;
-  };
+  //for (var i=0;i<=11;i++)
+  //{
+   // bill[i]=[menu_item[i].head,0,0];
+    //          bill[i][0]=menu_item[i].head;
+  //};
 
-app.get('/ui/get_bill_details_for_item_id/:id', function (req, res)
+app.get('/ui/get_bill_details_for_item_id/:cart_id/:item_id', function (req, res)// replace /1/: by /:cart_id
 {
 
-  var id=req.params.id;
-  var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
-  if (id_no!=-1)
+  var item_id=req.params.item_id;
+  item_id=parseInt(item_id,10);//convertin id containg string type  value to int type decimal value
+  var cart_id=req.params.cart_id;
+  cart_id=parseInt(cart_id,10);
+  //var cart_id=parseInt(id,10);//convertin id containg string type  value to int type decimal value
+  
+  pool.query("SELECT quantity FROM cart WHERE cart_id=$1 AND item_id=$2 ",[cart_id,item_id],function(err,result)
   {
-    bill[id_no][1]+=1; //increasing the quantity by 1
-    bill[id_no][2]+=menu_item[id_no].price; //adding prise of 1 purchase
-  }
+    if (err)
+    {
+      res.status(500).send(err.toString());
+    }
+    else if (result.rows.length===0)//first insertion of this item in this cart 
+    { 
+      //if (result.rows.length===0)
+      //res.send(order_template(result.rows) );
+      //else
 
-  var printed_bill="";
-  for (var i = 0;i<=11;i++)
-  {
-   if (bill[i][1]!=0)
-   {
-    printed_bill+="Coffee: "+bill[i][0] + "<br>Qty: " +bill[i][1] + " price: "+bill[i][2] +"<br>";
-   }
-  }
+      console.log("inside cs js insert cart result:",result);
+     cart_bill_format(res,cart_id,JSON.stringify(["insert item",item_id]));
+    }
+    else
+    {
+      console.log("inside cs js update cart result:",result);
+      console.log("inside cs js update cart quantity:",result.rows[0].quantity);
+      cart_bill_format(res,cart_id,JSON.stringify(["update item",item_id,result.rows[0].quantity]));
+    }
 
+  });
+          
+ 
+});
 
-  //for future commenting kappa
-  res.send(JSON.stringify(printed_bill));
+app.get('/ui/place_order/', function (req, res) {// add /:cart_id
+  //sending the order as menu list with quantity html doc generated by this template
+  //res.send(order_template(menu_item));
+  cart_id=1;//req.params.cart_id;//new cart or load cart
+
+  cart_bill_format(res,cart_id,"load cart");
 });
 
 
-//storing comments in a 2-d array as [page][comments]
-var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
+app.get('/ui/order_page_js/:cart_id', function (req, res) {
+  var cart_id=req.params.cart_id;
+  cart_id=parseInt(cart_id,10);
+  //sending the order as menu list with quantity html doc generated by this template
+  res.send(order_template_js(cart_id));
+  
+});
 
-app.get('/ui/:id/comments', function (req, res)
+var cart_counter=0;
+function cart_bill_format(res,cart_id,data)
 {
-  //url type: ui/3/comments?comment=... here id = 3
-  var id=req.params.id;
-  var id_no=parseInt(id,10);//convertin id containg string type  value to int type decimal value
+   console.log("\n\n\n BrokeBack") 
+//type's of query's to handle : data value
+//from interleaf 1.insert->create new: new cart;2.select->give list of carts:give cart list,3. on click on cart_id from list,link to order_page with clicked cart_id
+//from server_template's on load select->load cart with given cart_id:load cart
+//from client_side_template on click add, 1.insert->the item in cart given cart_id item_id : " ['insert item',item_id] "
+//                                     or 2.update->update cart given cart_id,item_id : update cart
+//                                    and 3.recycle server_template's select query for client side templating with modified data:c-side load cart
+
+
+
+// WRITE app.get for new cart using cart counter
+  if (data.substr(2,11)==="update item")
+  {
+    console.log("inside c_b_f insert cart data:",data);
+    data=JSON.parse(data);
+    //data=['',item_id,quantity]
+    pool.query("UPDATE cart SET quantity=$3 WHERE cart_id=$1 AND item_id=$2",[cart_id,data[1],data[2]+1],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else
+      {
+        console.log("inside c_b_f insert cart result:",result);
+        cart_bill_format(res,cart_id,"cs-load cart");
+      }
+
+    });
+
+  }
+  else if (data.substr(2,11)==="insert item")
+  {
+
+    console.log("inside c_b_f insert cart data:",data);
+    data=JSON.parse(data);
+    //data=['',item_id]
+    pool.query("INSERT INTO cart(cart_id,item_id,quantity) values ($1,$2,$3) ",[cart_id,data[1],1],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else
+      { 
+        console.log("inside c_b_f insert cart result:",result);
+        cart_bill_format(res,cart_id,"cs-load cart");
+      }
+
+    });
+
+  }
+  else 
+  {
+    //if (data==="load cart")
+    pool.query("SELECT m.item_id,m.head,m.price,c.quantity FROM cart as c LEFT JOIN menu_items as m  ON c.item_id=m.item_id WHERE c.cart_id=$1 ORDER BY m.item_id",
+      [cart_id],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else if (data==="load cart")
+      { 
+        //if (result.rows.length===0)
+        //res.send(order_template(result.rows) );
+        //else
+         pool.query("SELECT item_id,head,price FROM menu_items ORDER BY item_id",function(err,menu_items)
+          {
+            if (err)
+            {
+              res.status(500).send(err.toString());
+            }
+            else if (result.rows.length!==0)
+            { 
+              console.log("inside load cart result:",result);
+              console.log("inside load cart menu_items:",menu_items);
+             res.send(order_template( JSON.stringify(menu_items.rows) , JSON.stringify(result.rows) ,cart_id ) );
+            }
+            else
+            {
+              console.log("inside load cart else result:",result);
+              console.log("inside load cart else menu_items:",menu_items);
+             res.send(order_template( JSON.stringify(menu_items.rows),JSON.stringify("empty cart") ,cart_id) );
+            }
+
+          });
+
+        }
+        else if (data==="cs-load cart")
+        { 
+          console.log("inside c_b_f cs-load cart result:",result);
+          res.send(JSON.stringify(result.rows));
+        }
+
+    });
+  }
+
+};
+
+
+//storing comments in a 2-d array as [page][comments]
+//var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
+
+app.get('/ui/menu_item/:item_id/comment', function (req, res)
+{
+  //url type: ui/3/comment?comment=... here id = 3
+  var item_id=req.params.item_id;
+  var item_id=parseInt(item_id,10);//convertin id containg string type  value to int type decimal value
   var comment=req.query.comment;
   if (comment!=="")
-    {list[id_no].push(comment);}
+    {
+      //list[id_no].push(comment);
+      comment_format(res,JSON.stringify(['insert comment',comment]),item_id);
+
+    }
   //returning only the row containing the comments from current page as JSON string represntation of that row,stored in a 2-D array
-  res.send(JSON.stringify(list[id_no]));
+  //res.send(JSON.stringify(list[id_no])); 
 });
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
 
-app.get('/ui/menu_item/:no', function (req, res) {
-  var no=req.params.no;
+app.get('/ui/menu_item/:id', function (req, res) {
+  var id=req.params.id;
+  var item_id=parseInt(id,10);//convertin id containg string type  value to int type decimal value
 
-  pool.query('SELECT * FROM menu_items WHERE item_id=$1',[no],function(err,result)//* = item_id,title,body,head
+  pool.query('SELECT * FROM menu_items WHERE item_id=$1',[item_id],function(err,result)//* = item_id,title,body,head
     {
       if (err)
       {
-        res.Status(500).send(err.toString());
+        res.status(500).send(err.toString());
       }
       else if (result.rows.length===0)
       {
-        res.Status(404).send("item not present in menu."); 
+        res.status(404).send("item not present in menu."); 
       }
       else
       {
-        res.send(menu_item_template(result.rows[0]));
+
+        //res.send(menu_item_template(result.rows[0],comment_format(item_id) ));  
+        comment_format(res,JSON.stringify( result.rows[0] ),item_id);  
+
+        //res.send(menu_item_template(result.rows[0]));
         //res.send(result.rows)
       }
     });
 
   //res.send(menu_item_template(menu_item[no]));//using menu_item_template to create many html pages using jsobject
 });
+
+
+function comment_format(res,data,item_id)
+{ 
+  
+  if (data.substr(2,14)==="insert comment")
+    //data=['insert comments',comment]
+  { 
+    console.log("inside comment_format IF,data:",data);
+    console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data)[1]);
+    pool.query('INSERT into comments(text,item_id) values($1,$2)',[JSON.parse(data)[1],item_id],function(err,result)//data[1]=comment
+      {
+        if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+          //res.send(comment);
+          comment_format(res,"new comment",item_id);
+      } );
+  }
+  else
+  {
+    pool.query('SELECT text from comments WHERE item_id=$1 ORDER BY comment_id',[item_id],function(err,comments)
+        {
+          if (err)
+          { 
+           res.status(500).send(err.toString());
+          }
+          if (data==="new comment")
+          { 
+            console.log("in select comments",comments);
+            res.send(  comments.rows[comments.rows.length-1].text ) ;
+          }
+          else
+          { 
+            console.log("in select comments data != new comments \n BrokeBack ...");
+            //two parametrs ,one is a json object and the other is an array of comments,are sent to the template
+            //return(JSON.stringify( comments.rows ) );
+            //###########################################################################################################################################################################################################
+            if (comments.rows.length!==0)
+            {
+              res.send(menu_item_template(JSON.parse(data),JSON.stringify ( comments.rows ) ) );
+            }
+            else
+            {
+               res.send(menu_item_template(JSON.parse(data),'Be the first to comment!' ) );
+            }
+          }
+        } );
+    }
+};
 
 app.get('/ui/style.css', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'style.css'));
@@ -264,16 +305,7 @@ app.get('/ui/menu_comment/:id', function (req, res) {
   res.send(comment_template(id));
 });
 
-app.get('/ui/place_order', function (req, res) {
-  //sending the order as menu list with quantity html doc generated by this template
-  res.send(order_template(menu_item));
-});
 
-
-app.get('/ui/order_page_js', function (req, res) {
-  //sending the order as menu list with quantity html doc generated by this template
-  res.send(order_template_js());
-});
 
 app.get('/ui/images/:image_no', function (req, res) {
   var image_no=req.params.image_no
@@ -371,7 +403,7 @@ function comment_template(id)//returns a js code unique for each page
       
       //*******************************************************************************************************************************************************************
       //think!
-     send_req_and_get_res();//when page is loaded
+    // send_req_and_get_res();//when page is loaded
 
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
 
@@ -386,18 +418,25 @@ function comment_template(id)//returns a js code unique for each page
         {
           if (request.status === 200)
           {//take comments from the request and parse them into array 
-            var comment=JSON.parse(request.responseText);
-            var new_list="";
+            //var comment=JSON.parse(request.responseText);
+            var comment=request.responseText;
+            //var new_list="";
             //creating a string to render in the inner html of ol on this article page
-            for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
-             {
-                new_list+="<li>"+comment[i]+"</li>";
-              };
+            //for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
+              //{
+                //new_list+="<li>"+comment[i].text+"</li>";
+              //};
             var old_list=document.getElementById('ol_id_${id}');
-            if (new_list!=="")
-            {
-            old_list.innerHTML=new_list;
-            }
+            //if (new_list!=="")
+            //{
+            //old_list.innerHTML=new_list;
+           // if (old_list.innerHTML== 'Be the first to comment!')
+        //{old_list.innerHTML='<li>'+comment+'</li>';}
+            //else
+              //{
+                old_list.innerHTML='<li>'+comment+'</li>'+old_list.innerHTML;
+              //}
+            //}
           }
         }
 
@@ -407,8 +446,8 @@ function comment_template(id)//returns a js code unique for each page
       input=document.getElementById('in_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('GET','http://localhost:8080/ui/${id}/comments?comment='+data,true);
-      //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/${id}/comments?comment='+data,true);
+      request.open('GET','http://localhost:8080/ui/menu_item/${id}/comment?comment='+data,true);
+      //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/menu_item/${id}/comment?comment='+data,true);
       request.send(null);
     };
 
@@ -420,12 +459,13 @@ function comment_template(id)//returns a js code unique for each page
 
 
 
-function menu_item_template(data)
+function menu_item_template(data,comments)//returns html doc
 {   
     var item_id=data.item_id;
     var title=data.title;
     var body=data.body;
     var head=data.head;
+
 
     var html_data=`<html>
     <head>
@@ -447,7 +487,25 @@ function menu_item_template(data)
         Comments
         </div>
         <!-creating seperate id's for each page by using the item_id from the js obj->
-        <ol id = 'ol_id_${item_id}' class="comment_list">Be the first to comment!
+        <ol id = 'ol_id_${item_id}' class="comment_list">
+        `;
+
+        if(comments==='Be the first to comment!')
+        {   
+          html_data+=comments;
+        }
+        else
+        {
+          comments=JSON.parse(comments);
+          //creating a string to render in the inner html of ol on this article page
+          for (var i=comments.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
+            {
+              html_data+="<li>"+comments[i].text+"</li>";
+            };
+        }
+        
+          
+        html_data+= `
         </ol>
         <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
         <br>
@@ -461,8 +519,10 @@ function menu_item_template(data)
 }
 
 
-function order_template(menu_item)
-{
+function order_template(menu_items,cart,cart_id)
+{ 
+  menu_items=JSON.parse(menu_items);
+  cart=JSON.parse(cart);
   html_data=`
     <html>
     <head>
@@ -483,9 +543,9 @@ function order_template(menu_item)
   for (var i=0;i<=11;i++)
     {
       //extracting the item_id and head of each item present in the menu_list
-      var item_id=menu_item[i].item_id;
-      var head=menu_item[i].head;
-      var price=menu_item[i].price;
+      var item_id=menu_items[i].item_id;
+      var head=menu_items[i].head;
+      var price=menu_items[i].price;
       html_data+=`<li>
       ${head}
       <div id='quantity_item_id_${item_id}'></div>
@@ -497,8 +557,26 @@ function order_template(menu_item)
 
     html_data+=`
     </ol>
-    <ul id='bill'>Your cart</ul>
-    <script type="text/javascript" src="/ui/order_page_js">
+    <ul id='cart'>`
+
+     if (cart==="empty cart")
+        { 
+          html_data+='Empty Cart';
+
+        }
+     else
+        {
+          //creating a string to render in the inner html of ol on this article page
+          for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
+            {
+              html_data+="<li>"+cart[i].head +" Qty:"+cart[i].quantity +" prices:"
+              + (cart[i].quantity * cart[i].price ).toString() +"</li>";
+            };
+
+        }
+
+    html_data+=`</ul>
+    <script type="text/javascript" src="/ui/order_page_js/${cart_id}">
     </script>
     </body>
     </html>
@@ -507,11 +585,11 @@ function order_template(menu_item)
   return html_data;
 }
 
-function order_template_js()
-{
-  var js_data=`var bill=document.getElementById('bill'); `;
+function order_template_js(cart_id)
+{ 
+  var js_data=`var cart=document.getElementById('cart'); `;
 
-  for (var i=-1;i<=11;i++)
+  for (var i=0;i<=11;i++)//i=-1
   {
     if (i==-1)
     {
@@ -535,10 +613,20 @@ function order_template_js()
             if (request.status === 200)
             {
               //take comments from the request and parse them into array 
-              new_order=JSON.parse(request.responseText);
+             var new_cart=JSON.parse(request.responseText);
+
+              var new_order="";
+            //creating a string to render in the inner html of ol on this article page
+            for (var i=0;i<=new_cart.length-1;i++)   
+              {
+                new_order+="<li>"+new_cart[i].head +" Qty:"+new_cart[i].quantity +" prices:"
+              + (new_cart[i].quantity * new_cart[i].price ).toString() +"</li>";
+              };
+
+              //new_order=request.responseText;
               if(new_order!=="")
               {
-              bill.innerHTML=new_order;
+              cart.innerHTML=new_order;
               }
             }
           }
@@ -547,11 +635,11 @@ function order_template_js()
 
         //making request
         if (id_no === -1)
-        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/-1',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/-1',true);
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         else 
-        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${i}',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${i}',true);
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         request.send(null);
       };`
     }//else end
