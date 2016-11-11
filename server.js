@@ -19,8 +19,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-    var spawn = require('child_process').spawn,
-    py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    //var spawn = require('child_process').spawn,
+    //py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -50,6 +50,55 @@ var log_in_block=`
 <br><br><br>
 `;
 
+var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="postOnClick();">
+</input><br>`;
+
+app.get('/ui/log_out',function(req,res)
+{
+  //if user is logged in delete session token
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+    console.log("inside log_out end point");
+    delete req.session.auth.user_id;
+    res.send("logged out!");
+    console.log("inside log_out end point after delete");
+  }
+});
+
+
+app.get('/ui/log_out_js/previous_page',function(req,res)
+{
+  var previous_page=req.query.previous_page;
+  console.log("previous_page:",req.query);
+  res.send(log_out_template_js(previous_page));
+});
+
+function log_out_template_js(previous_page)
+{
+  if (previous_page==="default")
+    previous_page="";
+  js_data=`
+function postOnClick()
+{
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() 
+    {
+      if (request.readyState == 4 && request.status == 200) 
+      {    
+          console.log("inside readyState");
+          //request.setRequestHeader('Content-Type','application/json');
+          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/${previous_page}";
+      }
+    }
+    console.log("outside readyState");
+    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/log_out',true);
+    request.send(null);
+}
+
+
+  `;
+  return js_data;
+}
 
 
 //app.post('/ui/log_in_block',function(req,res)
@@ -73,12 +122,6 @@ app.post('/ui/log_in_page',function(req,res)//not used so far,will update to mak
 });
 
 
-function log_in_block_template(previous_page)
-{
-  html_data=`
-
-  `;
-}
 
 function log_in_page_template(previous_page)
 {
@@ -134,7 +177,7 @@ function log_in_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io//${previous_page}';
+          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
           }
         }
       }
@@ -149,7 +192,7 @@ function log_in_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io//ui/log_in',true);
+    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -165,11 +208,11 @@ function postOnClick()
       {    
           console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://ceidloc.imad.hasura-app.io//ui/sign_up_page/previous_page?previous_page=${previous_page}";
+          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}";
       }
     }
     console.log("outside readyState");
-    request.open('GET','http://ceidloc.imad.hasura-app.io//ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
+    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.setRequestHeader('Content-Type','application/json');
     //request.send(JSON.stringify({"previous_page":"${previous_page}"})); 
@@ -297,7 +340,7 @@ function sign_up_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io//${previous_page}';
+          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
           }
         }
       }
@@ -312,7 +355,7 @@ function sign_up_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io//ui/sign_up',true);
+    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -437,7 +480,7 @@ app.get('/ui/order_page/', function (req, res) {// add /:cart_id
    {
     //redirecting to login page,using the log_in_page_tempate
     //after login redirects to order_page,aka the current end point 
-    previous_page="ui/order_page";
+    previous_page="order_page";
     res.send(log_in_page_template(previous_page));
    }
   
@@ -823,7 +866,7 @@ function comment_template(id)//returns a js code unique for each page
       input=document.getElementById('in_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://ceidloc.imad.hasura-app.io//ui/menu_item/${id}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/menu_item/${id}',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/menu_item/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
@@ -890,6 +933,10 @@ function menu_item_template(data,comments,log_in_details)//returns html doc
         {
           html_data+="<br><div class=comment_head>not logged in! </div>";
           html_data+=log_in_block;
+          html_data+=`
+          <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=menu_item/${item_id} ">
+          </script>
+        `;
         }
         else
         {
@@ -898,18 +945,15 @@ function menu_item_template(data,comments,log_in_details)//returns html doc
           <br>
           <input type='submit' id ='sub_id_${item_id}' class = "submit_btn" value='Submit'></input>
           `;
-        }
-        html_data+=`
-        <script type="text/javascript" src="/ui/menu_comment/${item_id}">
-        </script>
-        `;
-         if (log_in_details==="not logged in")
-        {
+          html_data+="<br>"+log_out_block;
           html_data+=`
-          <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=ui/menu_item/${item_id} ">
+          <script type="text/javascript" src="/ui/menu_comment/${item_id}">
           </script>
-        `;
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=menu_item/${item_id} ">
+          </script>
+        `; 
         }
+
         html_data+=`
       </body>
     </html>`;
@@ -937,8 +981,8 @@ function order_template(menu_items,cart,cart_id)
         Place your order
         </div>
         <hr>
-        <ol id = 'menu_page_item_list'>
-  `;
+        `;
+        html_data+=log_out_block+`<ol id = 'menu_page_item_list'>`;
   
     for (var i=0;i<=11;i++)
     {
@@ -978,6 +1022,8 @@ function order_template(menu_items,cart,cart_id)
 
     html_data+=`</ul>
     <script type="text/javascript" src="/ui/order_page_js/${cart_id}">
+    </script>
+    <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=order_page">
     </script>
     </body>
     </html>
@@ -1036,10 +1082,10 @@ function order_template_js(cart_id)
 
         //making request
         if (id_no === -1)
-        request.open('GET','http://ceidloc.imad.hasura-app.io//ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         else 
-        request.open('GET','http://ceidloc.imad.hasura-app.io//ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         request.send(null);
       };`;
