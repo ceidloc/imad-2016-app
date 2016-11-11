@@ -39,6 +39,12 @@ body {
 	font-size: 220%;
 }
 
+.page_head_block {
+	margin-top: 20px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
 .center {
 	margin-top: 50px;
 	margin-left:150px;
