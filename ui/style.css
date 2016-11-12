@@ -1,5 +1,5 @@
 
-body {
+.cafe_body {
     font-family: sans-serif;
     background-color: #FDD692;
 }
@@ -19,7 +19,6 @@ body {
 }
 
 .menu {
-
     margin-top: 100px;
     margin-left: 100px;
     font-weight: bold;
@@ -89,7 +88,7 @@ body {
 	border:3px solid #F6B352;	
 	background-color:#FBFFB9;
 	margin-left:125px;
-	margin-top: 25px;
+	margin-top: 30px;
 	font-family: sans-serif;
 	font-size: 120%;
 }
@@ -107,8 +106,24 @@ body {
     border: 3px solid ;
     color: white;
 	margin-left:20px;
-	margin-top:25px;
+	margin-top:30px;
     padding: 14px 16px;
-    width:200px;
+    width:300px;
     text-decoration: none;
+}
+
+
+
+.side_nav_link{
+	margin-top:-25px;
+	float:right;
+	font-family: sans-serif;
+	font-size: 75%;
+
+}
+
+.side_nav_bar{
+	color:white;
+	font-family: sans-serif;
+	font-size: 100%;
 }
