@@ -20,9 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-    //var spawn = require('child_process').spawn,
-   // py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
-    
+  //  var spawn = require('child_process').spawn,
+    //py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
 //##############################
 
 
@@ -614,9 +613,7 @@ function cart_bill_format(res,cart_id,data)
 };
 
 
-//storing comments in a 2-d array as [page][comments]
-//var list=[[],[],[],[],[],[],[],[],[],[],[],[]];
-
+//post requst to get insert comment
 app.post('/ui/menu_item/:item_id', function (req, res)
 { 
   //can only add comments if logged in!
@@ -652,7 +649,7 @@ app.get('/ui/menu_item/:id', function (req, res) {
    log_in_details="logged in";
 
  //selecting the menu_item from the menu_items table corresponding to the given id
-  pool.query('SELECT a.head,a.body,m.item_id,m.price FROM article_table AS a,menu_items AS m WHERE m.item_id=$1',[item_id],function(err,result)
+  pool.query('SELECT a.head,a.body,m.item_id,m.price FROM article_table AS a JOIN menu_items AS m ON a.article_id=m.item_id WHERE m.item_id=$1',[item_id],function(err,result)
     {
       if (err)
       {
@@ -733,6 +730,7 @@ app.get('/ui/style.css', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'style.css'));
 });
 
+//returns js for menu_item page
 app.get('/ui/menu_comment/:id', function (req, res) {
   item_id=req.params.id;
   //using menu_item_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
