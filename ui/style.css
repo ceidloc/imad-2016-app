@@ -1,7 +1,68 @@
+.home_page{
+	font-family: sans-serif;
+    background-color: #004e66;
+}
+.home_page_header{
+	background-color: #ff5f2e;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+.home_page_header_small{
+	margin-top: 10px;
+	text-align:center;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 290%;
+	background-color:#ff7473;
+	
+}
+.featured_pages{
+	text-align: center;
+	margin-top: 20px;
+	margin-left:325px;
+	font-family: sans-serif;
+	font-size: 80%;	
+	background-color:#e1eef6;
+	width:600px;
+}
 
-.cafe_body {
+.home_page_categories_head{
+	margin-top: 10px;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 290%;
+	background-color:#fcbe32;
+}
+
+#home_page_categories{
+	text-align:left;
+	background-color:#e1eef6;
+	margin-top: 25px;
+	margin-left:325px;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 50%;
+}
+
+
+.cafe_menu {
     font-family: sans-serif;
     background-color: #FDD692;
+}
+
+.Test {
+    font-family: sans-serif;
+    background-color: #FDD692;
+}
+
+
+
+.cafe_menu_comment_head {
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
 }
 
 .header {
@@ -11,7 +72,7 @@
 	font-size: 350%;
 }
 
-.menu_head {
+.page_head {
 	margin-top: 10px;
 	text-align: center;
 	font-family: sans-serif;
@@ -31,12 +92,14 @@
 }
 
 
-.comment_head {
+.cafe_menu_comment_head {
 	margin-top: 20px;
 	margin-left:150px;
 	font-family: sans-serif;
 	font-size: 220%;
 }
+
+
 
 .page_head_block {
 	margin-top: 20px;
@@ -50,6 +113,8 @@
 	text-align: left;
 	font-family: sans-serif;
 	font-size: 120%;
+	width:1000px;
+
 }
 
 .input_box {
@@ -70,7 +135,7 @@
 
 }
 
-.comment_list {
+.cafe_menu_comment_list {
 	background-color:#FBFFB9;
 	margin-top: 25px;
 	margin-left:150px;
@@ -80,7 +145,8 @@
 	font-size: 120%;
 }
 
-#menu_page_item_list {
+/* for cafe_menu_list in the order_page*/
+#cafe_menu_item_list {
 	margin: 0;
     overflow: hidden;
     float:left;
@@ -126,4 +192,123 @@
 	color:white;
 	font-family: sans-serif;
 	font-size: 100%;
+}
+
+
+.Test,.News  {
+    font-family: sans-serif;
+    background-color: #58C9B9;
+}
+
+.Test_comment_head,.News_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Test_header,.News_header {
+	background-color: #519D9E;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Test_comment_list,.News_comment_list {
+	background-color:#9DC8C8;
+	margin-top: 25px;
+	margin-left:150px;
+	border:1px solid #D1B6E1;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.Music  {
+	color:white;
+    font-family: sans-serif;
+    background-color: #52616a;
+}
+
+.Music_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Music_header {
+	background-color: #282c37;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Music_comment_list {
+	background-color:#a3a1a1;
+	margin-top: 25px;
+	margin-left:150px;
+	border:1px solid #D1B6E1;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.Sports ,.Food {
+    font-family: sans-serif;
+    background-color: #ffc952;
+}
+
+.Sports_comment_head,.Food_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Sports_header,.Food_header {
+	background-color: #ff7473;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Sports_comment_list,.Food_comment_list {
+	background-color:#47b8e0;
+	margin-top: 25px;
+	margin-left:150px;
+	border:1px solid #34314c;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.Bugs  {
+	color:#feee7d;
+    font-family: sans-serif;
+    background-color: #8F2D56;
+}
+
+.Bugs_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Bugs_header {
+	background-color: #D499B9;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Bugs_comment_list {
+	background-color:#ef5285;
+	margin-top: 25px;
+	margin-left:150px;
+	border:5px solid #AACD6E;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
 }

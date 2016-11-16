@@ -12,7 +12,7 @@ app.use(morgan('combined'));
 app.use(bodyParse.json());
 app.use(session (
   {
-    secret:'random-string',
+    secret:crypto.randomBytes(128).toString('hex'),
     cookie:{maxAge:1000*60*60*24}//last's one day
   })
 );
@@ -21,7 +21,8 @@ app.use(session (
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
   //  var spawn = require('child_process').spawn,
-    //py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    
 //##############################
 
 
@@ -39,26 +40,46 @@ pool =new Pool(config);
 
 //log_in block and log_in block_js
 
-var nav_bar=`
-  <div class=side_nav_bar>
+var cafe_nav_bar=`
+  <div class=side_cafe_nav_bar>
   <a href='/'>Home</a>
-  <a href='/ui/cafe_home_page'>SleepyHead Cafe</a>
-  <a href='/ui/order_page'>Order</a>
+  <a href='/ui/cafe_home_page'>Milky Way Cafe</a>
+  <a href='/ui/a/cafe_menu/order_page'>Order</a>
   </div>
         `;
 
 var cafe_layout=`
   <!doctype html>
   <html>
-  <title>SleepyHead Cafe</title>
+  <title>Milky Way Cafe</title>
     <head>
         <link href="/ui/style.css" rel="stylesheet" />
     </head>
-    <body class=cafe_body> <!-- background="/ui/images/bg_image"> -->
-        <div class="header">SleepyHead Cafe
+    <body class=cafe_menu> <!-- background="/ui/images/bg_image"> -->
+        <div class="header">Milky Way Cafe
         </div>
         <hr>
-`+nav_bar;
+`+cafe_nav_bar;
+
+var nav_bar=`
+  <div class=side_cafe_nav_bar>
+  <a href='PLACEHOLDER'>PLACEHOLDER</a>
+  <a href='PLACEHOLDER'>PLACEHOLDER</a>
+  </div>
+        `;
+
+var article_layout=`
+  <!doctype html>
+  <html>
+  <title>PLACEHOLDER</title>
+    <head>
+        <link href="/ui/style.css" rel="stylesheet" />
+    </head>
+    <body class=PLACEHOLDER> 
+        <div class="PLACEHOLDER">PLACEHOLDER
+        </div>
+        <hr>
+`;
 
 
 var log_in_block=`
@@ -77,10 +98,10 @@ app.get('/ui/log_out',function(req,res)
   //if user is logged in delete session token
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
-    console.log("inside log_out end point");
+    //console.log("inside log_out end point");
     delete req.session.auth.user_id;
     res.send("logged out!");
-    console.log("inside log_out end point after delete");
+    //console.log("inside log_out end point after delete");
   }
 });
 
@@ -88,7 +109,7 @@ app.get('/ui/log_out',function(req,res)
 app.get('/ui/log_out_js/previous_page',function(req,res)
 {
   var previous_page=req.query.previous_page;
-  console.log("previous_page:",req.query);
+  //console.log("previous_page:",req.query);
   res.send(log_out_template_js(previous_page));
 });
 
@@ -104,12 +125,12 @@ function postOnClick()
     {
       if (request.readyState == 4 && request.status == 200) 
       {    
-          console.log("inside readyState");
+          //console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
           window.location.href = "http://ceidloc.imad.hasura-app.io/ui/${previous_page}";
       }
     }
-    console.log("outside readyState");
+    //console.log("outside readyState");
     request.open('GET','http://ceidloc.imad.hasura-app.io/ui/log_out',true);
     request.send(null);
 }
@@ -134,17 +155,40 @@ app.get('/ui/log_in_page',function(req,res)
 });
 
 app.get('/ui/log_in_page/previous_page',function(req,res)
-{
+{//url -> log_in_page/previous_page?previous_page=...
   var previous_page=req.query.previous_page;
   res.send(log_in_page_template(previous_page));
 });
 
 
 function log_in_page_template(previous_page)
-{
-  html_data=cafe_layout;
+{ 
+    console.log("\n\n inside log_in_page_template,previous_page:",previous_page);
+    var category=previous_page.split('/')[1];
+    if (category===undefined)
+      category=previous_page.split('/')[0];
+    console.log("\n\n inside log_in_page_template,category:",category);
+
+    //replcaing PLACEHOLDER with desired value
+    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
+
+    //replcaing PLACEHOLDER with desired value
+    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
+     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
+     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
+     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
+    
+
+    var html_data=layout_for_this_category+nav_bar_for_this_category;
+    
+    if (category==='cafe_menu'||category==='cafe_home_page')
+      html_data=cafe_layout;
+
   html_data+=`
-    <div class="menu_head">
+    <div class="page_head">
     Log in!
     <hr>
     </div>
@@ -162,7 +206,7 @@ function log_in_page_template(previous_page)
 app.get('/ui/log_in_page_js/previous_page',function(req,res)
 {
   var previous_page=req.query.previous_page;
-  console.log("previous_page:",req.query);
+  //console.log("previous_page:",req.query);
   res.send(log_in_page_template_js(previous_page));
 });
 
@@ -229,12 +273,12 @@ function postOnClick()
     {
       if (request.readyState == 4 && request.status == 200) 
       {    
-          console.log("inside readyState");
+          //console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
           window.location.href = "http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}";
       }
     }
-    console.log("outside readyState");
+    //console.log("outside readyState");
     request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.setRequestHeader('Content-Type','application/json');
@@ -316,9 +360,31 @@ app.get('/ui/sign_up_page/:previous_page',function(req,res)
 
 function sign_up_page_template(previous_page)
 { 
-  var html_data=cafe_layout;
+    console.log("\n\n inside sign_up_page_template,previous_page:",previous_page);
+    var category=previous_page.split('/')[1];
+    if (category===undefined)
+      category=previous_page.split('/')[0];
+    console.log("\n\n inside sign_up_page_template,category:",category);
+    //replcaing PLACEHOLDER with desired value
+    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
+
+    //replcaing PLACEHOLDER with desired value
+    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
+
+
+    var html_data=layout_for_this_category+nav_bar_for_this_category;
+
+    if (category==='cafe_menu'||category==='cafe_home_page')
+      html_data=cafe_layout;
+
   html_data+=`
-    <div class="menu_head">
+    <div class="page_head">
     Sign Up!
     <hr>
     </div>
@@ -476,19 +542,19 @@ app.get('/ui/get_bill_details_for_item_id/:cart_id/:item_id', function (req, res
     }
     else if (result.rows.length===0)//first insertion of this item in this cart 
     { 
-      console.log("inside cs js insert cart result:",result);
+      //console.log("inside cs js insert cart result:",result);
      cart_bill_format(res,cart_id,JSON.stringify(["insert item",item_id]),log_in_details);
     }
     else
     {
-      console.log("inside cs js update cart result:",result);
-      console.log("inside cs js update cart quantity:",result.rows[0].quantity);
+      //console.log("inside cs js update cart result:",result);
+      //console.log("inside cs js update cart quantity:",result.rows[0].quantity);
       cart_bill_format(res,cart_id,JSON.stringify(["update item",item_id,result.rows[0].quantity]),log_in_details);
     }
   });
 });
 
-app.get('/ui/order_page/', function (req, res) {// add /:cart_id 
+app.get('/ui/a/cafe_menu/order_page/', function (req, res) {// add /:cart_id 
   if (req.session && req.session.auth && req.session.auth.user_id )
    {
      cart_id=req.session.auth.user_id.user_id;//change to auth.cart_id;
@@ -500,14 +566,14 @@ app.get('/ui/order_page/', function (req, res) {// add /:cart_id
    {
     //redirecting to login page,using the log_in_page_tempate
     //after login redirects to order_page,aka the current end point 
-    previous_page="order_page";
+    previous_page="a/cafe_menu/order_page";
     res.send(log_in_page_template(previous_page));
    }
   
 });
 
 
-app.get('/ui/order_page_js/:cart_id', function (req, res) {
+app.get('/ui/a/cafe_menu/order_page_js/:cart_id', function (req, res) {
   var cart_id=req.params.cart_id;
   cart_id=parseInt(cart_id,10);
   res.send(order_template_js(cart_id));
@@ -517,6 +583,7 @@ app.get('/ui/order_page_js/:cart_id', function (req, res) {
 var cart_counter=0;
 function cart_bill_format(res,cart_id,data)
 {
+  //data is an array with format ['type of query',]
 //type's of query's to handle : data value
 //from interleaf 1.insert->create new: new cart;2.select->give list of carts:give cart list,3. on click on cart_id from list,link to order_page with clicked cart_id
 //from server_template's on load select->load cart with given cart_id:load cart
@@ -526,7 +593,7 @@ function cart_bill_format(res,cart_id,data)
 
   if (data.substr(2,11)==="update item")
   {
-    console.log("inside c_b_f insert cart data:",data);
+    //console.log("inside c_b_f insert cart data:",data);
     data=JSON.parse(data);
     //data=['',item_id,quantity]
     pool.query("UPDATE cart SET quantity=$3 WHERE cart_id=$1 AND item_id=$2",[cart_id,data[1],data[2]+1],function(err,result)
@@ -537,7 +604,7 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       {
-        console.log("inside c_b_f insert cart result:",result);
+        //console.log("inside c_b_f insert cart result:",result);
         cart_bill_format(res,cart_id,"cs-load cart");
       }
 
@@ -547,7 +614,7 @@ function cart_bill_format(res,cart_id,data)
   else if (data.substr(2,11)==="insert item")
   {
     //add item,corresponding to given item_id,to the cart,corresponding to given cart_id, and set quantity to 1
-    console.log("inside c_b_f insert cart data:",data);
+    //console.log("inside c_b_f insert cart data:",data);
     data=JSON.parse(data);
     //data=['',item_id]
     pool.query("INSERT INTO cart(cart_id,item_id,quantity) values ($1,$2,$3) ",[cart_id,data[1],1],function(err,result)
@@ -558,7 +625,7 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       { 
-        console.log("inside c_b_f insert cart result:",result);
+        //console.log("inside c_b_f insert cart result:",result);
         cart_bill_format(res,cart_id,"cs-load cart");
       }
 
@@ -569,7 +636,7 @@ function cart_bill_format(res,cart_id,data)
   {
     //if (data==="load cart")
     //selecting all the items from menu,which exits in cart,corresponding to given cart_id,along with its quantity from cart
-    pool.query("SELECT m.item_id,m.price,c.quantity FROM cart AS c LEFT JOIN menu_items AS m ON c.item_id=m.item_id WHERE c.cart_id=$1 ORDER BY m.item_id",
+    pool.query("SELECT m.item_id,m.price,c.quantity FROM cart AS c LEFT JOIN cafe_menu AS m ON c.item_id=m.item_id WHERE c.cart_id=$1 ORDER BY m.item_id",
       [cart_id],function(err,result)
     {
       if (err)
@@ -578,14 +645,14 @@ function cart_bill_format(res,cart_id,data)
       }
       else if (data==="cs-load cart")
       {//data for client side,ajax data call 
-          console.log("inside c_b_f cs-load cart result:",result);
+          //console.log("inside c_b_f cs-load cart result:",result);
           res.send(JSON.stringify(result.rows));
       }
       else if (data==="load cart")
       { 
-        //selecting all the menu_items present in the menu,with its corresponding head from article_table,where article_id=0,aka the cafe shop owner
-         pool.query("SELECT a.head,m.price,m.item_id FROM article_table AS a LEFT JOIN menu_items AS m ON a.article_id=m.item_id",
-          function(err,menu_items)
+        //selecting all the cafe_menu present in the menu,with its corresponding head from article_table,where article_id=0,aka the cafe shop owner
+         pool.query("SELECT a.head,m.price,m.item_id FROM article_table AS a LEFT JOIN cafe_menu AS m ON a.article_id=m.item_id ORDER BY m.item_id",
+          function(err,cafe_menu)
           {
             if (err)
             {
@@ -593,15 +660,15 @@ function cart_bill_format(res,cart_id,data)
             }
             else if (result.rows.length!==0)
             { 
-              console.log("inside load cart result:",result);
-              console.log("inside load cart menu_items:",menu_items);
-             res.send(order_template( JSON.stringify(menu_items.rows) , JSON.stringify(result.rows) ,cart_id ) );
+              //console.log("inside load cart result:",result);
+              //console.log("inside load cart cafe_menu:",cafe_menu);
+             res.send(order_template( JSON.stringify(cafe_menu.rows) , JSON.stringify(result.rows) ,cart_id ) );
             }
             else
             {
-              console.log("inside load cart else result:",result);
-              console.log("inside load cart else menu_items:",menu_items);
-             res.send(order_template( JSON.stringify(menu_items.rows),JSON.stringify("empty cart") ,cart_id ) );
+              //console.log("inside load cart else result:",result);
+              //console.log("inside load cart else cafe_menu:",cafe_menu);
+             res.send(order_template( JSON.stringify(cafe_menu.rows),JSON.stringify("empty cart") ,cart_id ) );
             }
 
           });
@@ -613,8 +680,8 @@ function cart_bill_format(res,cart_id,data)
 };
 
 
-//post requst to get insert comment
-app.post('/ui/menu_item/:item_id', function (req, res)
+//post requst to insert comment
+app.post('/ui/a/:category/:article_id', function (req, res)
 { 
   //can only add comments if logged in!
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -622,13 +689,13 @@ app.post('/ui/menu_item/:item_id', function (req, res)
     log_in_details=req.session.auth.user_id.user_id;
 
     //url type: ui/3/comment?comment=... here id = 3
-    var item_id=req.params.item_id;
-    var item_id=parseInt(item_id,10);//convertin id containg string type  value to int type decimal value
+    var article_id=req.params.article_id;
+    var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
     var comment=req.body.comment;
     if (comment!=="")
       {
         //list[id_no].push(comment);
-        comment_format(res,JSON.stringify(['insert comment',comment]),item_id,log_in_details);
+        comment_format(res,['insert comment',comment],article_id,log_in_details);
 
       }
     //returning only the row containing the comments from current page as JSON string represntation of that row,stored in a 2-D array
@@ -640,68 +707,235 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
 
-app.get('/ui/menu_item/:id', function (req, res) {
-  var id=req.params.id;
-  var item_id=parseInt(id,10);//convertin id containg string type  value to int type decimal value
+app.get('/ui/main.js',function(req, res){
+  //res.sendFile(path.join(__dirname,'ui','main.js'));
+  res.sendFile(path.join(__dirname, 'ui', 'main.js'));
+});
+
+app.get('/ui/a/:category/submit_page',function(req,res)
+  {
+    var category=req.params.category;
+    if (req.session && req.session.auth && req.session.auth.user_id )
+    {
+      log_in_details=req.session.auth.user_id.user_id;
+      res.send(submit_page_template(category));
+    } 
+    else
+    {
+      //redirecting to login page,using the log_in_page_tempate
+      //after login redirects to submit_page,aka the current end point 
+      previous_page="a/"+category+"/submit_page";
+      res.send(log_in_page_template(previous_page));
+    } 
+  });
+
+app.get('/ui/a/:category/submit_page_js',function(req,res)
+  {
+    var category=req.params.category;
+    res.send(submit_page_template_js(category))
+  });
+
+
+function submit_page_template(category)
+{
+  
+    //replcaing PLACEHOLDER with desired value
+    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
+    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
+
+    //replcaing PLACEHOLDER with desired value
+    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
+    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
+
+
+    var html_data=layout_for_this_category+nav_bar_for_this_category;
+
+    if (category==='cafe_menu')
+      html_data=cafe_layout;
+
+  html_data+=`
+    <div class="page_head">
+    Submit An Article!
+    <hr>
+    </div>
+  `;
+  html_data+=`
+  <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title"></input><br>
+  <input type='text' id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text"></input><br>
+  <input type='submit' id ='article_sumbit_button_${category}' class = "submit_btn" value='Submit Article!'></input><br><br><hr>
+
+  `;
+
+  html_data+=`  
+  </body>
+  <script type="text/javascript" src="/ui/a/${category}/submit_page_js">
+  </script>
+  </html>
+  `;
+  return html_data;
+}
+
+function submit_page_template_js(category)
+{
+  var js_data=`
+    //get the submit element on this page by referencing it with given article_id
+
+    submit_btn=document.getElementById('article_sumbit_button_${category}');
+
+
+    //use send_req_and_get_res when page is loaded and when submit_btn is clicked
+
+    submit_btn.onclick=function ()
+      {
+        send_req_and_get_res();
+      }   
+      
+      //*******************************************************************************************************************************************************************
+      //think!
+    // send_req_and_get_res();//when page is loaded
+
+     //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
+
+    function send_req_and_get_res()
+    {
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        //*******************************************************************************************************************************************************************
+        //Loading
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {
+            var res=JSON.parse(request.responseText);
+            console.log("inside 200, res",res);
+            //res=['',{article_id:value}]
+            if (res[0]==="successfully created article")
+            {
+            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}/'+res[1].article_id;
+            }
+          }
+          else if (request.status === 404) 
+          {
+          submit_btn.value = 'username not available';
+          }
+          else if (request.status === 500) 
+          {
+          submit_btn.value = 'Something went wrong on the server';
+          } 
+          else 
+          {
+          submit_btn.value = 'Something went wrong on the server';
+          }
+        }
+
+      };
+
+      //making request
+      head=document.getElementById('article_sumbit_head_button_${category}').value;
+      body=document.getElementById('article_sumbit_body_button_${category}').value;
+
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
+      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"body":body,"head":head} ) );
+    };
+
+    `
+
+  return js_data;
+    
+
+}
+
+//post requst to insert article,belonging to this category
+app.post('/ui/a/:category', function (req, res)
+{ 
+  //can only add article's if logged in!
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+    var user_id=req.session.auth.user_id.user_id;
+    var category=req.params.category;
+    var head=req.body.head;
+    var body=req.body.body;
+    if (head!=="" && body!=="")
+    {
+      //inserts the article,then load's its page
+      article_format(res,['insert an article',user_id,category,head,body],log_in_details);
+    }
+  }
+});
+
+
+
+//returns all the articles present belonging to this category
+app.get('/ui/a/:category',function(req,res)
+{ 
+  var category=req.params.category;
+   var log_in_details="not logged in";
+  if (req.session && req.session.auth && req.session.auth.user_id )
+   log_in_details="logged in";
+
+  //returns all categories
+  if (category==="all_categories")
+    article_format(res,['categories'],log_in_details);
+  else
+    //returns all articles for given category
+    article_format(res,['select all',category],log_in_details)
+
+});
+
+//give's article page by given article_id,category
+app.get('/ui/a/:category/:article_id', function (req, res) {
+  var article_id=req.params.article_id;
+  var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
+  var category=req.params.category;
 
   var log_in_details="not logged in";
   if (req.session && req.session.auth && req.session.auth.user_id )
    log_in_details="logged in";
 
- //selecting the menu_item from the menu_items table corresponding to the given id
-  pool.query('SELECT a.head,a.body,m.item_id,m.price FROM article_table AS a JOIN menu_items AS m ON a.article_id=m.item_id WHERE m.item_id=$1',[item_id],function(err,result)
-    {
-      if (err)
-      {
-        res.status(500).send(err.toString());
-      }
-      else if (result.rows.length===0)
-      {
-        res.status(404).send("item not present in menu."); 
-      }
-      else
-      {
-        console.log("inside menu/item/",item_id,"result:",result)
-        ///selcting comments and rendering from the server side
-        comment_format(res,JSON.stringify( result.rows[0] ),item_id,log_in_details);  
-
-      }
-    });
-
+  //using article_format to select article,then comment format from inside to load it along with it's comments
+  article_format(res,['select an article',article_id,category],log_in_details)
 });
 
 
-function comment_format(res,data,item_id,log_in_details)
+function comment_format(res,data,article_id,log_in_details)
 { 
-  
-  if (data.substr(2,14)==="insert comment")
+  //data is an array with format ['type of query',comments/JSON.stringify(article data)]
+
+  if (data[0]==='insert comment')
     //data=['insert comments',comment]
   { 
-    console.log("inside comment_format IF,data:",data);
-    console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data)[1]);
-    pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[JSON.parse(data)[1],item_id,log_in_details],function(err,result)//data[1]=comment
+    console.log("\n inside comment_format IF,data:",data);
+    //console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
+    pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[data[1],article_id,log_in_details],function(err,result)//data[1]=comment
       {
         if (err)
         { 
           res.status(500).send(err.toString());
         }
           //can only insert comments if logged in hence sending logged in to the recursive call;
-          comment_format(res,"new comment",item_id,"logged in");
+          comment_format(res,["new comment"],article_id,"logged in");
       } );
   }
   else
   {
-    pool.query('SELECT c.text,c.time,u.username from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY comment_id'
-      ,[item_id],function(err,comments)
+    pool.query('SELECT c.text,c.time,u.username from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
+      ,[article_id],function(err,comments)
         {
           if (err)
           { 
            res.status(500).send(err.toString());
           }
           //data to dereference js end point request
-          if (data==="new comment")
+          if (data[0]==="new comment")
           { 
-            console.log("in select comments",comments);
+            //console.log("in select comments",comments);
             //sending only the last result,aka the just now inserted comment
             res.send(  comments.rows[comments.rows.length-1] ) ;
           }
@@ -712,12 +946,12 @@ function comment_format(res,data,item_id,log_in_details)
             //###########################################################################################################################################################################################################
             if (comments && comments.rows.length!==0)
             {
-              console.log("in select comments data != new comments,comment:",comments);
-              res.send(menu_item_template(JSON.parse(data),JSON.stringify ( comments.rows ) ,log_in_details) );
+              //console.log("in select comments data != new comments,comment:",comments);
+              res.send(article_template(JSON.parse(data[1]),JSON.stringify ( comments.rows ) ,log_in_details) );
             }
             else
             {
-               res.send(menu_item_template(JSON.parse(data),'Be the first to comment!',log_in_details) );
+               res.send(article_template(JSON.parse(data[1]),'Be the first to comment!',log_in_details) );
             }
           }
         } );
@@ -726,15 +960,130 @@ function comment_format(res,data,item_id,log_in_details)
 
 
 
+function article_format(res,data,log_in_details)
+{
+  //data will be of foramt ['type of query',,]
+  //type's of query to handle
+  //select all categories for article,from categories table
+  //select all articles belonging to given category
+  //insert an article belonging to given category 
+  //select an article belonging to given category ['select an article',aritcle_id,category]
+
+  if (data[0]==="categories")
+  {
+    pool.query('SELECT * FROM categories ORDER BY categories',function(err,result)
+    {
+      if (err)
+      { 
+        res.status(500).send(err.toString());
+      }
+      else
+      {
+        res.send(JSON.stringify(result.rows));
+      }
+    });
+  }
+  else if (data[0]==="select all")
+  {     
+      //selecting all article's from article_table belonging to the given category
+      //data=['select all',category]
+      var category=data[1];
+      pool.query('SELECT head,article_id FROM article_table WHERE category=$1 ORDER BY article_id',[category],function(err,result)
+      {
+        if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else if (result.rows.length===0)
+        {
+          res.send(article_home_page_template(category,'no articles present',log_in_details)) 
+        }
+        else
+        { 
+          console.log("\n\n inside select article's form this category \n ,result.rows:",result.rows);
+
+          res.send(article_home_page_template(category,JSON.stringify( result.rows ),log_in_details))  
+        }
+      });
+  }
+  else if (data[0]==="select an article")
+  {
+    //select an article belonging to given category data=['select an article',aritcle_id,category
+    //selecting the article details from the article_tabel corresponding to the given article_id
+    var article_id=data[1];
+    var category=data[2];
+    pool.query('SELECT head,body,category,article_id FROM article_table WHERE article_id=$1 AND category=$2 ORDER BY article_id',[article_id,category],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else if (result.rows.length===0)
+      {
+        res.status(404).send("this article is not present in this category"); 
+      }
+      else
+      {
+        //selcting comments and rendering from the server side
+        //after comments on this article are queried,the current article page data along with comments will be sent to article_template
+        comment_format(res,["select",JSON.stringify( result.rows[0] )],article_id,log_in_details);  
+      }
+    });
+  }
+  else if (data[0]==="insert an article")
+  {
+    //insert into article_table and then select this article by referencing the last article_id
+    //data=['insert',user_id,category,head,body]
+    var user_id=data[1];
+    var category=data[2];
+    var head=data[3];
+    var body=data[4];
+
+    pool.query('INSERT INTO article_table(user_id,category,head,body) values($1,$2,$3,$4)',[user_id,category,head,body],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else
+        { //selecting the last article inserted by this user in this category,aka the current article just inserted
+          article_format(res,['select last',user_id,category],log_in_details)
+        }
+      });
+  }
+  else if (data[0]==="select last")
+  {
+    //selecting the last article inserted by this user in this category,aka the current article just inserted
+    //data=['select last',user_id,category]
+    var user_id=data[1];
+    var category=data[2];
+
+    pool.query('SELECT article_id FROM article_table WHERE user_id=$1 AND category=$2',[user_id,category],function(err,result)
+    {
+     if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else
+      { //send the article_id of the last article created by this user,belonging to this category
+        console.log("\n\n inside select after inserting article,result.rows[result.rows.length-1]",result.rows[result.rows.length-1]);
+        res.send( ["successfully created article",result.rows[result.rows.length-1] ] );
+      }
+    });
+  }
+};
+
+
 app.get('/ui/style.css', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'style.css'));
 });
 
-//returns js for menu_item page
-app.get('/ui/menu_comment/:id', function (req, res) {
-  item_id=req.params.id;
-  //using menu_item_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
-  res.send(comment_template(item_id));
+//returns js for article page
+app.get('/ui/a/:category/:article_id/article_comment_js/', function (req, res) {
+  article_id=req.params.article_id;
+  category=req.params.category;
+  //using article_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
+  res.send(comment_template(category,article_id));
 });
 
 
@@ -756,14 +1105,98 @@ app.get('/ui/cafe_home_page',function(req, res){
 
 app.get('/ui/cafe_home_page.js',function(req, res){
   //res.sendFile(path.join(__dirname,'ui','main.js'));
-  res.send(cafe_home_page_template_js());
+  res.send(cafe_home_page_template_js(11));
 });
+
+function article_home_page_template(category,articles,log_in_details)
+{
+  if(articles!=="no articles present")
+    var article=JSON.parse(articles);
+  
+  //replcaing PLACEHOLDER with desired value
+  var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
+  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
+  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
+  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
+
+  //replcaing PLACEHOLDER with desired value
+  var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
+   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
+   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
+   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
+  
+
+  var html_data=layout_for_this_category+nav_bar_for_this_category;
+  
+  if (category==='cafe_menu')
+   { html_data=cafe_layout;
+      html_data+=`
+  <div class="page_head">
+    ${category}`;
+   }
+   else
+   {
+    html_data+=`
+  <div class="page_head">
+    Articles`;
+   }
+
+  html_data+=`
+    <hr>
+    </div>
+    <div class="menu">`;
+  if(log_in_details==="logged in")
+  {
+    html_data+="<div class=side_nav_link>"+log_out_block+"</div>";
+  }
+
+  else
+  {
+    html_data+=`<a href='/ui/log_in_page/previous_page?previous_page=a/${category}' id ='log_in_page_link' class = side_nav_link>Log in!<a>`;
+  }
+
+  if(articles!=="no articles present")
+  {
+    console.log("\n inside article_home_page_template,\n article.length:",article.length);
+    for(var i=0;i<=article.length-1;i++)
+    { 
+      //article_id of current article
+      console.log("\n inside article_home_page_template --> for loop,\n i:",i);
+      var article_id=article[i].article_id;
+      console.log("\n inside article_home_page_template,\n article_id:",article_id);
+      var head=article[i].head;
+      html_data+=`
+       <a href="/ui/a/${category}/${article_id}">${head}</a><br><br> 
+      `;
+    }
+  }
+  else
+  {
+    html_data+=articles;
+  }
+
+
+   if(log_in_details==="logged in")
+    {
+      html_data+=`<a href="/ui/a/${category}/submit_page">Submit New Article</a><br><br> `;
+      html_data+=` <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}"></script>`;
+
+    }
+
+      html_data+=`
+    </body>
+  </html>
+  `;
+  return html_data;
+
+};
+
 
 function cafe_home_page_template(log_in_details)
 {
   html_data=cafe_layout;
   html_data+=`
-  <div class="menu_head">
+  <div class="page_head">
         MENU
         <hr>
         </div>
@@ -779,19 +1212,19 @@ function cafe_home_page_template(log_in_details)
         }
 
         html_data+=`
-        Place Your Order! <a href="/ui/order_page">Click Here</a><br><br><br>
-        <img src='/ui/images/0' id="mi_0" class="menu_icon"> <br> <a href="/ui/menu_item/0">Espresso</a><br><br>
-        <img src='/ui/images/1' id="mi_1" class="menu_icon"> <br> <a href="/ui/menu_item/1">Espresso Macchiato</a><br><br>
-        <img src='/ui/images/2' id="mi_2" class="menu_icon"> <br> <a href="/ui/menu_item/2">Espresso con Panna </a><br><br>
-        <img src='/ui/images/3' id="mi_3" class="menu_icon"> <br> <a href="/ui/menu_item/3">Caffe Latte </a><br><br>
-        <img src='/ui/images/4' id="mi_4" class="menu_icon"> <br> <a href="/ui/menu_item/4">Flat White </a><br><br>
-        <img src='/ui/images/5' id="mi_5" class="menu_icon"> <br> <a href="/ui/menu_item/5">Caffe Breve </a><br><br>
-        <img src='/ui/images/6' id="mi_6" class="menu_icon"> <br> <a href="/ui/menu_item/6">Cappuccino </a><br><br>
-        <img src='/ui/images/7' id="mi_7" class="menu_icon"> <br> <a href="/ui/menu_item/7">Caffe Mocha </a><br><br>
-        <img src='/ui/images/8' id="mi_8" class="menu_icon"> <br> <a href="/ui/menu_item/8">Americano </a><br><br>
-        <img src='/ui/images/9' id="mi_9" class="menu_icon"> <br> <a href="/ui/menu_item/9">Latte Macchiato </a><br><br>
-        <img src='/ui/images/10' id="mi_10" class="menu_icon"> <br> <a href="/ui/menu_item/10">Red Eye </a><br><br>
-        <img src='/ui/images/11' id="mi_11" class="menu_icon"> <br> <a href="/ui/menu_item/11">Cafe au Late </a><br><br>
+        Place Your Order! <a href="/ui/a/cafe_menu/order_page">Click Here</a><br><br><br>
+        <img src='/ui/images/0' id="mi_0" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/0">Espresso</a><br><br>
+        <img src='/ui/images/1' id="mi_1" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/1">Espresso Macchiato</a><br><br>
+        <img src='/ui/images/2' id="mi_2" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/2">Espresso con Panna </a><br><br>
+        <img src='/ui/images/3' id="mi_3" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/3">Caffe Latte </a><br><br>
+        <img src='/ui/images/4' id="mi_4" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/4">Flat White </a><br><br>
+        <img src='/ui/images/5' id="mi_5" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/5">Caffe Breve </a><br><br>
+        <img src='/ui/images/6' id="mi_6" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/6">Cappuccino </a><br><br>
+        <img src='/ui/images/7' id="mi_7" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/7">Caffe Mocha </a><br><br>
+        <img src='/ui/images/8' id="mi_8" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/8">Americano </a><br><br>
+        <img src='/ui/images/9' id="mi_9" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/9">Latte Macchiato </a><br><br>
+        <img src='/ui/images/10' id="mi_10" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/10">Red Eye </a><br><br>
+        <img src='/ui/images/11' id="mi_11" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/11">Cafe au Late </a><br><br>
         </div>
         <script type="text/javascript" src="/ui/cafe_home_page.js">
         </script>
@@ -809,14 +1242,14 @@ function cafe_home_page_template(log_in_details)
 }
 
 
-function cafe_home_page_template_js() // returns js for index page 
+function cafe_home_page_template_js(no_of_menu_items) // returns js for index page 
 {
   var js_data=``;
   //writing events for each image,referenced by its id as mi_1,mi_2 ...
-  for(var i=0;i<=11; i++)
+  for(var i=0;i<=no_of_menu_items; i++)
   {
     js_data+=`
-      menu_item_${i}=document.getElementById('mi_${i}');
+      cafe_menu_${i}=document.getElementById('mi_${i}');
       
       var count_${i}=0;
       var key_${i}=1;
@@ -826,7 +1259,7 @@ function cafe_home_page_template_js() // returns js for index page
       { 
         if(key_${i}==1)
         { count_${i}=count_${i} + 25;
-          menu_item_${i}.style.marginLeft =count_${i} + 'px';
+          cafe_menu_${i}.style.marginLeft =count_${i} + 'px';
           if (count_${i}==200)
             key_${i}=0;
         }
@@ -834,7 +1267,7 @@ function cafe_home_page_template_js() // returns js for index page
         { if(count_${i} > 0)
           {
             count_${i}=count_${i} - 25;
-            menu_item_${i}.style.marginLeft =count_${i} + 'px';
+            cafe_menu_${i}.style.marginLeft =count_${i} + 'px';
           
           if (count_${i}==25)
            super_key_${i}=1;  // entier back and forth animation is over 
@@ -843,7 +1276,7 @@ function cafe_home_page_template_js() // returns js for index page
         }
       };
 
-      menu_item_${i}.onmouseover=function()
+      cafe_menu_${i}.onmouseover=function()
       { 
       if (super_key_${i}==1)
         { 
@@ -858,7 +1291,7 @@ function cafe_home_page_template_js() // returns js for index page
       //experiment with setInterval
       super_key_${i}=1;
 
-      menu_item_${i}.onmouseleave=function()
+      cafe_menu_${i}.onmouseleave=function()
       { 
        //super_key_${i}=1;
          
@@ -874,12 +1307,12 @@ function cafe_home_page_template_js() // returns js for index page
 
 
 
-function comment_template(id)//returns a js code unique for each page
+function comment_template(category,id)//returns a js code unique for each page
 {   
   var js_data=`
-    //get the submit element on this page by referencing it with given item_id
+    //get the submit element on this page by referencing it with given article_id
 
-    submit_btn=document.getElementById('sub_id_${id}');
+    submit_btn=document.getElementById('sub_${category}_id_${id}');
 
 
     //use send_req_and_get_res when page is loaded and when submit_btn is clicked
@@ -908,7 +1341,7 @@ function comment_template(id)//returns a js code unique for each page
           {//take comments from the request and parse them into array 
             var comment=JSON.parse(request.responseText);
             var time = new Date(comment.time);
-            var old_list=document.getElementById('ol_id_${id}');
+            var old_list=document.getElementById('ol_${category}_id_${id}');
             old_list.innerHTML="<li>"+comment.text+"<br>By:"+comment.username+"<br>submitted at:<br>"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</li>"+old_list.innerHTML;
           }
         }
@@ -916,11 +1349,11 @@ function comment_template(id)//returns a js code unique for each page
       };
 
       //making request
-      input=document.getElementById('in_id_${id}');
+      input=document.getElementById('in_${category}_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/menu_item/${id}',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/menu_item/${id}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
+      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
     };
@@ -933,27 +1366,46 @@ function comment_template(id)//returns a js code unique for each page
 
 
 
-function menu_item_template(data,comments,log_in_details)//returns html doc
+function article_template(data,comments,log_in_details)//returns html doc
 {   
-    var item_id=data.item_id;
+    var article_id=data.article_id;
     var title=data.title;
     var body=data.body;
     var head=data.head;
+    var category=data.category;
 
-    var html_data=cafe_layout;
+      //replcaing PLACEHOLDER with desired value
+      var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
+      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
+      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
+      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
+
+      //replcaing PLACEHOLDER with desired value
+      var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
+      layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class
+       layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
+      layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
+
+
+      var html_data=layout_for_this_category+nav_bar_for_this_category;
+
+      if (category==='cafe_menu')
+        html_data=cafe_layout;
+
+
     html_data+=`
-        <div class='menu_head'>
+        <div class='page_head'>
           ${head}
         </div>
         <div class='center'>
         ${body}
         <hr>
         </div>
-          <div class="comment_head">
+          <div class="${category}_comment_head">
           Comments
           </div>
-          <!-creating seperate id's for each page by using the item_id from the js obj->
-          <ol id = 'ol_id_${item_id}' class="comment_list">
+          <!-creating seperate id's for each page by using the article_id from the js obj->
+          <ol id = 'ol_${category}_id_${article_id}' class="${category}_comment_list">
         
         `;
 
@@ -963,14 +1415,14 @@ function menu_item_template(data,comments,log_in_details)//returns html doc
         }
         else
         {
-          console.log("inside menu_item_template,comments",comments);
+          //console.log("inside article_template,comments",comments);
           comment=JSON.parse(comments);
-          console.log("inside menu_item_template,comment",comment);
+          //console.log("inside article_template,comment",comment);
           //creating a string to render in the inner html of ol on this article page
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
-              console.log("inside menu_item_template,time var:",time);
+              //console.log("inside article_template,time var:",time);
               html_data+="<li>"+comment[i].text+"<br>By:"+comment[i].username+"<br>submitted at:<br>"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</li>";
             };
         }
@@ -979,24 +1431,24 @@ function menu_item_template(data,comments,log_in_details)//returns html doc
 
         if (log_in_details==="not logged in")
         {
-          html_data+="<br><div class=comment_head>not logged in! </div>";
+          html_data+=`<br><div class=${category}_comment_head>not logged in! </div>`;
           html_data+=log_in_block;
           html_data+=`
-          <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=menu_item/${item_id} ">
+          <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
         `;
         }
         else
         {
           html_data+= `
-          <input type='text' id ='in_id_${item_id}' class ="input_box" placeholder="Submit a new comment!"></input>
+          <input type='text' id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!"></input>
           <br>
-          <input type='submit' id ='sub_id_${item_id}' class = "submit_btn" value='Submit'></input><br>
+          <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit'></input><br>
           `;
           html_data+=log_out_block+`
-          <script type="text/javascript" src="/ui/menu_comment/${item_id}">
-          </script>
-          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=menu_item/${item_id} ">
+          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
+          </script><!-js for inserting comments ->
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
         `; 
         }
@@ -1008,26 +1460,25 @@ function menu_item_template(data,comments,log_in_details)//returns html doc
     return html_data;
 }
 
-
-function order_template(menu_items,cart,cart_id)
+function order_template(cafe_menu,cart,cart_id)
 { 
-  menu_items=JSON.parse(menu_items);
+  cafe_menu=JSON.parse(cafe_menu);
   cart=JSON.parse(cart);
   var html_data=cafe_layout;
   html_data+=`
-        <div class="menu_head">
+        <div class="page_head">
         Place your order
         </div>
         <hr>
-        <ol id = 'menu_page_item_list'>
+        <ol id = 'cafe_menu_item_list'>
         `;
   
     for (var i=0;i<=11;i++)
     {
       //extracting the item_id and head of each item present in the menu_list
-      var item_id=menu_items[i].item_id;
-      var head=menu_items[i].head;
-      var price=menu_items[i].price;
+      var item_id=cafe_menu[i].item_id;
+      var head=cafe_menu[i].head;
+      var price=cafe_menu[i].price;
       html_data+=`<li>
       <div id='head_for_item_id_${item_id}'>${head}</div>
       <div id='quantity_item_id_${item_id}'></div>
@@ -1052,8 +1503,8 @@ function order_template(menu_items,cart,cart_id)
           //creating a string to render in the inner html of ol on this article page
           for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
             { //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
-              html_data+="<li>"+menu_items[cart[i].item_id].head +" Qty:"+cart[i].quantity +" price:"
-              + (cart[i].quantity * parseInt(cart[i].price.substr(1,4),10) ).toString() +"</li>";
+              html_data+="<li>"+cafe_menu[cart[i].item_id].head +" Qty:"+cart[i].quantity +" price:"
+              +cart[i].price.substr(0,1)+(cart[i].quantity * parseInt(cart[i].price.substr(1,4),10) ).toString() +"</li>";
               //converting price string($322)'s substring into int 
             };
 
@@ -1061,9 +1512,9 @@ function order_template(menu_items,cart,cart_id)
 
     html_data+="</ul>"
     html_data+="<div class=side_nav_link>"+log_out_block+`</div>
-    <script type="text/javascript" src="/ui/order_page_js/${cart_id}">
+    <script type="text/javascript" src="/ui/a/cafe_menu/order_page_js/${cart_id}">
     </script>
-    <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=order_page">
+    <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/cafe_menu/order_page">
     </script>
     </body>
     </html>
@@ -1107,8 +1558,8 @@ function order_template_js(cart_id)
             for (var i=0;i<=new_cart.length-1;i++)   
               {//extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
                 var head=document.getElementById('head_for_item_id_'+new_cart[i].item_id).innerHTML;
-                new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +" prices:"
-                + (new_cart[i].quantity * parseInt(new_cart[i].price.substr(1,4),10) ).toString() +"</li>";
+                new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +" price:"
+                +new_cart[i].price.substr(0,1)+(new_cart[i].quantity * parseInt(new_cart[i].price.substr(1,4),10) ).toString() +"</li>";
               };
 
               //new_order=request.responseText;
@@ -1142,5 +1593,5 @@ function order_template_js(cart_id)
 
 var port = 8080; // Use 8080 for local development because you might already have apache running on 80
 app.listen(8080, function () {
-  console.log(`IMAD course app listening on port ${port}!`);
+  //console.log(`IMAD course app listening on port ${port}!`);
 });
