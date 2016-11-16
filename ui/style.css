@@ -23,7 +23,7 @@
 	margin-left:350px;
 	font-family: sans-serif;
 	font-size: 80%;	
-	background-color:#e1eef6;
+	background-color:#99f19e;
 	width:600px;
 }
 
@@ -50,12 +50,6 @@
     font-family: sans-serif;
     background-color: #FDD692;
 }
-
-.Test {
-    font-family: sans-serif;
-    background-color: #FDD692;
-}
-
 
 
 .cafe_menu_comment_head {
@@ -195,26 +189,26 @@
 }
 
 
-.Test,.News  {
+.News  {
     font-family: sans-serif;
     background-color: #58C9B9;
 }
 
-.Test_comment_head,.News_comment_head{
+.News_comment_head{
 	margin-top: 20px;
 	margin-left:150px;
 	font-family: sans-serif;
 	font-size: 220%;
 }
 
-.Test_header,.News_header {
+.News_header {
 	background-color: #519D9E;
 	text-align: center;
 	font-family: sans-serif;
 	font-size: 350%;
 }
 
-.Test_comment_list,.News_comment_list {
+.News_comment_list {
 	background-color:#9DC8C8;
 	margin-top: 25px;
 	margin-left:150px;
@@ -308,6 +302,65 @@
 	margin-top: 25px;
 	margin-left:150px;
 	border:5px solid #AACD6E;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.Sports {
+    font-family: sans-serif;
+    background-color: #f9a11b;
+}
+
+.Sports_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Sports_header{
+	background-color: #274555;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Sports_comment_list {
+	background-color:#ff7761;
+	margin-top: 25px;
+	margin-left:150px;
+	border:1px solid #fdc23e;
+	width:600px;
+	font-family: sans-serif;
+	font-size: 120%;
+}
+
+.Test  {
+	color:#1f4e5f;
+    font-family: sans-serif;
+    background-color: #aacfd0;
+}
+
+.Test_comment_head{
+	margin-top: 20px;
+	margin-left:150px;
+	font-family: sans-serif;
+	font-size: 220%;
+}
+
+.Test_header{
+	background-color: #79a8a9;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 350%;
+}
+
+.Test_comment_list{
+	background-color:#f4f7f7;
+	margin-top: 25px;
+	margin-left:150px;
+	border:1px solid #D1B6E1;
 	width:600px;
 	font-family: sans-serif;
 	font-size: 120%;
