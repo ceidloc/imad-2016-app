@@ -127,11 +127,11 @@ function postOnClick()
       {    
           ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://localhost:8080/ui/${previous_page}";
+          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/${previous_page}";
       }
     }
     ////console.log("outside readyState");
-    request.open('GET','http://localhost:8080/ui/log_out',true);
+    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/log_out',true);
     request.send(null);
 }
 
@@ -228,7 +228,7 @@ function log_in_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://localhost:8080/ui/${previous_page}';
+          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
           }
           else
           {
@@ -259,7 +259,7 @@ function log_in_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://localhost:8080/ui/log_in',true);
+    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -275,11 +275,11 @@ function postOnClick()
       {    
           ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://localhost:8080/ui/sign_up_page/previous_page?previous_page=${previous_page}";
+          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}";
       }
     }
     ////console.log("outside readyState");
-    request.open('GET','http://localhost:8080/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
+    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.setRequestHeader('Content-Type','application/json');
     //request.send(JSON.stringify({"previous_page":"${previous_page}"})); 
@@ -423,7 +423,7 @@ function sign_up_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://localhost:8080/ui/${previous_page}';
+          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
           }
         }
         else if (request.status === 404) 
@@ -450,7 +450,7 @@ function sign_up_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://localhost:8080/ui/sign_up',true);
+    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -816,7 +816,7 @@ function submit_page_template_js(category)
             //res=['',{article_id:value}]
             if (res[0]==="successfully created article")
             {
-            window.location.href='http://localhost:8080/ui/a/${category}/'+res[1].article_id;
+            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}/'+res[1].article_id;
             }
           }
           else if (request.status === 404) 
@@ -839,7 +839,7 @@ function submit_page_template_js(category)
       head=document.getElementById('article_sumbit_head_button_${category}').value;
       body=document.getElementById('article_sumbit_body_button_${category}').value;
 
-      request.open('POST','http://localhost:8080/ui/a/${category}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"body":body,"head":head} ) );
@@ -1375,7 +1375,7 @@ function comment_template(category,id)//returns a js code unique for each page
           {//take comments from the request and parse them into array 
             var comment=request.responseText;
             if (comment==='removed comment')
-              window.location.href="http://localhost:8080/ui/a/${category}/${id}"
+              window.location.href="http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}"
             else
             {
               comment=JSON.parse(comment);
@@ -1395,7 +1395,7 @@ function comment_template(category,id)//returns a js code unique for each page
       input=document.getElementById('in_${category}_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://localhost:8080/ui/a/${category}/${id}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
@@ -1620,10 +1620,10 @@ function order_template_js(cart_id)
 
         //making request
         if (id_no === -1)
-        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         else 
-        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         request.send(null);
       };`;
