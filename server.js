@@ -20,8 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-  //  var spawn = require('child_process').spawn,
-  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+ //   var spawn = require('child_process').spawn,
+   // py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -98,10 +98,10 @@ app.get('/ui/log_out',function(req,res)
   //if user is logged in delete session token
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
-    //console.log("inside log_out end point");
+    ////console.log("inside log_out end point");
     delete req.session.auth.user_id;
     res.send("logged out!");
-    //console.log("inside log_out end point after delete");
+    ////console.log("inside log_out end point after delete");
   }
 });
 
@@ -109,7 +109,7 @@ app.get('/ui/log_out',function(req,res)
 app.get('/ui/log_out_js/previous_page',function(req,res)
 {
   var previous_page=req.query.previous_page;
-  //console.log("previous_page:",req.query);
+  ////console.log("previous_page:",req.query);
   res.send(log_out_template_js(previous_page));
 });
 
@@ -125,13 +125,13 @@ function postOnClick()
     {
       if (request.readyState == 4 && request.status == 200) 
       {    
-          //console.log("inside readyState");
+          ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/${previous_page}";
+          window.location.href = "http://localhost:8080/ui/${previous_page}";
       }
     }
-    //console.log("outside readyState");
-    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/log_out',true);
+    ////console.log("outside readyState");
+    request.open('GET','http://localhost:8080/ui/log_out',true);
     request.send(null);
 }
 
@@ -163,11 +163,11 @@ app.get('/ui/log_in_page/previous_page',function(req,res)
 
 function log_in_page_template(previous_page)
 { 
-    console.log("\n\n inside log_in_page_template,previous_page:",previous_page);
+    //console.log("\n\n inside log_in_page_template,previous_page:",previous_page);
     var category=previous_page.split('/')[1];
     if (category===undefined)
       category=previous_page.split('/')[0];
-    console.log("\n\n inside log_in_page_template,category:",category);
+    //console.log("\n\n inside log_in_page_template,category:",category);
 
     //replcaing PLACEHOLDER with desired value
     var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
@@ -206,7 +206,7 @@ function log_in_page_template(previous_page)
 app.get('/ui/log_in_page_js/previous_page',function(req,res)
 {
   var previous_page=req.query.previous_page;
-  //console.log("previous_page:",req.query);
+  ////console.log("previous_page:",req.query);
   res.send(log_in_page_template_js(previous_page));
 });
 
@@ -228,7 +228,7 @@ function log_in_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
+          window.location.href='http://localhost:8080/ui/${previous_page}';
           }
           else
           {
@@ -259,7 +259,7 @@ function log_in_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
+    { request.open('POST','http://localhost:8080/ui/log_in',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -273,13 +273,13 @@ function postOnClick()
     {
       if (request.readyState == 4 && request.status == 200) 
       {    
-          //console.log("inside readyState");
+          ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}";
+          window.location.href = "http://localhost:8080/ui/sign_up_page/previous_page?previous_page=${previous_page}";
       }
     }
-    //console.log("outside readyState");
-    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
+    ////console.log("outside readyState");
+    request.open('GET','http://localhost:8080/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.setRequestHeader('Content-Type','application/json');
     //request.send(JSON.stringify({"previous_page":"${previous_page}"})); 
@@ -360,11 +360,11 @@ app.get('/ui/sign_up_page/:previous_page',function(req,res)
 
 function sign_up_page_template(previous_page)
 { 
-    console.log("\n\n inside sign_up_page_template,previous_page:",previous_page);
+    //console.log("\n\n inside sign_up_page_template,previous_page:",previous_page);
     var category=previous_page.split('/')[1];
     if (category===undefined)
       category=previous_page.split('/')[0];
-    console.log("\n\n inside sign_up_page_template,category:",category);
+    //console.log("\n\n inside sign_up_page_template,category:",category);
     //replcaing PLACEHOLDER with desired value
     var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
     nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
@@ -423,7 +423,7 @@ function sign_up_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
+          window.location.href='http://localhost:8080/ui/${previous_page}';
           }
         }
         else if (request.status === 404) 
@@ -450,7 +450,7 @@ function sign_up_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
+    { request.open('POST','http://localhost:8080/ui/sign_up',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
@@ -542,13 +542,13 @@ app.get('/ui/get_bill_details_for_item_id/:cart_id/:item_id', function (req, res
     }
     else if (result.rows.length===0)//first insertion of this item in this cart 
     { 
-      //console.log("inside cs js insert cart result:",result);
+      ////console.log("inside cs js insert cart result:",result);
      cart_bill_format(res,cart_id,JSON.stringify(["insert item",item_id]),log_in_details);
     }
     else
     {
-      //console.log("inside cs js update cart result:",result);
-      //console.log("inside cs js update cart quantity:",result.rows[0].quantity);
+      ////console.log("inside cs js update cart result:",result);
+      ////console.log("inside cs js update cart quantity:",result.rows[0].quantity);
       cart_bill_format(res,cart_id,JSON.stringify(["update item",item_id,result.rows[0].quantity]),log_in_details);
     }
   });
@@ -593,7 +593,7 @@ function cart_bill_format(res,cart_id,data)
 
   if (data.substr(2,11)==="update item")
   {
-    //console.log("inside c_b_f insert cart data:",data);
+    ////console.log("inside c_b_f insert cart data:",data);
     data=JSON.parse(data);
     //data=['',item_id,quantity]
     pool.query("UPDATE cart SET quantity=$3 WHERE cart_id=$1 AND item_id=$2",[cart_id,data[1],data[2]+1],function(err,result)
@@ -604,7 +604,7 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       {
-        //console.log("inside c_b_f insert cart result:",result);
+        ////console.log("inside c_b_f insert cart result:",result);
         cart_bill_format(res,cart_id,"cs-load cart");
       }
 
@@ -614,7 +614,7 @@ function cart_bill_format(res,cart_id,data)
   else if (data.substr(2,11)==="insert item")
   {
     //add item,corresponding to given item_id,to the cart,corresponding to given cart_id, and set quantity to 1
-    //console.log("inside c_b_f insert cart data:",data);
+    ////console.log("inside c_b_f insert cart data:",data);
     data=JSON.parse(data);
     //data=['',item_id]
     pool.query("INSERT INTO cart(cart_id,item_id,quantity) values ($1,$2,$3) ",[cart_id,data[1],1],function(err,result)
@@ -625,7 +625,7 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       { 
-        //console.log("inside c_b_f insert cart result:",result);
+        ////console.log("inside c_b_f insert cart result:",result);
         cart_bill_format(res,cart_id,"cs-load cart");
       }
 
@@ -645,7 +645,7 @@ function cart_bill_format(res,cart_id,data)
       }
       else if (data==="cs-load cart")
       {//data for client side,ajax data call 
-          //console.log("inside c_b_f cs-load cart result:",result);
+          ////console.log("inside c_b_f cs-load cart result:",result);
           res.send(JSON.stringify(result.rows));
       }
       else if (data==="load cart")
@@ -660,14 +660,14 @@ function cart_bill_format(res,cart_id,data)
             }
             else if (result.rows.length!==0)
             { 
-              //console.log("inside load cart result:",result);
-              //console.log("inside load cart cafe_menu:",cafe_menu);
+              ////console.log("inside load cart result:",result);
+              ////console.log("inside load cart cafe_menu:",cafe_menu);
              res.send(order_template( JSON.stringify(cafe_menu.rows) , JSON.stringify(result.rows) ,cart_id ) );
             }
             else
             {
-              //console.log("inside load cart else result:",result);
-              //console.log("inside load cart else cafe_menu:",cafe_menu);
+              ////console.log("inside load cart else result:",result);
+              ////console.log("inside load cart else cafe_menu:",cafe_menu);
              res.send(order_template( JSON.stringify(cafe_menu.rows),JSON.stringify("empty cart") ,cart_id ) );
             }
 
@@ -765,7 +765,7 @@ function submit_page_template(category)
   `;
   html_data+=`
   <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title"></input><br>
-  <input type='text' id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text"></input><br>
+  <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text"></textarea><br>
   <input type='submit' id ='article_sumbit_button_${category}' class = "submit_btn" value='Submit Article!'></input><br><br><hr>
 
   `;
@@ -812,11 +812,11 @@ function submit_page_template_js(category)
           if (request.status === 200)
           {
             var res=JSON.parse(request.responseText);
-            console.log("inside 200, res",res);
+            //console.log("inside 200, res",res);
             //res=['',{article_id:value}]
             if (res[0]==="successfully created article")
             {
-            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}/'+res[1].article_id;
+            window.location.href='http://localhost:8080/ui/a/${category}/'+res[1].article_id;
             }
           }
           else if (request.status === 404) 
@@ -839,7 +839,7 @@ function submit_page_template_js(category)
       head=document.getElementById('article_sumbit_head_button_${category}').value;
       body=document.getElementById('article_sumbit_body_button_${category}').value;
 
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
+      request.open('POST','http://localhost:8080/ui/a/${category}',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"body":body,"head":head} ) );
@@ -908,11 +908,27 @@ function comment_format(res,data,article_id,log_in_details)
 { 
   //data is an array with format ['type of query',comments/JSON.stringify(article data)]
 
+  if (data[0]==='delete comment')//removes the comment by updating its text as 'removed by user!'
+    //data=['delete comments',comment_id]
+  { 
+    //console.log("\n inside comment_format IF,data:",data);
+    ////console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
+    pool.query("UPDATE comments SET text='removed by user!' WHERE comment_id=$1",[data[1]],function(err,result)//data[1]=comment_id
+      {
+        if (err)
+        { 
+          res.status(500).send(err.toString());
+        }
+          //can only insert comments if logged in hence sending logged in to the recursive call;
+          res.send("removed comment");
+      } );
+  }
+  else
   if (data[0]==='insert comment')
     //data=['insert comments',comment]
   { 
-    console.log("\n inside comment_format IF,data:",data);
-    //console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
+    //console.log("\n inside comment_format IF,data:",data);
+    ////console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
     pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[data[1],article_id,log_in_details],function(err,result)//data[1]=comment
       {
         if (err)
@@ -935,7 +951,7 @@ function comment_format(res,data,article_id,log_in_details)
           //data to dereference js end point request
           if (data[0]==="new comment")
           { 
-            //console.log("in select comments",comments);
+            ////console.log("in select comments",comments);
             //sending only the last result,aka the just now inserted comment
             res.send(  comments.rows[comments.rows.length-1] ) ;
           }
@@ -946,7 +962,7 @@ function comment_format(res,data,article_id,log_in_details)
             //###########################################################################################################################################################################################################
             if (comments && comments.rows.length!==0)
             {
-              //console.log("in select comments data != new comments,comment:",comments);
+              ////console.log("in select comments data != new comments,comment:",comments);
               res.send(article_template(JSON.parse(data[1]),JSON.stringify ( comments.rows ) ,log_in_details) );
             }
             else
@@ -969,9 +985,24 @@ function article_format(res,data,log_in_details)
   //insert an article belonging to given category 
   //select an article belonging to given category ['select an article',aritcle_id,category]
 
-  if (data[0]==="categories")
+  if (data[0]==="delete article")
+  {//data=['remove article',category,article_id]
+    pool.query("DELETE FROM article_tablet WHERE article_id=$1",[data[2]],function(err,result)//data[2]=article_id
+    {
+      if (err)
+      { 
+        res.status(500).send(err.toString());
+      }
+      else
+      {
+        article_format(res,['select all',data[1]],log_in_details);//data[1]=category
+      }
+    });
+  }
+
+  else if (data[0]==="categories")
   {
-    pool.query('SELECT * FROM categories ORDER BY categories',function(err,result)
+    pool.query("SELECT * FROM categories WHERE category != 'cafe_menu' ORDER BY categories",function(err,result)
     {
       if (err)
       { 
@@ -988,7 +1019,7 @@ function article_format(res,data,log_in_details)
       //selecting all article's from article_table belonging to the given category
       //data=['select all',category]
       var category=data[1];
-      pool.query('SELECT head,article_id FROM article_table WHERE category=$1 ORDER BY article_id',[category],function(err,result)
+      pool.query('SELECT a.head,a.article_id,u.username,u.user_id,a.time FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.category=$1 ORDER BY a.article_id',[category],function(err,result)
       {
         if (err)
         {
@@ -996,13 +1027,13 @@ function article_format(res,data,log_in_details)
         }
         else if (result.rows.length===0)
         {
-          res.send(article_home_page_template(category,'no articles present',log_in_details)) 
+          res.send(article_home_page_template(res,category,'no articles present',log_in_details)) 
         }
         else
         { 
-          console.log("\n\n inside select article's form this category \n ,result.rows:",result.rows);
+          //console.log("\n\n inside select article's form this category \n ,result.rows:",result.rows);
 
-          res.send(article_home_page_template(category,JSON.stringify( result.rows ),log_in_details))  
+          res.send(article_home_page_template(res,category,JSON.stringify( result.rows ),log_in_details))  
         }
       });
   }
@@ -1012,7 +1043,7 @@ function article_format(res,data,log_in_details)
     //selecting the article details from the article_tabel corresponding to the given article_id
     var article_id=data[1];
     var category=data[2];
-    pool.query('SELECT head,body,category,article_id FROM article_table WHERE article_id=$1 AND category=$2 ORDER BY article_id',[article_id,category],function(err,result)
+    pool.query('SELECT a.head,a.body,a.category,a.article_id,a.time,u.username,u.user_id FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.article_id=$1 AND a.category=$2 ORDER BY a.article_id',[article_id,category],function(err,result)
     {
       if (err)
       {
@@ -1066,7 +1097,7 @@ function article_format(res,data,log_in_details)
       }
       else
       { //send the article_id of the last article created by this user,belonging to this category
-        console.log("\n\n inside select after inserting article,result.rows[result.rows.length-1]",result.rows[result.rows.length-1]);
+        //console.log("\n\n inside select after inserting article,result.rows[result.rows.length-1]",result.rows[result.rows.length-1]);
         res.send( ["successfully created article",result.rows[result.rows.length-1] ] );
       }
     });
@@ -1108,7 +1139,7 @@ app.get('/ui/cafe_home_page.js',function(req, res){
   res.send(cafe_home_page_template_js(11));
 });
 
-function article_home_page_template(category,articles,log_in_details)
+function article_home_page_template(res,category,articles,log_in_details)
 {
   if(articles!=="no articles present")
     var article=JSON.parse(articles);
@@ -1147,26 +1178,40 @@ function article_home_page_template(category,articles,log_in_details)
     <div class="menu">`;
   if(log_in_details==="logged in")
   {
-    html_data+="<div class=side_nav_link>"+log_out_block+"</div>";
+    html_data+="<div class=side_nav_link>"+log_out_block+"</div>"; 
+    html_data+=`<a href="/ui/a/${category}/submit_page">Submit New Article</a><br><br> `;
+    html_data+=` <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}"></script>`;
+    
   }
 
   else
   {
     html_data+=`<a href='/ui/log_in_page/previous_page?previous_page=a/${category}' id ='log_in_page_link' class = side_nav_link>Log in!<a>`;
+    html_data+=`<a href="/ui/log_in_page/previous_page?previous_page=a/${category}/submit_page">Submit New Article</a><br><br> `;
   }
+
+  html_data+=`</div>
+                <ul class="${category}_comment_list">`;
 
   if(articles!=="no articles present")
   {
-    console.log("\n inside article_home_page_template,\n article.length:",article.length);
     for(var i=0;i<=article.length-1;i++)
     { 
       //article_id of current article
-      console.log("\n inside article_home_page_template --> for loop,\n i:",i);
       var article_id=article[i].article_id;
-      console.log("\n inside article_home_page_template,\n article_id:",article_id);
       var head=article[i].head;
+      var username=article[i].username;
+      var time=article[i].time;
+      time = new Date(time)//takes a string with timestamp value and converts to a date object?
+      localtime=time.toLocaleTimeString();
+      date=time.toLocaleDateString();
+
       html_data+=`
-       <a href="/ui/a/${category}/${article_id}">${head}</a><br><br> 
+       <li><a href="/ui/a/${category}/${article_id}">${head}</a>
+       <div class='details'>
+       by ${username} <br>at ${localtime} at ${date}
+       </div>
+       </li>
       `;
     }
   }
@@ -1175,15 +1220,8 @@ function article_home_page_template(category,articles,log_in_details)
     html_data+=articles;
   }
 
-
-   if(log_in_details==="logged in")
-    {
-      html_data+=`<a href="/ui/a/${category}/submit_page">Submit New Article</a><br><br> `;
-      html_data+=` <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}"></script>`;
-
-    }
-
       html_data+=`
+      </ul>
     </body>
   </html>
   `;
@@ -1303,10 +1341,6 @@ function cafe_home_page_template_js(no_of_menu_items) // returns js for index pa
 
 
 
-
-
-
-
 function comment_template(category,id)//returns a js code unique for each page
 {   
   var js_data=`
@@ -1339,10 +1373,19 @@ function comment_template(category,id)//returns a js code unique for each page
         {
           if (request.status === 200)
           {//take comments from the request and parse them into array 
-            var comment=JSON.parse(request.responseText);
-            var time = new Date(comment.time);
-            var old_list=document.getElementById('ol_${category}_id_${id}');
-            old_list.innerHTML="<li>"+comment.text+"<br>By:"+comment.username+"<br>submitted at:<br>"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</li>"+old_list.innerHTML;
+            var comment=request.responseText;
+            if (comment==='removed comment')
+              window.location.href="http://localhost:8080/ui/a/${category}/${id}"
+            else
+            {
+              comment=JSON.parse(comment);
+              var time = new Date(comment.time);
+              var old_list=document.getElementById('ol_${category}_id_${id}');
+              if (old_list.innerHTML.trim()==='Be the first to comment!' )
+                old_list.innerHTML="";
+
+              old_list.innerHTML="<li>"+comment.text+"<div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>"+old_list.innerHTML;
+            }
           }
         }
 
@@ -1352,7 +1395,7 @@ function comment_template(category,id)//returns a js code unique for each page
       input=document.getElementById('in_${category}_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
+      request.open('POST','http://localhost:8080/ui/a/${category}/${id}',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
@@ -1366,12 +1409,15 @@ function comment_template(category,id)//returns a js code unique for each page
 
 
 
-function article_template(data,comments,log_in_details)//returns html doc
+function article_template(res,data,comments,log_in_details)//returns html doc
 {   
     var article_id=data.article_id;
     var title=data.title;
     var body=data.body;
     var head=data.head;
+    var username=data.username;
+    var user_id=data.user_id;
+    var time=data.time;
     var category=data.category;
 
       //replcaing PLACEHOLDER with desired value
@@ -1415,15 +1461,15 @@ function article_template(data,comments,log_in_details)//returns html doc
         }
         else
         {
-          //console.log("inside article_template,comments",comments);
+          ////console.log("inside article_template,comments",comments);
           comment=JSON.parse(comments);
-          //console.log("inside article_template,comment",comment);
+          ////console.log("inside article_template,comment",comment);
           //creating a string to render in the inner html of ol on this article page
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
-              //console.log("inside article_template,time var:",time);
-              html_data+="<li>"+comment[i].text+"<br>By:"+comment[i].username+"<br>submitted at:<br>"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</li>";
+              ////console.log("inside article_template,time var:",time);
+              html_data+="<li>"+comment[i].text+"<div class='details'>By:"+comment[i].username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>";
             };
         }
         
@@ -1574,10 +1620,10 @@ function order_template_js(cart_id)
 
         //making request
         if (id_no === -1)
-        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         else 
-        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        request.open('GET','http://localhost:8080/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         request.send(null);
       };`;
@@ -1593,5 +1639,5 @@ function order_template_js(cart_id)
 
 var port = 8080; // Use 8080 for local development because you might already have apache running on 80
 app.listen(8080, function () {
-  //console.log(`IMAD course app listening on port ${port}!`);
+  ////console.log(`IMAD course app listening on port ${port}!`);
 });
