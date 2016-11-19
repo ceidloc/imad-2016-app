@@ -1409,7 +1409,7 @@ function comment_template(category,id)//returns a js code unique for each page
 
 
 
-function article_template(res,data,comments,log_in_details)//returns html doc
+function article_template(data,comments,log_in_details)//returns html doc
 {   
     var article_id=data.article_id;
     var title=data.title;
