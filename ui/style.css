@@ -126,6 +126,14 @@
 	margin-left:150px;
 	font-family: sans-serif;
 	font-size: 120%;
+}
+
+.submit_btn_small {
+	background-color:#6d819c;
+	font-family: sans-serif;
+	margin-left:10px;
+	width:65px;
+	font-size: 70%;
 
 }
 
@@ -157,6 +165,7 @@
 	background-color:#6d819c;
 	font-family: sans-serif;
 	font-size: 75%;
+	width:100px;
 
 }
 

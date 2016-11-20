@@ -20,8 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
- //   var spawn = require('child_process').spawn,
-   // py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+  //  var spawn = require('child_process').spawn,
+  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -91,6 +91,12 @@ var log_in_block=`
 `;
 
 var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="postOnClick();">
+</input><br>`;
+
+var delete_block=`<input type='submit' id =PLACEHOLDER class = "submit_btn_small" value='delete'>
+</input><br>`;
+
+var update_block=`<input type='submit' id =PLACEHOLDER class = "submit_btn_small" value='update' onClick="postOnClick();">
 </input><br>`;
 
 app.get('/ui/log_out',function(req,res)
@@ -524,9 +530,9 @@ function create_session_token(req,res,username)
 
 app.get('/ui/get_bill_details_for_item_id/:cart_id/:item_id', function (req, res)// replace /1/: by /:cart_id
 {
-  var log_in_details="not logged in";
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
-    log_in_details="logged in";
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
 
   var item_id=req.params.item_id;
   item_id=parseInt(item_id,10);//convertin id containg string type  value to int type decimal value
@@ -876,9 +882,9 @@ app.post('/ui/a/:category', function (req, res)
 app.get('/ui/a/:category',function(req,res)
 { 
   var category=req.params.category;
-   var log_in_details="not logged in";
+   var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
-   log_in_details="logged in";
+   log_in_details=["logged in",req.session.auth.user_id.user_id];
 
   //returns all categories
   if (category==="all_categories")
@@ -895,14 +901,27 @@ app.get('/ui/a/:category/:article_id', function (req, res) {
   var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
   var category=req.params.category;
 
-  var log_in_details="not logged in";
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
-   log_in_details="logged in";
+   log_in_details=["logged in",req.session.auth.user_id.user_id];
 
   //using article_format to select article,then comment format from inside to load it along with it's comments
   article_format(res,['select an article',article_id,category],log_in_details)
 });
 
+//to delete a comment,referenced by it's comment_id, is verified by user_id of current_user_id
+app.post('/ui/a/:category/:article_id/:comment_id',function(req,res)
+  {
+
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
+  if (req.session && req.session.auth && req.session.auth.user_id )
+   log_in_details=["logged in",req.session.auth.user_id.user_id];
+
+  var user_id=log_in_details[1];
+  var comment_id=req.body.comment_id;
+
+    comment_format(res,['delete comment',user_id,comment_id],log_in_details);
+  });
 
 function comment_format(res,data,article_id,log_in_details)
 { 
@@ -911,16 +930,16 @@ function comment_format(res,data,article_id,log_in_details)
   if (data[0]==='delete comment')//removes the comment by updating its text as 'removed by user!'
     //data=['delete comments',comment_id]
   { 
-    //console.log("\n inside comment_format IF,data:",data);
-    ////console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
-    pool.query("UPDATE comments SET text='removed by user!' WHERE comment_id=$1",[data[1]],function(err,result)//data[1]=comment_id
+    //data[1]=user_id,data[2]=comment_id
+    pool.query("UPDATE comments SET text='removed by user!'WHERE user_id=$1 AND comment_id=$2 ",[data[1],data[2]],function(err,result)
       {
+        console.log("removed comment,result",result.rows);
         if (err)
         { 
           res.status(500).send(err.toString());
         }
-          //can only insert comments if logged in hence sending logged in to the recursive call;
-          res.send("removed comment");
+        //can only insert comments if logged in hence sending logged in to the recursive call;
+          res.send("removed by user!");
       } );
   }
   else
@@ -935,13 +954,12 @@ function comment_format(res,data,article_id,log_in_details)
         { 
           res.status(500).send(err.toString());
         }
-          //can only insert comments if logged in hence sending logged in to the recursive call;
-          comment_format(res,["new comment"],article_id,"logged in");
+          comment_format(res,["new comment"],article_id,log_in_details);
       } );
   }
   else
   {
-    pool.query('SELECT c.text,c.time,u.username from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
+    pool.query('SELECT c.comment_id,c.text,c.time,u.username,u.user_id from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
       ,[article_id],function(err,comments)
         {
           if (err)
@@ -1117,6 +1135,14 @@ app.get('/ui/a/:category/:article_id/article_comment_js/', function (req, res) {
   res.send(comment_template(category,article_id));
 });
 
+//returns js for deletion,updation of comments on this.article page
+app.get('/ui/a/:category/:article_id/delete_update_comments_js/:list', function (req, res) {
+  article_id=req.params.article_id;
+  category=req.params.category;
+  list=req.params.list;
+
+  res.send(comment_template_delete_update_js(category,article_id,list));
+});
 
 
 app.get('/ui/images/:image_no', function (req, res) {
@@ -1127,9 +1153,9 @@ app.get('/ui/images/:image_no', function (req, res) {
 
 app.get('/ui/cafe_home_page',function(req, res){
   //res.sendFile(path.join(__dirname,'ui','main.js'));
-  var log_in_details="not logged in";
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
-    log_in_details="logged in";
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
 
   res.send(cafe_home_page_template(log_in_details));
 });
@@ -1141,6 +1167,11 @@ app.get('/ui/cafe_home_page.js',function(req, res){
 
 function article_home_page_template(res,category,articles,log_in_details)
 {
+
+  //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
+  var current_user_id=log_in_details[1];
+  log_in_details=log_in_details[0];
+
   if(articles!=="no articles present")
     var article=JSON.parse(articles);
   
@@ -1232,6 +1263,11 @@ function article_home_page_template(res,category,articles,log_in_details)
 
 function cafe_home_page_template(log_in_details)
 {
+
+  //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
+  var current_user_id=log_in_details[1];
+  log_in_details=log_in_details[0];
+
   html_data=cafe_layout;
   html_data+=`
   <div class="page_head">
@@ -1356,10 +1392,7 @@ function comment_template(category,id)//returns a js code unique for each page
         send_req_and_get_res();
       }   
       
-      //*******************************************************************************************************************************************************************
-      //think!
     // send_req_and_get_res();//when page is loaded
-
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
 
     function send_req_and_get_res()
@@ -1374,18 +1407,23 @@ function comment_template(category,id)//returns a js code unique for each page
           if (request.status === 200)
           {//take comments from the request and parse them into array 
             var comment=request.responseText;
-            if (comment==='removed comment')
-              window.location.href="http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}"
-            else
-            {
-              comment=JSON.parse(comment);
-              var time = new Date(comment.time);
-              var old_list=document.getElementById('ol_${category}_id_${id}');
-              if (old_list.innerHTML.trim()==='Be the first to comment!' )
-                old_list.innerHTML="";
+            comment=JSON.parse(comment);
+            var time = new Date(comment.time);
+            var old_list=document.getElementById('ol_${category}_id_${id}');
+            if (old_list.innerHTML.trim()==='Be the first to comment!' )
+              old_list.innerHTML="";
 
-              old_list.innerHTML="<li>"+comment.text+"<div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>"+old_list.innerHTML;
-            }
+            old_list.innerHTML="<li><div id="+comment.comment_id+">"+comment.text+"</div><div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>"+old_list.innerHTML;
+                
+           // var count=0;
+           // while(getElementById())
+           // {}
+
+            //delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+count );
+            //old_list+=delete_btn;
+
+            //old_list=update_block.replace('PLACEHOLDER','update_btn_id_'+count );
+            //html_data+=update_btn;            
           }
         }
 
@@ -1408,9 +1446,75 @@ function comment_template(category,id)//returns a js code unique for each page
 }
 
 
+function comment_template_delete_update_js(category,article_id,list)
+{
+  list=JSON.parse(list);
+
+  var js_data="";
+
+  for(i=0;i<=list.length -1;i++)
+  {
+    js_data+=`
+      delete_btn_id_${i}=document.getElementById('delete_btn_id_${i}').onclick=function()
+      {
+        delete_comment(${list[i]});
+      };
+    `;
+    //list[i]=comment_id for button at i'th index
+
+    js_data+=`
+    update_btn_id_${i}=document.getElementById('update_btn_id_${i}');
+      update_btn_id_${i}.onclick=function()
+      {
+        update_comment(${list[i]});
+      }
+    `;
+
+  }
+
+  js_data+=`
+    function delete_comment(comment_id)
+    {
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        //*******************************************************************************************************************************************************************
+        //Loading
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {//take comments from the request and parse them into array 
+            var comment=request.responseText;
+            if (comment==='removed by user!')
+              //updating the value of removed comment
+              {
+              old_comment=document.getElementById(comment_id);
+              console.log("old_comment:",old_comment);
+              old_comment.innerHTML=comment;
+            }
+          }
+        }
+
+      };
+
+      //making request
+      //sending as post for time being,will update to DELETE
+      request.open('POST',"http://ceidloc.imad.hasura-app.io/ui/a/${category}/${article_id}/"+comment_id.toString(),true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"comment_id":comment_id} ) );
+    };
+  `;
+  return js_data;
+
+}
+
 
 function article_template(data,comments,log_in_details)//returns html doc
 {   
+    //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
+    var current_user_id=log_in_details[1];
+    log_in_details=log_in_details[0];
+
     var article_id=data.article_id;
     var title=data.title;
     var body=data.body;
@@ -1419,6 +1523,8 @@ function article_template(data,comments,log_in_details)//returns html doc
     var user_id=data.user_id;
     var time=data.time;
     var category=data.category;
+    var current_user_id_comments=[];//to store comment_id's of comments owned by current_user_id
+
 
       //replcaing PLACEHOLDER with desired value
       var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
@@ -1469,7 +1575,20 @@ function article_template(data,comments,log_in_details)//returns html doc
             {
               var time = new Date(comment[i].time);
               ////console.log("inside article_template,time var:",time);
-              html_data+="<li>"+comment[i].text+"<div class='details'>By:"+comment[i].username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>";
+              html_data+="<li> <div id=" + comment[i].comment_id + ">"+comment[i].text+"</div><div class='details'>By:"+comment[i].username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+
+              if (comment[i].user_id===current_user_id)
+              {
+                current_user_id_comments.push(comment[i].comment_id);
+                
+                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+(current_user_id_comments.length-1) );
+                html_data+=delete_btn;
+
+                update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+(current_user_id_comments.length-1) );
+                html_data+=update_btn;
+              }
+
+              html_data+="</div></li>";
             };
         }
         
@@ -1497,6 +1616,15 @@ function article_template(data,comments,log_in_details)//returns html doc
           <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
         `; 
+
+            if(current_user_id_comments.length!==0)//the current user has some comments on this article_page
+            {
+              current_user_id_comments=JSON.stringify(current_user_id_comments);
+              html_data+=`
+                <script type="text/javascript" src="/ui/a/${category}/${article_id}/delete_update_comments_js/${current_user_id_comments}">
+          </script>
+              `;
+            }
         }
 
         html_data+=`
