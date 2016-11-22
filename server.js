@@ -20,8 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-  //  var spawn = require('child_process').spawn,
-  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    var spawn = require('child_process').spawn,
+    py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -90,14 +90,11 @@ var log_in_block=`
 <br><br><br>
 `;
 
-var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="postOnClick();">
-</input><br>`;
+var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="postOnClick();"></input><br>`;
 
-var delete_block=`<input type='submit' id =PLACEHOLDER class = "submit_btn_small" value='delete'>
-</input><br>`;
+var delete_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='delete' onClick='PLACEHOLDER;'></input><br>`;
 
-var update_block=`<input type='submit' id =PLACEHOLDER class = "submit_btn_small" value='update' onClick="postOnClick();">
-</input><br>`;
+var update_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='update' onClick='PLACEHOLDER;'></input><br>`;
 
 app.get('/ui/log_out',function(req,res)
 {
@@ -227,6 +224,8 @@ function log_in_page_template_js(previous_page)
     var request=new XMLHttpRequest();
     request.onreadystatechange= function()
     {
+      //Loading
+      submit_btn.value='Submitting';
       if (request.readyState===XMLHttpRequest.DONE)
       {
         if (request.status === 200)
@@ -422,6 +421,8 @@ function sign_up_page_template_js(previous_page)
     var request=new XMLHttpRequest();
     request.onreadystatechange= function()
     {
+      //Loading
+      submit_btn.value='Submitting';      
       if (request.readyState===XMLHttpRequest.DONE)
       {
         if (request.status === 200)
@@ -799,9 +800,6 @@ function submit_page_template_js(category)
       {
         send_req_and_get_res();
       }   
-      
-      //*******************************************************************************************************************************************************************
-      //think!
     // send_req_and_get_res();//when page is loaded
 
      //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
@@ -811,8 +809,9 @@ function submit_page_template_js(category)
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
-        //*******************************************************************************************************************************************************************
         //Loading
+        submit_btn.value='Submitting';      
+
         if (request.readyState===XMLHttpRequest.DONE)
         {
           if (request.status === 200)
@@ -1132,16 +1131,16 @@ app.get('/ui/a/:category/:article_id/article_comment_js/', function (req, res) {
   article_id=req.params.article_id;
   category=req.params.category;
   //using article_template to resopnd with js that will sit in client and do client-side-templating to get comments on the page referenced by this id
-  res.send(comment_template(category,article_id));
-});
-
-//returns js for deletion,updation of comments on this.article page
-app.get('/ui/a/:category/:article_id/delete_update_comments_js/:list', function (req, res) {
-  article_id=req.params.article_id;
-  category=req.params.category;
-  list=req.params.list;
-
-  res.send(comment_template_delete_update_js(category,article_id,list));
+  
+  //if logged in
+  //add the js for deletion,updation of comments on this.article page
+  if (req.session && req.session.auth && req.session.auth.user_id )
+    res.send(comment_template(category,article_id)+comment_template_delete_update_js(category,article_id));
+  else
+    //if not logged in 
+    //sends only the js_data from comment_template
+    res.send(comment_template(category,article_id));
+  
 });
 
 
@@ -1382,6 +1381,9 @@ function comment_template(category,id)//returns a js code unique for each page
   var js_data=`
     //get the submit element on this page by referencing it with given article_id
 
+    var delete_block="${delete_block}";
+    var update_block="${update_block}";
+   
     submit_btn=document.getElementById('sub_${category}_id_${id}');
 
 
@@ -1400,8 +1402,9 @@ function comment_template(category,id)//returns a js code unique for each page
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
-        //*******************************************************************************************************************************************************************
         //Loading
+        submit_btn.value='Submitting';
+
         if (request.readyState===XMLHttpRequest.DONE)
         {
           if (request.status === 200)
@@ -1410,20 +1413,26 @@ function comment_template(category,id)//returns a js code unique for each page
             comment=JSON.parse(comment);
             var time = new Date(comment.time);
             var old_list=document.getElementById('ol_${category}_id_${id}');
+            
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            old_list.innerHTML="<li><div id="+comment.comment_id+">"+comment.text+"</div><div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</div></li>"+old_list.innerHTML;
-                
-           // var count=0;
-           // while(getElementById())
-           // {}
+            var new_comment="<li><div id="+comment.comment_id+">"+comment.text+"</div><div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
-            //delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+count );
-            //old_list+=delete_btn;
+            delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
+            delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
 
-            //old_list=update_block.replace('PLACEHOLDER','update_btn_id_'+count );
-            //html_data+=update_btn;            
+            new_comment+=delete_btn;
+
+            update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
+            update_btn=update_btn.replace('PLACEHOLDER','update_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
+
+            new_comment+=update_btn;
+
+            old_list.innerHTML+="</div></li>";
+
+            old_list.innerHTML=new_comment+old_list.innerHTML;
+
           }
         }
 
@@ -1446,40 +1455,14 @@ function comment_template(category,id)//returns a js code unique for each page
 }
 
 
-function comment_template_delete_update_js(category,article_id,list)
+function comment_template_delete_update_js(category,article_id)
 {
-  list=JSON.parse(list);
-
-  var js_data="";
-
-  for(i=0;i<=list.length -1;i++)
-  {
-    js_data+=`
-      delete_btn_id_${i}=document.getElementById('delete_btn_id_${i}').onclick=function()
-      {
-        delete_comment(${list[i]});
-      };
-    `;
-    //list[i]=comment_id for button at i'th index
-
-    js_data+=`
-    update_btn_id_${i}=document.getElementById('update_btn_id_${i}');
-      update_btn_id_${i}.onclick=function()
-      {
-        update_comment(${list[i]});
-      }
-    `;
-
-  }
-
   js_data+=`
     function delete_comment(comment_id)
     {
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
-        //*******************************************************************************************************************************************************************
-        //Loading
         if (request.readyState===XMLHttpRequest.DONE)
         {
           if (request.status === 200)
@@ -1505,7 +1488,6 @@ function comment_template_delete_update_js(category,article_id,list)
     };
   `;
   return js_data;
-
 }
 
 
@@ -1523,7 +1505,6 @@ function article_template(data,comments,log_in_details)//returns html doc
     var user_id=data.user_id;
     var time=data.time;
     var category=data.category;
-    var current_user_id_comments=[];//to store comment_id's of comments owned by current_user_id
 
 
       //replcaing PLACEHOLDER with desired value
@@ -1579,12 +1560,13 @@ function article_template(data,comments,log_in_details)//returns html doc
 
               if (comment[i].user_id===current_user_id)
               {
-                current_user_id_comments.push(comment[i].comment_id);
                 
-                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+(current_user_id_comments.length-1) );
+                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
+                delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
                 html_data+=delete_btn;
 
-                update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+(current_user_id_comments.length-1) );
+                update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment[i].comment_id );
+                update_btn=update_btn.replace('PLACEHOLDER','update_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
                 html_data+=update_btn;
               }
 
@@ -1611,20 +1593,14 @@ function article_template(data,comments,log_in_details)//returns html doc
           <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit'></input><br>
           `;
           html_data+=log_out_block+`
-          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
-          </script><!-js for inserting comments ->
+          <!-script for log_out ->
           <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
-        `; 
 
-            if(current_user_id_comments.length!==0)//the current user has some comments on this article_page
-            {
-              current_user_id_comments=JSON.stringify(current_user_id_comments);
-              html_data+=`
-                <script type="text/javascript" src="/ui/a/${category}/${article_id}/delete_update_comments_js/${current_user_id_comments}">
+          <!-js for inserting comments ->
+          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
           </script>
-              `;
-            }
+        `; 
         }
 
         html_data+=`
