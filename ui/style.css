@@ -112,7 +112,7 @@
 }
 
 .input_box {
-	background-color:#E0E3DA;
+	border:2px solid #6d819c;
 	margin-top: 25px;
 	margin-left:150px;
 	text-align: left;
@@ -257,27 +257,27 @@
 	font-size: 120%;
 }
 
-.Sports ,.Food {
+.Food {
     font-family: sans-serif;
-    background-color: #ffc952;
+    background-color: #D81159;
 }
 
-.Sports_comment_head,.Food_comment_head{
+.Food_comment_head{
 	margin-top: 20px;
 	margin-left:150px;
 	font-family: sans-serif;
 	font-size: 220%;
 }
 
-.Sports_header,.Food_header {
-	background-color: #ff7473;
+.Food_header {
+	background-color: #8F2D56;
 	text-align: center;
 	font-family: sans-serif;
 	font-size: 350%;
 }
 
-.Sports_comment_list,.Food_comment_list {
-	background-color:#47b8e0;
+.Food_comment_list {
+	background-color:#FFBC42;
 	margin-top: 25px;
 	margin-left:150px;
 	border:1px solid #34314c;

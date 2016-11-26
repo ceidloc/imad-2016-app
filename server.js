@@ -20,8 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-    var spawn = require('child_process').spawn,
-    py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    //var spawn = require('child_process').spawn,
+  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -83,7 +83,7 @@ var article_layout=`
 
 
 var log_in_block=`
-<input type='text' id ='log_in_username_button' class ="input_box" placeholder="Enter Username"></input><br>
+<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' placeholder='Enter Username'></input><br>
 <input type='password' id ='log_in_password_button' class ="input_box" placeholder="Enter Password"></input><br>
 <input type='submit' id ='log_in_submit_button' class = "submit_btn" value='Log in!'></input><br><br><hr>
 <input type='submit' id ='sign_up_submit_button' class = "submit_btn" value='Sign up!'  onClick="postOnClick();"></input>
@@ -94,7 +94,7 @@ var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "sub
 
 var delete_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='delete' onClick='PLACEHOLDER;'></input><br>`;
 
-var update_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='update' onClick='PLACEHOLDER;'></input><br>`;
+var update_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='update' onClick='PLACEHOLDER'; autofocus wrap='hard'></input><br>`;
 
 app.get('/ui/log_out',function(req,res)
 {
@@ -196,7 +196,8 @@ function log_in_page_template(previous_page)
     <hr>
     </div>
   `;
-  html_data+=log_in_block;
+  log_in_block_autofocus=log_in_block.replace("placeholder='Enter Username'>","placeholder='Enter Username' autofocus>");
+  html_data+=log_in_block_autofocus;
   html_data+=`  
   </body>
   <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=${previous_page}">
@@ -687,29 +688,6 @@ function cart_bill_format(res,cart_id,data)
 };
 
 
-//post requst to insert comment
-app.post('/ui/a/:category/:article_id', function (req, res)
-{ 
-  //can only add comments if logged in!
-  if (req.session && req.session.auth && req.session.auth.user_id )
-  {
-    log_in_details=req.session.auth.user_id.user_id;
-
-    //url type: ui/3/comment?comment=... here id = 3
-    var article_id=req.params.article_id;
-    var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
-    var comment=req.body.comment;
-    if (comment!=="")
-      {
-        //list[id_no].push(comment);
-        comment_format(res,['insert comment',comment],article_id,log_in_details);
-
-      }
-    //returning only the row containing the comments from current page as JSON string represntation of that row,stored in a 2-D array
-    //res.send(JSON.stringify(list[id_no])); 
-  }
-});
-
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
@@ -771,8 +749,8 @@ function submit_page_template(category)
     </div>
   `;
   html_data+=`
-  <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title"></input><br>
-  <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text"></textarea><br>
+  <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title" autofocus ></input><br>
+  <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text" wrap="hard"></textarea><br>
   <input type='submit' id ='article_sumbit_button_${category}' class = "submit_btn" value='Submit Article!'></input><br><br><hr>
 
   `;
@@ -875,6 +853,49 @@ app.post('/ui/a/:category', function (req, res)
   }
 });
 
+//post requst to insert/update comment
+app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
+{ //body has comment and may have comment_id for updation of comment
+
+  //can only add comments if logged in!
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
+
+    //url type: ui/3/comment?comment=... here id = 3
+    var article_id=req.params.article_id;
+    var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
+    var action=req.params.action_on_commnet;
+
+    var comment=req.body.comment;
+    if (comment!=="")
+      { 
+        var data=[action,comment]
+        if (action==='update comment')
+        {//need the comment_id to update the connets of the commment
+          var comment_id=req.body.comment_id;
+          data.push(comment_id);
+          console.log("inside update end point data=",data);
+        }
+        comment_format(res,data,article_id,log_in_details);
+      }
+  }
+});
+
+//to delete a comment,referenced by it's comment_id, is verified by user_id of current_user_id
+app.post('/ui/a/:category/delete_comment',function(req,res)
+{
+
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
+  if (req.session && req.session.auth && req.session.auth.user_id )
+   log_in_details=["logged in",req.session.auth.user_id.user_id];
+
+  var user_id=log_in_details[1];
+  var comment_id=req.body.comment_id;
+
+  comment_format(res,['delete comment',user_id,comment_id],log_in_details);
+});
+
 
 
 //returns all the articles present belonging to this category
@@ -908,19 +929,7 @@ app.get('/ui/a/:category/:article_id', function (req, res) {
   article_format(res,['select an article',article_id,category],log_in_details)
 });
 
-//to delete a comment,referenced by it's comment_id, is verified by user_id of current_user_id
-app.post('/ui/a/:category/:article_id/:comment_id',function(req,res)
-  {
 
-  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
-  if (req.session && req.session.auth && req.session.auth.user_id )
-   log_in_details=["logged in",req.session.auth.user_id.user_id];
-
-  var user_id=log_in_details[1];
-  var comment_id=req.body.comment_id;
-
-    comment_format(res,['delete comment',user_id,comment_id],log_in_details);
-  });
 
 function comment_format(res,data,article_id,log_in_details)
 { 
@@ -947,13 +956,30 @@ function comment_format(res,data,article_id,log_in_details)
   { 
     //console.log("\n inside comment_format IF,data:",data);
     ////console.log("\n inside comment_format IF,data.parsed[1]:",JSON.parse(data[1]));
-    pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[data[1],article_id,log_in_details],function(err,result)//data[1]=comment
+    pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[data[1],article_id,log_in_details[1]],function(err,result)//data[1]=comment
       {
         if (err)
         { 
           res.status(500).send(err.toString());
         }
           comment_format(res,["new comment"],article_id,log_in_details);
+      } );
+  }
+  else
+  if (data[0]==='update comment')
+    //data=['update comments',comment,comment_id]
+  { 
+    pool.query('UPDATE comments SET text=$1 WHERE comment_id=$2 AND user_id=$3',[data[1],data[2],log_in_details[1]],function(err,result)//data[1]=comment
+      {
+        if (err)
+        { 
+          res.status(500).send(err.toString());
+        }
+        else
+        {
+          console.log("comment successfully updated");
+          res.send(data[1]);
+        }
       } );
   }
   else
@@ -1239,7 +1265,7 @@ function article_home_page_template(res,category,articles,log_in_details)
       html_data+=`
        <li><a href="/ui/a/${category}/${article_id}">${head}</a>
        <div class='details'>
-       by ${username} <br>at ${localtime} at ${date}
+       by ${username} <br>at ${localtime} on ${date}
        </div>
        </li>
       `;
@@ -1278,7 +1304,6 @@ function cafe_home_page_template(log_in_details)
         {
           html_data+="<div class=side_nav_link>"+log_out_block+"</div>";
         }
-
         else
         {
           html_data+=`<a href='/ui/log_in_page/previous_page?previous_page=cafe_home_page' id ='log_in_page_link' class = side_nav_link>Log in!<a>`
@@ -1378,7 +1403,10 @@ function cafe_home_page_template_js(no_of_menu_items) // returns js for index pa
 
 function comment_template(category,id)//returns a js code unique for each page
 {   
-  var js_data=`
+   var js_data=escape_html_js.toString();
+   //this function is used to prevent xss attack
+
+   js_data+=`
     //get the submit element on this page by referencing it with given article_id
 
     var delete_block="${delete_block}";
@@ -1417,7 +1445,7 @@ function comment_template(category,id)//returns a js code unique for each page
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            var new_comment="<li><div id="+comment.comment_id+">"+comment.text+"</div><div class='details'>By:"+comment.username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+            var new_comment="<li><div id="+comment.comment_id+">"+escape_html_js(comment.text)+"</div><div class='details'>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
             delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
@@ -1425,14 +1453,14 @@ function comment_template(category,id)//returns a js code unique for each page
             new_comment+=delete_btn;
 
             update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
-            update_btn=update_btn.replace('PLACEHOLDER','update_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
+            update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
 
             new_comment+=update_btn;
 
             old_list.innerHTML+="</div></li>";
-
             old_list.innerHTML=new_comment+old_list.innerHTML;
 
+            submit_btn.value='Submit';
           }
         }
 
@@ -1442,7 +1470,7 @@ function comment_template(category,id)//returns a js code unique for each page
       input=document.getElementById('in_${category}_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}/insert comment',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
@@ -1457,6 +1485,8 @@ function comment_template(category,id)//returns a js code unique for each page
 
 function comment_template_delete_update_js(category,article_id)
 {
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='input_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn' value='update Comment!' onclick='PLACEHOLDER'></input>`;
+
   js_data+=`
     function delete_comment(comment_id)
     {
@@ -1482,10 +1512,83 @@ function comment_template_delete_update_js(category,article_id)
 
       //making request
       //sending as post for time being,will update to DELETE
-      request.open('POST',"http://ceidloc.imad.hasura-app.io/ui/a/${category}/${article_id}/"+comment_id.toString(),true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/delete_comment',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"comment_id":comment_id} ) );
     };
+
+    function updating_comment(comment_id)
+    { 
+      update_comment_text=document.getElementById(comment_id);
+      previous_text=update_comment_text.innerHTML;
+      
+      update_text_block="${update_text_block}";
+      
+      update_text_block=update_text_block.replace('PLACEHOLDER','comment_update_body_'+comment_id );//id for text area of body
+      update_text_block=update_text_block.replace('PLACEHOLDER','comment_update_button_'+comment_id );//id for submit_btn for updating comment
+      update_text_block=update_text_block.replace('PLACEHOLDER','update_comment('+comment_id +')' );//replcaing onclick='PLACEHOLDER'
+      
+      update_comment_text.innerHTML=update_text_block;
+      update_comment_text=document.getElementById('comment_update_body_'+comment_id);//the textarea for updating comment
+      update_comment_text.defaultValue=previous_text;
+
+      //reseting the update_btn to close button and onclick to close_updating_btn      
+      close_btn=document.getElementById('update_btn_id_'+comment_id);
+      close_btn.value='close';
+      close_btn.onclick=function()
+      {
+        close_updating_btn(comment_id,previous_text);
+      }
+
+    };
+
+    function update_comment(comment_id)
+    {
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {//take comments from the request and parse them into array 
+            var comment=request.responseText;
+            //updated the value of comment
+            old_comment=document.getElementById(comment_id);
+            old_comment.innerHTML=escape_html_js(comment);
+
+            //reseting the close_btn to update button and onclick to updating_comment
+            close_btn=document.getElementById('update_btn_id_'+comment_id);
+            close_btn.value='update';
+            close_btn.onclick=function()
+            {
+              updating_comment(comment_id);
+            }
+
+          }
+        }
+
+      };
+
+      //making request
+      updated_comment=document.getElementById('comment_update_body_'+comment_id.toString() ).value;
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${article_id}/update comment',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"comment":updated_comment,"comment_id":comment_id} ) );
+    };
+
+    function close_updating_btn(comment_id,previous_text)
+    { 
+      update_comment_text=document.getElementById(comment_id);
+      update_comment_text.innerHTML=previous_text;
+
+      //reseting the close_btn to update button and onclick to updating_comment
+      close_btn=document.getElementById('update_btn_id_'+comment_id);
+      close_btn.value='update';
+      close_btn.onclick=function()
+      {
+        updating_comment(comment_id);
+      }
+    }
   `;
   return js_data;
 }
@@ -1525,13 +1628,28 @@ function article_template(data,comments,log_in_details)//returns html doc
       if (category==='cafe_menu')
         html_data=cafe_layout;
 
+       var time = new Date(time);
 
-    html_data+=`
+      html_data+=`
         <div class='page_head'>
-          ${head}
+        <!using escape_html_cs to prevent xss attack >
+          ${escape_html_cs(head)}
         </div>
         <div class='center'>
-        ${body}
+        ${escape_html_cs(body)}
+        <div class=details>
+        <br>
+        by ${username}
+        at ${time.toLocaleTimeString()}
+        on ${time.toLocaleDateString()}`;
+      
+      if(current_user_id===user_id)
+      {
+        html_data+="<br>delete<br>update";
+      }
+
+      html_data+=`
+        </div>
         <hr>
         </div>
           <div class="${category}_comment_head">
@@ -1544,19 +1662,20 @@ function article_template(data,comments,log_in_details)//returns html doc
 
         if(comments==='Be the first to comment!')
         {   
-          html_data+=comments;
+          html_data+=comments;//contains 'Be the fisrt to comment!'
         }
         else
         {
-          ////console.log("inside article_template,comments",comments);
           comment=JSON.parse(comments);
-          ////console.log("inside article_template,comment",comment);
           //creating a string to render in the inner html of ol on this article page
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
-              ////console.log("inside article_template,time var:",time);
-              html_data+="<li> <div id=" + comment[i].comment_id + ">"+comment[i].text+"</div><div class='details'>By:"+comment[i].username+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+              html_data+="<li> <div id=" + comment[i].comment_id + ">";
+              //to prevent xss attack via sending html code through input
+              html_data+=escape_html_cs(comment[i].text)+"</div><div class='details'>By:";
+              html_data+=escape_html_cs(comment[i].username);
+              html_data+="<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
               if (comment[i].user_id===current_user_id)
               {
@@ -1566,7 +1685,7 @@ function article_template(data,comments,log_in_details)//returns html doc
                 html_data+=delete_btn;
 
                 update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment[i].comment_id );
-                update_btn=update_btn.replace('PLACEHOLDER','update_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
+                update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
                 html_data+=update_btn;
               }
 
@@ -1588,7 +1707,7 @@ function article_template(data,comments,log_in_details)//returns html doc
         else
         {
           html_data+= `
-          <input type='text' id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!"></input>
+          <textarea rows="2" cols="20" id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!" ></textarea>
           <br>
           <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit'></input><br>
           `;
@@ -1654,7 +1773,7 @@ function order_template(cafe_menu,cart,cart_id)
           for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
             { //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
               html_data+="<li>"+cafe_menu[cart[i].item_id].head +" Qty:"+cart[i].quantity +" price:"
-              +cart[i].price.substr(0,1)+(cart[i].quantity * parseInt(cart[i].price.substr(1,4),10) ).toString() +"</li>";
+              +cart[i].price.substr(0,1)+(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
               //converting price string($322)'s substring into int 
             };
 
@@ -1709,7 +1828,7 @@ function order_template_js(cart_id)
               {//extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
                 var head=document.getElementById('head_for_item_id_'+new_cart[i].item_id).innerHTML;
                 new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +" price:"
-                +new_cart[i].price.substr(0,1)+(new_cart[i].quantity * parseInt(new_cart[i].price.substr(1,4),10) ).toString() +"</li>";
+                +new_cart[i].price.substr(0,1)+(new_cart[i].quantity * parseFloat(new_cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
               };
 
               //new_order=request.responseText;
@@ -1740,6 +1859,25 @@ function order_template_js(cart_id)
 }
 
   
+function escape_html_js(text)
+{
+  var text=document.createTextNode(text);
+  var div=document.createElement('div');
+  div.appendChild(text);
+
+  return div.innerHTML;
+}
+
+
+function escape_html_cs(unsafe)
+{
+ return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
 
 var port = 8080; // Use 8080 for local development because you might already have apache running on 80
 app.listen(8080, function () {
