@@ -120,6 +120,19 @@
 	font-size: 120%;
 }
 
+.update_article_box {
+	border:2px solid #6d819c;
+	font-family: sans-serif;
+	font-size: 100%;
+}
+
+.update_comment_box {
+	border:2px solid #6d819c;
+	margin-top: 5px;
+	font-family: sans-serif;
+	font-size: 100%;
+}
+
 .submit_btn {
 	background-color:#6d819c;
 	margin-top:20px;

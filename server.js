@@ -21,7 +21,7 @@ app.use(session (
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
     //var spawn = require('child_process').spawn,
-    //py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+   // py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -802,10 +802,6 @@ function submit_page_template_js(category)
             window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}/'+res[1].article_id;
             }
           }
-          else if (request.status === 404) 
-          {
-          submit_btn.value = 'username not available';
-          }
           else if (request.status === 500) 
           {
           submit_btn.value = 'Something went wrong on the server';
@@ -822,7 +818,7 @@ function submit_page_template_js(category)
       head=document.getElementById('article_sumbit_head_button_${category}').value;
       body=document.getElementById('article_sumbit_body_button_${category}').value;
 
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/insert an article',true);
       //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"body":body,"head":head} ) );
@@ -1052,7 +1048,7 @@ app.get('/ui/a/:category/:article_id/article_template_js',function(req,res)
 function article_template_js(category,article_id)
 {
   var js_data=escape_html_js.toString();
-  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='input_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn' onclick='PLACEHOLDER'></input>`;
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_article_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn_small' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
     function delete_article(article_id)
@@ -1297,7 +1293,7 @@ function article_format(res,data,log_in_details)
     var user_id=data[1];
     var category=data[2];
 
-    pool.query('SELECT article_id FROM article_table WHERE user_id=$1 AND category=$2',[user_id,category],function(err,result)
+    pool.query('SELECT article_id FROM article_table WHERE user_id=$1 AND category=$2 ORDER BY article_id',[user_id,category],function(err,result)
     {
      if (err)
       {
@@ -1650,7 +1646,7 @@ function comment_template(category,id)//returns a js code unique for each page
 
 function comment_template_delete_update_js(category,article_id)
 {
-  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='input_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn' value='update Comment!' onclick='PLACEHOLDER'></input>`;
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_comment_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn_small' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
     function delete_comment(comment_id)
