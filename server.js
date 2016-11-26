@@ -21,7 +21,7 @@ app.use(session (
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
     //var spawn = require('child_process').spawn,
-  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+    //py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -835,23 +835,46 @@ function submit_page_template_js(category)
 
 }
 
-//post requst to insert article,belonging to this category
-app.post('/ui/a/:category', function (req, res)
+//post requst to insert/update article,belonging to this category
+app.post('/ui/a/:category/:action_on_article', function (req, res)
 { 
   //can only add article's if logged in!
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
     var user_id=req.session.auth.user_id.user_id;
+    var log_in_details=["logged in",user_id];
     var category=req.params.category;
+    var action_on_article=req.params.action_on_article;
     var head=req.body.head;
     var body=req.body.body;
     if (head!=="" && body!=="")
     {
+      var data=[action_on_article,user_id,category,head,body]
+      if (action_on_article==='update article')
+      {//need the comment_id to update the connets of the commment
+        var article_id=req.body.article_id;
+        data.push(article_id);
+      }
       //inserts the article,then load's its page
-      article_format(res,['insert an article',user_id,category,head,body],log_in_details);
+      article_format(res,data,log_in_details);
     }
   }
 });
+
+//request to delete the body of the article
+app.post('/ui/a/:category/delete_article',function(req,res)
+{
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
+    var user_id=log_in_details[1];
+    var article_id=req.body.article_id;
+
+    article_format(res,['delete article',article_id,user_id],log_in_details);
+  }
+});
+
 
 //post requst to insert/update comment
 app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
@@ -968,7 +991,7 @@ function comment_format(res,data,article_id,log_in_details)
   else
   if (data[0]==='update comment')
     //data=['update comments',comment,comment_id]
-  { 
+  { console.log("inside update Comment,body",data[1]);
     pool.query('UPDATE comments SET text=$1 WHERE comment_id=$2 AND user_id=$3',[data[1],data[2],log_in_details[1]],function(err,result)//data[1]=comment
       {
         if (err)
@@ -977,6 +1000,7 @@ function comment_format(res,data,article_id,log_in_details)
         }
         else
         {
+          console.log("inside update comment");
           console.log("comment successfully updated");
           res.send(data[1]);
         }
@@ -1017,7 +1041,121 @@ function comment_format(res,data,article_id,log_in_details)
     }
 };
 
+//returns article update and delete js
+app.get('/ui/a/:category/:article_id/article_template_js',function(req,res)
+{
+  article_id=req.params.article_id;
+  category=req.params.category;
+  res.send(article_template_js(category,article_id));
+});
 
+function article_template_js(category,article_id)
+{
+  var js_data=escape_html_js.toString();
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='input_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn' onclick='PLACEHOLDER'></input>`;
+
+  js_data+=`
+    function delete_article(article_id)
+    {
+      console.log("inside function delete_article");
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {//take comments from the request and parse them into array 
+            var text=request.responseText;
+            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}';
+          }
+        }
+
+      };
+
+      //making request
+      //sending as post for time being,will update to DELETE
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/delete_article',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"article_id":article_id} ) );
+    };
+
+ function updating_article(article_id)
+    { 
+      update_article_text=document.getElementById('article_body_'+article_id);
+      previous_text=update_article_text.innerHTML;
+      
+      update_text_block="${update_text_block}";
+      
+      update_text_block=update_text_block.replace('PLACEHOLDER','article_update_body_'+article_id );//id for text area of body
+      update_text_block=update_text_block.replace('PLACEHOLDER','article_update_button_'+article_id );//id for submit_btn for updating article
+      update_text_block=update_text_block.replace('PLACEHOLDER','update_article('+article_id +')' );//replcaing onclick='PLACEHOLDER'
+      
+      update_article_text.innerHTML=update_text_block;
+      update_article_text=document.getElementById('article_update_body_'+article_id);//the textarea for updating article
+      update_article_text.defaultValue=previous_text;
+
+      //reseting the update_article_btn to close button and onclick to close_updating_btn      
+      close_article_btn=document.getElementById('update_article_btn_id_'+article_id);
+      close_article_btn.value='close';
+      close_article_btn.onclick=function()
+      {
+        close_article_updating_btn(article_id,previous_text);
+      }
+
+    };
+
+    function update_article(article_id)
+    {
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {//take articles from the request and parse them into array 
+            var article=request.responseText;
+            //updated the value of article
+            console.log("updated the value of article");
+            old_article=document.getElementById('article_body_'+article_id);
+            old_article.innerHTML=escape_html_js(article);
+
+            //reseting the close_article_btn to update button and onclick to updating_article
+            close_article_btn=document.getElementById('update_article_btn_id_'+article_id);
+            close_article_btn.value='update';
+            close_article_btn.onclick=function()
+            {
+              updating_article(article_id);
+            }
+
+          }
+        }
+
+      };
+
+      //making request
+      updated_article=document.getElementById('article_update_body_'+article_id ).value;
+      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/update article',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"body":updated_article,"article_id":article_id} ) );
+    };
+
+    function close_article_updating_btn(article_id,previous_text)
+    { 
+      update_article_text=document.getElementById('article_body_'+article_id);
+      update_article_text.innerHTML=previous_text;
+
+      //reseting the close_article_btn to update button and onclick to updating_article
+      close_article_btn=document.getElementById('update_article_btn_id_'+article_id);
+      close_article_btn.value='update';
+      close_article_btn.onclick=function()
+      {
+        updating_article(article_id);
+      }
+    }
+  `;
+
+  return js_data;
+};
 
 function article_format(res,data,log_in_details)
 {
@@ -1029,8 +1167,9 @@ function article_format(res,data,log_in_details)
   //select an article belonging to given category ['select an article',aritcle_id,category]
 
   if (data[0]==="delete article")
-  {//data=['remove article',category,article_id]
-    pool.query("DELETE FROM article_tablet WHERE article_id=$1",[data[2]],function(err,result)//data[2]=article_id
+  {//data=['remove article',article_id,user_id]
+    console.log("inside delete_article");
+    pool.query("DELETE FROM article_table WHERE article_id=$1 AND user_id=$2",[data[1],data[2]],function(err,result)//data[1]=article_id
     {
       if (err)
       { 
@@ -1038,7 +1177,8 @@ function article_format(res,data,log_in_details)
       }
       else
       {
-        article_format(res,['select all',data[1]],log_in_details);//data[1]=category
+        console.log("inside delete_article,done");
+        res.send("successfully deleted");
       }
     });
   }
@@ -1122,6 +1262,31 @@ function article_format(res,data,log_in_details)
         else
         { //selecting the last article inserted by this user in this category,aka the current article just inserted
           article_format(res,['select last',user_id,category],log_in_details)
+        }
+      });
+  }
+  else if (data[0]==="update article")
+  {
+    //insert into article_table and then select this article by referencing the last article_id
+    //data=['insert',user_id,category,head,body,article_id]
+    var user_id=data[1];
+    var category=data[2];
+    var head=data[3];
+    var body=data[4];
+    var article_id=data[5];
+    
+    console.log("inside update article,body",body);
+
+    pool.query('UPDATE article_table SET body=$2 WHERE article_id=$3 AND user_id=$1',[user_id,body,article_id],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else
+        { //selecting the last article inserted by this user in this category,aka the current article just inserted
+          console.log("inside update article");
+          res.send(body);
         }
       });
   }
@@ -1636,7 +1801,9 @@ function article_template(data,comments,log_in_details)//returns html doc
           ${escape_html_cs(head)}
         </div>
         <div class='center'>
+        <div id=article_body_${article_id}>
         ${escape_html_cs(body)}
+        </div>
         <div class=details>
         <br>
         by ${username}
@@ -1645,12 +1812,18 @@ function article_template(data,comments,log_in_details)//returns html doc
       
       if(current_user_id===user_id)
       {
-        html_data+="<br>delete<br>update";
+        delete_btn=delete_block.replace('PLACEHOLDER','delete_article_btn_id_'+ article_id);//replaces; id=PLACEHOLDER
+        delete_btn=delete_btn.replace('PLACEHOLDER','delete_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
+        html_data+='<br>'+delete_btn;
+
+        update_btn=update_block.replace('PLACEHOLDER','update_article_btn_id_'+article_id );
+        update_btn=update_btn.replace('PLACEHOLDER','updating_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
+        html_data+=update_btn;
       }
 
       html_data+=`
-        </div>
         <hr>
+        </div>
         </div>
           <div class="${category}_comment_head">
           Comments
@@ -1720,6 +1893,13 @@ function article_template(data,comments,log_in_details)//returns html doc
           <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
           </script>
         `; 
+        }
+        if(current_user_id===user_id)
+        {
+          
+          html_data+=`<!-js for inserting comments ->
+          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_template_js/">
+          </script>`;
         }
 
         html_data+=`
