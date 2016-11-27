@@ -25,7 +25,6 @@ if (categories)
 	};
 	request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/a/all_categories',true);
     request.send(null);
-    console.log("\n\n inside if \n");
 }
 
 //load side nav bar to display log_in,sign_up / log_out link's
