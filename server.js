@@ -28,7 +28,7 @@ config=
   database:'ceidloc',
   host:'db.imad.hasura-app.io',
   port:'5432',
-  password:process.env.IMAD_DB_PASSWORD
+  password:process.env.DB_PASSWORD
 };
 
 pool =new Pool(config);
