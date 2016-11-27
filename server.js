@@ -28,7 +28,7 @@ config=
   database:'ceidloc',
   host:'db.imad.hasura-app.io',
   port:'5432',
-  password:process.env.DB_PASSWORD
+  password:process.env.IMAD_DB_PASSWORD
 };
 
 pool =new Pool(config);
@@ -579,7 +579,7 @@ app.get('/ui/a/:category/submit_page',function(req,res)
     var category=req.params.category;
     if (req.session && req.session.auth && req.session.auth.user_id )
     {
-      log_in_details=req.session.auth.user_id.user_id;
+      log_in_details=["logged in",req.session.auth.user_id.user_id];
       res.send(submit_page_template(category));
     } 
     else
@@ -717,7 +717,7 @@ function article_template_js(category,article_id)
       };
 
       //making request
-      //sending as post for time being,will update to DELETE
+      //sending DELETE request
       request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/a/delete_article/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"article_id":article_id} ) );
@@ -1448,7 +1448,7 @@ function comment_template_delete_update_js(category,article_id)
       };
 
       //making request
-      //sending as post for time being,will update to DELETE
+      //sending DELETE request
       request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/a/delete_comment/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"comment_id":comment_id} ) );
@@ -1726,10 +1726,6 @@ function cafe_home_page_template_js(no_of_menu_items) // returns js for index pa
           var interval=setInterval(movearound_${i},100);
         }
       };
-      
-
-
-      //*******************************************************************************************************************************************************************
       //experiment with setInterval
       super_key_${i}=1;
 
@@ -1746,42 +1742,14 @@ function cafe_home_page_template_js(no_of_menu_items) // returns js for index pa
 //section 
 //end points for order page
 
-app.get('/ui/get_bill_details_for_item_id/:cart_id/:item_id', function (req, res)// replace /1/: by /:cart_id
+app.get('/ui/order/cafe_menu/order_page/', function (req, res) 
 {
-  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
-  if (req.session && req.session.auth && req.session.auth.user_id )
-    log_in_details=["logged in",req.session.auth.user_id.user_id];
-
-  var item_id=req.params.item_id;
-  item_id=parseInt(item_id,10);//convertin id containg string type  value to int type decimal value
-  var cart_id=req.params.cart_id;
-  cart_id=parseInt(cart_id,10);
-  //convertin id containg string type  value to int type decimal value
-  
-  pool.query("SELECT quantity FROM cart WHERE cart_id=$1 AND item_id=$2 ",[cart_id,item_id],function(err,result)
-  {
-    if (err)
-    {
-      res.status(500).send(err.toString());
-    }
-    else if (result.rows.length===0)//first insertion of this item in this cart 
-    { 
-     cart_bill_format(res,cart_id,JSON.stringify(["insert item",item_id]),log_in_details);
-    }
-    else
-    {
-      cart_bill_format(res,cart_id,JSON.stringify(["update item",item_id,result.rows[0].quantity]),log_in_details);
-    }
-  });
-});
-
-app.get('/ui/order/cafe_menu/order_page/', function (req, res) {// add /:cart_id 
   if (req.session && req.session.auth && req.session.auth.user_id )
    {
      cart_id=req.session.auth.user_id.user_id;//change to auth.cart_id;
      //loading a cart,note can be both new cart or pre-existing
      //if new cart is to be made the user_id is used as cart_id,foreign key constraint
-     cart_bill_format(res,cart_id,"load cart");
+     cart_bill_format(res,cart_id,JSON.stringify(["load cart"]) );
    }
    else
    {
@@ -1793,12 +1761,40 @@ app.get('/ui/order/cafe_menu/order_page/', function (req, res) {// add /:cart_id
   
 });
 
-
 app.get('/ui/order/cafe_menu/order_page_js/:cart_id', function (req, res) {
   var cart_id=req.params.cart_id;
   cart_id=parseInt(cart_id,10);
   res.send(order_template_js(cart_id));
   
+});
+
+//inserts/update's quantity and price of items in cart
+app.post('/ui/order/cafe_menu/order_page/update_order', function (req, res) {
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+  var cart_id=req.body.cart_id;
+  var item_id=req.body.item_id;
+  var update_by=req.body.update_by;
+  if(cart_id===req.session.auth.user_id.user_id)
+  {
+    var data=JSON.stringify(["get quantity",cart_id,item_id,update_by]);
+    cart_bill_format(res,cart_id,data);
+  }
+  }
+});
+
+//inserts/update's quantity and price of items in cart
+app.delete('/ui/order/cafe_menu/order_page/delete_order', function (req, res) {
+  if (req.session && req.session.auth && req.session.auth.user_id )
+  {
+  var cart_id=req.body.cart_id;
+  var item_id=req.body.item_id;
+    if(cart_id===req.session.auth.user_id.user_id)
+    {
+      var data=JSON.stringify(["clear cart",cart_id,item_id]);
+      cart_bill_format(res,cart_id,data);
+    }
+  }
 });
 
 //template functions for order page
@@ -1826,7 +1822,7 @@ function order_template(cafe_menu,cart,cart_id)
       <div id='head_for_item_id_${item_id}'>${head}</div>
       <div id='quantity_item_id_${item_id}'></div>
       <div id='price_item_id_${item_id}'>${price}</div>
-      <input type='submit' id='place_this_item_id_${item_id}' class = "place_order_submit_btn" value='Add in cart'> </input>
+      <input type='submit' id='place_this_item_id_${item_id}' class = "place_order_submit_btn" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
       </li>
       `;
     };
@@ -1839,21 +1835,28 @@ function order_template(cafe_menu,cart,cart_id)
      if (cart==="empty cart")
         { 
           html_data+='Empty Cart';
-
         }
      else
         {
           //creating a string to render in the inner html of ol on this article page
           for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
-            { //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
-              html_data+="<li>"+cafe_menu[cart[i].item_id].head +" Qty:"+cart[i].quantity +"<br>price:"
-              +cart[i].price.substr(0,1)+(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
-              //converting price string($322)'s substring into int 
+            { 
+              //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
+              html_data+="<li><div id=cart_item_id_head_"+cart[i].item_id+">"+cafe_menu[cart[i].item_id].head+"</div>"
+              +"<ul>"
+              +"<li><div id=cart_item_id_quantitiy_"+cart[i].item_id+">Qty:"+cart[i].quantity+"</div>"
+              +"<input type=submit class=submit_btn_small id=increase_quantity_"+cart[i].item_id+" value='+' onclick='update_quantity("+cart[i].item_id+",1);'></input>"
+              +"<input type=submit class=submit_btn_small id=decrease_quantity_"+cart[i].item_id+" value='-' onclick='update_quantity("+cart[i].item_id+",-1);'></input>"
+              +"</li>"
+              +"<li id=cart_item_id_price_"+cart[i].item_id+">price:"
+              //converting price string($3.22)'s substring into int 
+              +cart[i].price.substr(0,1)
+              +(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString()
+              +"</li></ul></li>";
             };
-
         }
 
-    html_data+="</ul>"
+    html_data+="</ul><br><input type=submit class=submit_btn_small id=clear_cart_id_("+cart_id+") value='Clear Cart' onclick='clear_cart("+cart_id+");' "
     html_data+="<div class=side_nav_link>"+log_out_block+`</div>
     <script type="text/javascript" src="/ui/order/cafe_menu/order_page_js/${cart_id}">
     </script>
@@ -1867,24 +1870,9 @@ function order_template(cafe_menu,cart,cart_id)
 }
 
 function order_template_js(cart_id)
-{ 
-  var js_data=`var cart=document.getElementById('cart'); `;
-
-  for (var i=0;i<=11;i++)//i=-1
-  {
-    if (i==-1)
-    {
-      js_data+=`send_req_and_get_res0(-1);`;
-    }
-    else
-    {
-      js_data+=`
-        var submit_for_item_id_${i}=document.getElementById('place_this_item_id_${i}');
-        submit_for_item_id_${i}.onclick=function()
-          {
-            send_req_and_get_res${i}(${i});
-         };    
-      function send_req_and_get_res${i}(id_no)
+{     
+  var js_data=`    
+      function update_quantity(item_id,update_by)//update_by=1 or -1
       {
         var request=new XMLHttpRequest();
         request.onreadystatechange= function()
@@ -1893,41 +1881,84 @@ function order_template_js(cart_id)
           {
             if (request.status === 200)
             {
-              //take comments from the request and parse them into array 
-             var new_cart=JSON.parse(request.responseText);
-
+              var response=request.responseText;
               var new_order="";
-            //creating a string to render in the inner html of ol on this article page
-            for (var i=0;i<=new_cart.length-1;i++)   
-              {//extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
-                var head=document.getElementById('head_for_item_id_'+new_cart[i].item_id).innerHTML;
-                new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +"<br>price:"
-                +new_cart[i].price.substr(0,1)+(new_cart[i].quantity * parseFloat(new_cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
-              };
+              //creating a string to render in the inner html of ol on this article page
+              //extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
+              var head=document.getElementById('head_for_item_id_'+item_id).innerHTML;
+              //extracting price of one quantity of the item
+              price=document.getElementById('price_item_id_'+item_id).innerHTML.split('$')[1];
 
-              //new_order=request.responseText;
-              if(new_order!=="")
+              if(response==="inserted successfully")
               {
-              cart.innerHTML=new_order;
+                new_cart="<li><div id=cart_item_id_head_"+item_id+">"+head+"</div>"
+                +"<ul>"
+                +"<li><div id=cart_item_id_quantitiy_"+item_id+">Qty:"+1+"</div>"
+                +"<input type=submit class=submit_btn_small id=increase_quantity_"+item_id+" value='+' onclick='update_quantity("+item_id+",1);'></input>"
+                +"<input type=submit class=submit_btn_small id=decrease_quantity_"+item_id+" value='-' onclick='update_quantity("+item_id+",-1);'></input>"
+                +"</li>";
+
+                price="<li id=cart_item_id_price_"+item_id+">price:$"+parseFloat(price,10).toFixed(3).toString();
+                new_cart+=price+"</li></ul></li>";
+
+                old_cart=document.getElementById('cart');
+                if (old_cart.innerHTML==="Empty Cart")
+                  old_cart.innerHTML="";
+
+                old_cart.innerHTML=new_cart+old_cart.innerHTML;
               }
+
+              else if(response==="updated successfully")
+              {
+                document.getElementById('cart_item_id_head_'+item_id).innerHTML=head;
+                
+                old_quantity=document.getElementById('cart_item_id_quantitiy_'+item_id);
+                old_quantity.innerHTML="Qty:"+(parseInt(old_quantity.innerHTML.split(':')[1],10)+parseInt(update_by,10)).toString();
+
+                //extracting total price of the item in the cart
+                old_total_price=document.getElementById('cart_item_id_price_'+item_id).innerHTML.split('$')[1];
+
+                new_price="<li id=cart_item_id_price_"+item_id+">price:$"
+                +( ( parseFloat(price,10)*parseInt(update_by,10) )+parseFloat(old_total_price,10) ).toFixed(3).toString();
+                //eg (3.220*-1)+32.200
+
+                document.getElementById('cart_item_id_price_'+item_id).innerHTML=new_price;
+              }
+
             }
           }
-
         };
 
         //making request
-        if (id_no === -1)
-        request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
-        else 
-        request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
-        request.send(null);
-      };`;
-    }//else end
-  }
-  
+        request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/order/cafe_menu/order_page/update_order',true);
+        request.setRequestHeader('Content-Type','application/json');
+        request.send(JSON.stringify({"cart_id":${cart_id},"item_id":item_id,"update_by":update_by}));
+      };
 
+    function clear_cart(cart_id)
+    {
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {
+           document.getElementById('cart').innerHTML="Empty Cart";
+          }
+        }
+
+      };
+
+      //making request
+      //sending DELETE request
+      request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/order/cafe_menu/order_page/delete_order',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"cart_id":cart_id} ) );
+    };
+
+
+      `;
 
   return js_data;
 }
@@ -1936,6 +1967,7 @@ function order_template_js(cart_id)
 
 function cart_bill_format(res,cart_id,data)
 {
+  data=JSON.parse(data);
   //data is an array with format ['type of query',]
 //type's of query's to handle : data value
 //from interleaf 1.insert->create new: new cart;2.select->give list of carts:give cart list,3. on click on cart_id from list,link to order_page with clicked cart_id
@@ -1944,11 +1976,39 @@ function cart_bill_format(res,cart_id,data)
 //                                     or 2.update->update cart given cart_id,item_id : update cart
 //                                    and 3.recycle server_template's select query for client side templating with modified data:c-side load cart
 
-  if (data.substr(2,11)==="update item")
+  if(data[0]==="get quantity")
   {
-    data=JSON.parse(data);
-    //data=['',item_id,quantity]
-    pool.query("UPDATE cart SET quantity=$3 WHERE cart_id=$1 AND item_id=$2",[cart_id,data[1],data[2]+1],function(err,result)
+    //data=["get quantity",cart_id,item_id,update_by]
+    var item_id=data[2];
+    pool.query("SELECT quantity FROM cart WHERE cart_id=$1 AND item_id=$2 ",[cart_id,item_id],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      //first insertion of this item in this cart || or if the qunatity is reduced to zero
+      //if quantity is 
+      else if (result.rows.length===0 )
+      { 
+       cart_bill_format(res,cart_id,JSON.stringify(["insert new item",item_id]));
+      }
+      else
+      {
+        if (result.rows[0].quantity===0 && data[3]===-1)//data[3]=update_by
+        {
+          //quantity cannot be lower than 0
+          res.send("unsuccessfull updation");
+        }
+      else
+        cart_bill_format(res,cart_id,JSON.stringify(["update item",item_id,result.rows[0].quantity,data[3] ]) );//data[3]=update_by
+      }
+    });
+  }
+  
+  else if (data[0]==="update item")
+  {
+    //data=['',item_id,quantity,update_by]
+    pool.query("UPDATE cart SET quantity=$3 WHERE cart_id=$1 AND item_id=$2",[cart_id,data[1],data[2]+data[3]],function(err,result)
     {
       if (err)
       {
@@ -1956,16 +2016,15 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       {
-        cart_bill_format(res,cart_id,"cs-load cart");
+        res.send("updated successfully");
       }
 
     });
 
   }
-  else if (data.substr(2,11)==="insert item")
+  else if (data[0]==="insert new item")
   {
-    //add item,corresponding to given item_id,to the cart,corresponding to given cart_id, and set quantity to 1
-    data=JSON.parse(data);
+    //add new item,corresponding to given item_id,to the cart,corresponding to given cart_id, and set quantity to 1
     //data=['',item_id]
     pool.query("INSERT INTO cart(cart_id,item_id,quantity) values ($1,$2,$3) ",[cart_id,data[1],1],function(err,result)
     {
@@ -1975,28 +2034,45 @@ function cart_bill_format(res,cart_id,data)
       }
       else
       { 
-        cart_bill_format(res,cart_id,"cs-load cart");
+       res.send("inserted successfully");
       }
 
     });
 
   }
+
+  else if (data[0]==="clear cart")
+  {
+    //data=['clear cart',cart_id]
+    pool.query("DELETE FROM cart WHERE cart_id=$1",[data[1]],function(err,result)
+    {
+      if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else
+      {
+        res.send("cart cleared successfully");
+      }
+
+    });
+
+  }
+
+  //
   else 
   {
-    //if (data==="load cart")
+    //select's data for cart AND data for all menu items
+
     //selecting all the items from menu,which exits in cart,corresponding to given cart_id,along with its quantity from cart
-    pool.query("SELECT m.item_id,m.price,c.quantity FROM cart AS c LEFT JOIN cafe_menu AS m ON c.item_id=m.item_id WHERE c.cart_id=$1 ORDER BY m.item_id",
+    pool.query("SELECT m.item_id,m.price,c.quantity FROM cart AS c LEFT JOIN cafe_menu AS m ON c.item_id=m.item_id WHERE c.cart_id=$1 ORDER BY c.quantity DESC",
       [cart_id],function(err,result)
     {
       if (err)
       {
         res.status(500).send(err.toString());
       }
-      else if (data==="cs-load cart")
-      {//data for client side,ajax data call 
-          res.send(JSON.stringify(result.rows));
-      }
-      else if (data==="load cart")
+      else
       { 
         //selecting all the cafe_menu present in the menu,with its corresponding head from article_table,where article_id=0,aka the cafe shop owner
          pool.query("SELECT a.head,m.price,m.item_id FROM article_table AS a LEFT JOIN cafe_menu AS m ON a.article_id=m.item_id ORDER BY m.item_id",
