@@ -23,7 +23,7 @@ if (categories)
             old_list.innerHTML=new_list;
 		}
 	};
-	request.open('GET','http://ceidloc.imad.hasura-app.io/ui/a/all_categories',true);
+	request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/a/all_categories',true);
     request.send(null);
     console.log("\n\n inside if \n");
 }

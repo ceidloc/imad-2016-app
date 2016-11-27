@@ -20,8 +20,8 @@ app.use(session (
 //###############################
 //path.join(__dirname,'/ui/py_scripts','twitter_streaming_data_collection.py')
 
-    //var spawn = require('child_process').spawn,
-   // py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
+  //  var spawn = require('child_process').spawn,
+  //  py    = spawn('python', [path.join(__dirname,'ui','py_scripts','twitter_streaming_data_collection.py')]),
     
 //##############################
 
@@ -130,11 +130,11 @@ function postOnClick()
       {    
           ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/${previous_page}";
+          window.location.href = window.location.protocol+"//"+window.location.host+"/ui/${previous_page}";
       }
     }
     ////console.log("outside readyState");
-    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/log_out',true);
+    request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/log_out',true);
     request.send(null);
 }
 
@@ -234,7 +234,7 @@ function log_in_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
+          window.location.href=window.location.protocol+'//'+window.location.host+'/ui/${previous_page}';
           }
           else
           {
@@ -265,8 +265,8 @@ function log_in_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/log_in',true);
+    { request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/log_in',true);
+      //request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/log_in',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
     }
@@ -281,12 +281,12 @@ function postOnClick()
       {    
           ////console.log("inside readyState");
           //request.setRequestHeader('Content-Type','application/json');
-          window.location.href = "http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}";
+          window.location.href = window.location.protocol+"//"+window.location.host+"/ui/sign_up_page/previous_page?previous_page=${previous_page}";
       }
     }
     ////console.log("outside readyState");
-    request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
-    //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
+    request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
+    //request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/sign_up_page/previous_page?previous_page=${previous_page}',true);
     //request.setRequestHeader('Content-Type','application/json');
     //request.send(JSON.stringify({"previous_page":"${previous_page}"})); 
     request.send(null);
@@ -431,7 +431,7 @@ function sign_up_page_template_js(previous_page)
           var res=request.responseText;
           if (res==="successfully logged in")
           {
-          window.location.href='http://ceidloc.imad.hasura-app.io/ui/${previous_page}';
+          window.location.href=window.location.protocol+'//'+window.location.host+'/ui/${previous_page}';
           }
         }
         else if (request.status === 404) 
@@ -458,8 +458,8 @@ function sign_up_page_template_js(previous_page)
     password=password.trim();
 
     if (username!=="" && password!=="") 
-    { request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/sign_up',true);
+    { request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/sign_up',true);
+      //request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/sign_up',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify({username:username,password:password}));
     }
@@ -799,7 +799,7 @@ function submit_page_template_js(category)
             //res=['',{article_id:value}]
             if (res[0]==="successfully created article")
             {
-            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}/'+res[1].article_id;
+            window.location.href=window.location.protocol+'//'+window.location.host+'/ui/a/${category}/'+res[1].article_id;
             }
           }
           else if (request.status === 500) 
@@ -818,8 +818,8 @@ function submit_page_template_js(category)
       head=document.getElementById('article_sumbit_head_button_${category}').value;
       body=document.getElementById('article_sumbit_body_button_${category}').value;
 
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/insert an article',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}',true);
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/insert an article',true);
+      //request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"body":body,"head":head} ) );
     };
@@ -833,7 +833,7 @@ function submit_page_template_js(category)
 
 //post requst to insert/update article,belonging to this category
 app.post('/ui/a/:category/:action_on_article', function (req, res)
-{ 
+{ console.log("inside update/insert article end point ");
   //can only add article's if logged in!
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
@@ -858,7 +858,7 @@ app.post('/ui/a/:category/:action_on_article', function (req, res)
 });
 
 //request to delete the body of the article
-app.post('/ui/a/:category/delete_article',function(req,res)
+app.delete('/ui/a/delete_article/:category',function(req,res)
 {
   var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -866,7 +866,7 @@ app.post('/ui/a/:category/delete_article',function(req,res)
     log_in_details=["logged in",req.session.auth.user_id.user_id];
     var user_id=log_in_details[1];
     var article_id=req.body.article_id;
-
+    console.log("inside delete_article end point");
     article_format(res,['delete article',article_id,user_id],log_in_details);
   }
 });
@@ -875,7 +875,7 @@ app.post('/ui/a/:category/delete_article',function(req,res)
 //post requst to insert/update comment
 app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
 { //body has comment and may have comment_id for updation of comment
-
+     console.log("inside update/insert comment end point ");
   //can only add comments if logged in!
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
@@ -902,18 +902,20 @@ app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
 });
 
 //to delete a comment,referenced by it's comment_id, is verified by user_id of current_user_id
-app.post('/ui/a/:category/delete_comment',function(req,res)
+app.delete('/ui/a/delete_comment/:category',function(req,res)
 {
-
+  console.log("inside delete_comment end point");
   var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
   if (req.session && req.session.auth && req.session.auth.user_id )
-   log_in_details=["logged in",req.session.auth.user_id.user_id];
-
-  var user_id=log_in_details[1];
-  var comment_id=req.body.comment_id;
-
-  comment_format(res,['delete comment',user_id,comment_id],log_in_details);
+   {
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
+    var user_id=log_in_details[1];
+    var comment_id=req.body.comment_id;
+    console.log("inside delete_comment end point logged in");
+    comment_format(res,['delete comment',user_id,comment_id],log_in_details);
+  }
 });
+
 
 
 
@@ -955,17 +957,17 @@ function comment_format(res,data,article_id,log_in_details)
   //data is an array with format ['type of query',comments/JSON.stringify(article data)]
 
   if (data[0]==='delete comment')//removes the comment by updating its text as 'removed by user!'
-    //data=['delete comments',comment_id]
+    //data=['delete comment',user_id,comment_id]
   { 
+    console.log("inside comment_format delete Comment");
     //data[1]=user_id,data[2]=comment_id
-    pool.query("UPDATE comments SET text='removed by user!'WHERE user_id=$1 AND comment_id=$2 ",[data[1],data[2]],function(err,result)
+    pool.query("UPDATE comments SET text='removed by user!' WHERE user_id=$1 AND comment_id=$2 ",[data[1],data[2]],function(err,result)
       {
         console.log("removed comment,result",result.rows);
         if (err)
         { 
           res.status(500).send(err.toString());
         }
-        //can only insert comments if logged in hence sending logged in to the recursive call;
           res.send("removed by user!");
       } );
   }
@@ -1062,7 +1064,7 @@ function article_template_js(category,article_id)
           if (request.status === 200)
           {//take comments from the request and parse them into array 
             var text=request.responseText;
-            window.location.href='http://ceidloc.imad.hasura-app.io/ui/a/${category}';
+            window.location.href=window.location.protocol+'//'+window.location.host+'/ui/a/${category}';
           }
         }
 
@@ -1070,7 +1072,7 @@ function article_template_js(category,article_id)
 
       //making request
       //sending as post for time being,will update to DELETE
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/delete_article',true);
+      request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/a/delete_article/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"article_id":article_id} ) );
     };
@@ -1130,7 +1132,7 @@ function article_template_js(category,article_id)
 
       //making request
       updated_article=document.getElementById('article_update_body_'+article_id ).value;
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/update article',true);
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/update article',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"body":updated_article,"article_id":article_id} ) );
     };
@@ -1164,7 +1166,7 @@ function article_format(res,data,log_in_details)
 
   if (data[0]==="delete article")
   {//data=['remove article',article_id,user_id]
-    console.log("inside delete_article");
+    console.log("inside article_format delete_article");
     pool.query("DELETE FROM article_table WHERE article_id=$1 AND user_id=$2",[data[1],data[2]],function(err,result)//data[1]=article_id
     {
       if (err)
@@ -1575,18 +1577,7 @@ function comment_template(category,id)//returns a js code unique for each page
    
     submit_btn=document.getElementById('sub_${category}_id_${id}');
 
-
-    //use send_req_and_get_res when page is loaded and when submit_btn is clicked
-
     submit_btn.onclick=function ()
-      {
-        send_req_and_get_res();
-      }   
-      
-    // send_req_and_get_res();//when page is loaded
-     //function that sends request,with data as null when page is loaded,catches resopse and render's on current page
-
-    function send_req_and_get_res()
     {
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
@@ -1606,7 +1597,7 @@ function comment_template(category,id)//returns a js code unique for each page
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            var new_comment="<li><div id="+comment.comment_id+">"+escape_html_js(comment.text)+"</div><div class='details'>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+            var new_comment="<li><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><div class='details'>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
             delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
@@ -1631,8 +1622,8 @@ function comment_template(category,id)//returns a js code unique for each page
       input=document.getElementById('in_${category}_id_${id}');
       data=input.value;
       //sending request to page with id=current_id
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}/insert comment',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${id}/insert comment',true);
+      //request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${id}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {comment:data} ) );
     };
@@ -1650,7 +1641,8 @@ function comment_template_delete_update_js(category,article_id)
 
   js_data+=`
     function delete_comment(comment_id)
-    {
+    { 
+      console.log("inside delete_comment function,comment_id",comment_id);
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
@@ -1662,7 +1654,7 @@ function comment_template_delete_update_js(category,article_id)
             if (comment==='removed by user!')
               //updating the value of removed comment
               {
-              old_comment=document.getElementById(comment_id);
+              old_comment=document.getElementById('comment_text_'+comment_id);
               console.log("old_comment:",old_comment);
               old_comment.innerHTML=comment;
             }
@@ -1673,15 +1665,15 @@ function comment_template_delete_update_js(category,article_id)
 
       //making request
       //sending as post for time being,will update to DELETE
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/delete_comment',true);
+      request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/a/delete_comment/${category}',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"comment_id":comment_id} ) );
     };
 
     function updating_comment(comment_id)
     { 
-      update_comment_text=document.getElementById(comment_id);
-      previous_text=update_comment_text.innerHTML;
+      update_comment_text=document.getElementById('comment_text_'+comment_id);
+      previous_comment_text=update_comment_text.innerHTML;
       
       update_text_block="${update_text_block}";
       
@@ -1691,14 +1683,14 @@ function comment_template_delete_update_js(category,article_id)
       
       update_comment_text.innerHTML=update_text_block;
       update_comment_text=document.getElementById('comment_update_body_'+comment_id);//the textarea for updating comment
-      update_comment_text.defaultValue=previous_text;
+      update_comment_text.defaultValue=previous_comment_text;
 
       //reseting the update_btn to close button and onclick to close_updating_btn      
       close_btn=document.getElementById('update_btn_id_'+comment_id);
       close_btn.value='close';
       close_btn.onclick=function()
       {
-        close_updating_btn(comment_id,previous_text);
+        close_updating_btn(comment_id,previous_comment_text);
       }
 
     };
@@ -1714,7 +1706,7 @@ function comment_template_delete_update_js(category,article_id)
           {//take comments from the request and parse them into array 
             var comment=request.responseText;
             //updated the value of comment
-            old_comment=document.getElementById(comment_id);
+            old_comment=document.getElementById('comment_text_'+comment_id);
             old_comment.innerHTML=escape_html_js(comment);
 
             //reseting the close_btn to update button and onclick to updating_comment
@@ -1732,14 +1724,14 @@ function comment_template_delete_update_js(category,article_id)
 
       //making request
       updated_comment=document.getElementById('comment_update_body_'+comment_id.toString() ).value;
-      request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${article_id}/update comment',true);
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${article_id}/update comment',true);
       request.setRequestHeader('Content-Type','application/json');
       request.send(JSON.stringify ( {"comment":updated_comment,"comment_id":comment_id} ) );
     };
 
     function close_updating_btn(comment_id,previous_text)
     { 
-      update_comment_text=document.getElementById(comment_id);
+      update_comment_text=document.getElementById('comment_text_'+comment_id);
       update_comment_text.innerHTML=previous_text;
 
       //reseting the close_btn to update button and onclick to updating_comment
@@ -1840,7 +1832,7 @@ function article_template(data,comments,log_in_details)//returns html doc
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
-              html_data+="<li> <div id=" + comment[i].comment_id + ">";
+              html_data+="<li> <div id=comment_text_" + comment[i].comment_id + ">";
               //to prevent xss attack via sending html code through input
               html_data+=escape_html_cs(comment[i].text)+"</div><div class='details'>By:";
               html_data+=escape_html_cs(comment[i].username);
@@ -1948,7 +1940,7 @@ function order_template(cafe_menu,cart,cart_id)
           //creating a string to render in the inner html of ol on this article page
           for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
             { //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
-              html_data+="<li>"+cafe_menu[cart[i].item_id].head +" Qty:"+cart[i].quantity +" price:"
+              html_data+="<li>"+cafe_menu[cart[i].item_id].head +" Qty:"+cart[i].quantity +"<br>price:"
               +cart[i].price.substr(0,1)+(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
               //converting price string($322)'s substring into int 
             };
@@ -2003,7 +1995,7 @@ function order_template_js(cart_id)
             for (var i=0;i<=new_cart.length-1;i++)   
               {//extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
                 var head=document.getElementById('head_for_item_id_'+new_cart[i].item_id).innerHTML;
-                new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +" price:"
+                new_order+="<li>"+head +" Qty:"+new_cart[i].quantity +"<br>price:"
                 +new_cart[i].price.substr(0,1)+(new_cart[i].quantity * parseFloat(new_cart[i].price.substr(1,4),10) ).toFixed(3).toString() +"</li>";
               };
 
@@ -2019,11 +2011,11 @@ function order_template_js(cart_id)
 
         //making request
         if (id_no === -1)
-        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
+        //request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/-1',true);
         else 
-        request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
-        //request.open('GET','http://ceidloc.imad.hasura-app.io/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
+        //request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/get_bill_details_for_item_id/${cart_id}/${i}',true);
         request.send(null);
       };`;
     }//else end
