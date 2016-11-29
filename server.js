@@ -652,6 +652,8 @@ function sign_up_page_template_js(previous_page)
 //end point that returns all categories
 app.get('/ui/get/:all_categories',function(req,res)
   {
+
+    console.log("/ui/get/all_categories");
   var all_categories=req.params.all_categories;
    var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -1286,6 +1288,7 @@ function article_format(res,data,log_in_details)
 
   else if (data[0]==="all_categories_cs" || data[0]==="all_categories_ss")
   {
+    console.log("brokeback");
     pool.query("SELECT * FROM categories WHERE category != 'cafe_menu' ORDER BY categories",function(err,result)
     {
       if (err)
