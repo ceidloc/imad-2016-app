@@ -33,6 +33,15 @@ config=
 
 pool =new Pool(config);
 
+
+//bootstrap end point
+
+ app.use("/ui/bootstrap", express.static(__dirname+'/ui/bootstrap'));  
+
+//images end point
+
+ app.use("/ui/images", express.static(__dirname+'/ui/images'));
+
 //html layout's to be used inside templates
 
 var cafe_nav_bar=`
@@ -56,37 +65,127 @@ var cafe_layout=`
         <hr>
 `+cafe_nav_bar;
 
-var nav_bar=`
-  <div class=side_cafe_nav_bar>
-  <a href='PLACEHOLDER'>PLACEHOLDER</a>
-  <a href='PLACEHOLDER'>PLACEHOLDER</a>
-  </div>
-        `;
 
-var article_layout=`
-  <!doctype html>
-  <html>
-  <title>PLACEHOLDER</title>
-    <head>
-        <link href="/ui/style.css" rel="stylesheet" />
-    </head>
-    <body class=PLACEHOLDER> 
-        <div class="PLACEHOLDER">PLACEHOLDER
+function article_layout_template(category,log_in_details,previous_page)
+{
+  var article_layout=`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Home</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/ui/style.css">
+    <link rel="stylesheet" href="/ui/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/ui/bootstrap/css/bootstrap.min.css">
+    <link rel='shortcut icon' type='image/x-icon' href='/ui/images/0.png' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> 
+    <script type="text/javascript" src='/ui/bootstrap/js/bootstrap.js'></script>
+    <script type="text/javascript" src='/ui/bootstrap/js/bootstrap.min.js'></script>
+    <script>//to make drop down menu work
+    $(document).ready(function () {
+        $('.dropdown-toggle').dropdown();
+    });
+</script>
+    <style>
+        .loader {
+      border: 16px solid #d9e1e8 ;
+      border-radius: 50%;
+      border-top: 16px solid #9baec8 ;
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    </style>
+
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+</head>
+
+
+<body class="${category}">
+<div class="container-fluid ${category}_header category_header">
+  <h1 class="text-center page_head">${category}</h1>
+  <h3 class="text-center">Articles</h3>
+  <p></p>
+</div>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
+          <a class="navbar-brand" href='/'>Home</a>
         </div>
-        <hr>
-`;
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Featured Pages<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="/ui/cafe_home_page">Milky Way Cafe</a></li>
+                <li><a href="#">About</a></li>
+              </ul>
+            </li>
+            <li><a href="/ui/get/all_categories_ss">Articles</a></li>
+            <li><a href="/ui/a/${category}">${category}</a></li>
+          </ul>
+          `;
+
+          if(log_in_details==="not logged in")
+          {
+            article_layout+=
+            `
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/ui/sign_up_page/previous_page?previous_page=${previous_page}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+              <li><a href="/ui/log_in_page/previous_page?previous_page=${previous_page}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+            `;
+          }
+          else
+          {
+            article_layout+=
+            `
+            <ul class="nav navbar-nav navbar-right">
+              `+log_out_block+`
+            </ul>
+            `;
+          }
+
+          article_layout+=`
+        </div>
+      </div>
+    </nav>
+  `;
+
+  return article_layout;
+};
+
 
 //html for log_out,update delete button's and for log_in_block
 
 var log_in_block=`
-<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' placeholder='Enter Username'></input><br>
+<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' autofocus placeholder='Enter Username'></input><br>
 <input type='password' id ='log_in_password_button' class ="input_box" placeholder="Enter Password"></input><br>
 <input type='submit' id ='log_in_submit_button' class = "submit_btn" value='Log in!'></input><br><br><hr>
-<input type='submit' id ='sign_up_submit_button' class = "submit_btn" value='Sign up!'  onClick="postOnClick();"></input>
+<input type='submit' id ='sign_up_submit_button' class = "submit_btn" value='Sign up!'  onClick="sign_up_OnClick();"></input>
 <br><br><br>
 `;
 
-var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="postOnClick();"></input><br>`;
+var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="log_out_OnClick();"></input><br>`;
 
 var delete_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='delete' onClick='PLACEHOLDER;'></input><br>`;
 
@@ -143,6 +242,31 @@ function hash (input, salt)
   var hashed = crypto.pbkdf2Sync(input, salt, 10000, 512, 'sha512');
   return ["pbkdf2", "10000", salt, hashed.toString('hex')].join('$');
 }
+
+
+//section 
+//end points for index/home page
+
+app.get('/', function (req, res) 
+{
+  res.sendFile(path.join(__dirname, 'ui', 'index.html'));
+});
+
+app.get('/ui/main.js',function(req, res)
+{
+  //res.sendFile(path.join(__dirname,'ui','main.js'));
+  res.sendFile(path.join(__dirname, 'ui', 'main.js'));
+});
+
+app.get('/ui/style.css', function (req, res) {
+  res.sendFile(path.join(__dirname, 'ui', 'style.css'));
+});
+
+app.get('/ui/images/:image_no', function (req, res) {
+  var image_no=req.params.image_no
+  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.png'));
+});
+
 
 //section 
 //end points for log_in/log_out
@@ -244,20 +368,7 @@ function log_in_page_template(previous_page)
     if (category===undefined)
       category=previous_page.split('/')[0];
 
-    //replcaing PLACEHOLDER with desired value
-    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
-
-    //replcaing PLACEHOLDER with desired value
-    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
-     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
-     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
-     layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
-    
-
-    var html_data=layout_for_this_category+nav_bar_for_this_category;
+    var html_data=article_layout_template(category,'not logged in',previous_page);
     
     if (category==='cafe_menu'||category==='cafe_home_page')
       html_data=cafe_layout;
@@ -336,7 +447,7 @@ function log_in_page_template_js(previous_page)
     }
   };
 
-function postOnClick()
+function sign_up_OnClick()
 {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function() 
@@ -363,7 +474,7 @@ function log_out_template_js(previous_page)
   if (previous_page==="default")
     previous_page="";
   js_data=`
-    function postOnClick()
+    function log_out_OnClick()
     {
         var request = new XMLHttpRequest();
         request.onreadystatechange = function() 
@@ -456,20 +567,8 @@ function sign_up_page_template(previous_page)
     var category=previous_page.split('/')[1];
     if (category===undefined)
       category=previous_page.split('/')[0];
-    //replcaing PLACEHOLDER with desired value
-    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
-
-    //replcaing PLACEHOLDER with desired value
-    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
-
-
-    var html_data=layout_for_this_category+nav_bar_for_this_category;
+    
+    var html_data=article_layout_template(category,'not logged in',previous_page);
 
     if (category==='cafe_menu'||category==='cafe_home_page')
       html_data=cafe_layout;
@@ -548,30 +647,22 @@ function sign_up_page_template_js(previous_page)
 }
 
 //section 
-//end points for index/home page
-
-app.get('/', function (req, res) 
-{
-  res.sendFile(path.join(__dirname, 'ui', 'index.html'));
-});
-
-app.get('/ui/main.js',function(req, res)
-{
-  //res.sendFile(path.join(__dirname,'ui','main.js'));
-  res.sendFile(path.join(__dirname, 'ui', 'main.js'));
-});
-
-app.get('/ui/style.css', function (req, res) {
-  res.sendFile(path.join(__dirname, 'ui', 'style.css'));
-});
-
-app.get('/ui/images/:image_no', function (req, res) {
-  var image_no=req.params.image_no
-  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.png'));
-});
-
-//section 
 //end points for article's 
+
+//end point that returns all categories
+app.get('/ui/get/:all_categories',function(req,res)
+  {
+  var all_categories=req.params.all_categories;
+   var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
+  if (req.session && req.session.auth && req.session.auth.user_id )
+   log_in_details=["logged in",req.session.auth.user_id.user_id];
+
+    //returns all categories
+    article_format(res,[all_categories],log_in_details);
+    //categories for server-side,will send to all_categories_template
+
+  });
+
 
 //end point for submit page for submitting an article
 app.get('/ui/a/:category/submit_page',function(req,res)
@@ -700,6 +791,7 @@ function article_template_js(category,article_id)
   update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_article_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn_small' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
+    
     function delete_article(article_id)
     {
       var request=new XMLHttpRequest();
@@ -809,21 +901,8 @@ function article_home_page_template(res,category,articles,log_in_details)
 
   if(articles!=="no articles present")
     var article=JSON.parse(articles);
-  
-  //replcaing PLACEHOLDER with desired value
-  var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
-  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
-  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
-  nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
-
-  //replcaing PLACEHOLDER with desired value
-  var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
-   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
-   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
-   layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
-  
-
-  var html_data=layout_for_this_category+nav_bar_for_this_category;
+   
+  var html_data=article_layout_template(category,log_in_details,'a/'+category);
   
   if (category==='cafe_menu')
    { html_data=cafe_layout;
@@ -895,6 +974,43 @@ function article_home_page_template(res,category,articles,log_in_details)
 
 };
 
+function all_categories_template(all_categories,log_in_details)
+{
+  var current_user_id=log_in_details[1];
+    log_in_details=log_in_details[0];
+
+  var categories=JSON.parse(all_categories);
+
+    html_data=article_layout_template('home_page',log_in_details,'get/all_categories');
+
+    for(var i=0;i<=categories.length -1;i++)
+     {
+      category=categories[i].category;
+          details=categories[i].details;
+      html_data+=`
+        <div class="panel-group" id="home_page_categories" >
+         <div class="panel panel-default">
+            <div class="panel-heading" style="background-color:#fff;">
+              <h4 class="panel-title" >
+                <a data-toggle="collapse" data-parent="#home_page_categories" href="#collapse`+i+`">
+                <div class="panel-heading">`+category+`</div>
+              </h4>
+            </div>
+            </a>
+            <div id="collapse`+i+`" class="panel-collapse collapse">
+              <div class="panel-body" >
+                <a href="/ui/a/`+category+`" class="list-group-item " style="background-color:#fff;">
+                  <h4>`+details+`</h4>
+                </a>  
+              </div>
+            </div>
+          </div>
+          </div>
+          `;
+     }
+  return html_data;
+}
+
 function article_template(data,comments,log_in_details)//returns html doc
 {   
     //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
@@ -910,42 +1026,32 @@ function article_template(data,comments,log_in_details)//returns html doc
     var time=data.time;
     var category=data.category;
 
-
-      //replcaing PLACEHOLDER with desired value
-      var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
-      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
-      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
-      nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
-
-      //replcaing PLACEHOLDER with desired value
-      var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
-      layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class
-       layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
-      layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
-
-
-      var html_data=layout_for_this_category+nav_bar_for_this_category;
+      var html_data=article_layout_template(category,log_in_details,'a/'+category+'/'+article_id);//3rd arg is previous_page
 
       if (category==='cafe_menu')
         html_data=cafe_layout;
 
        var time = new Date(time);
 
-      html_data+=`
-        <div class='page_head'>
-        <!using escape_html_cs to prevent xss attack >
-          ${escape_html_cs(head)}
-        </div>
-        <div class='center'>
-        <div id=article_body_${article_id}>
-        ${escape_html_cs(body)}
-        </div>
-        <div class=details>
-        <br>
-        by ${username}
-        at ${time.toLocaleTimeString()}
-        on ${time.toLocaleDateString()}`;
-      
+      html_data+=`    
+        <div class="container-fluid">
+            <!-- using escape_html_cs to prevent xss attack -->
+            <h1>${escape_html_cs(head)}</h1>
+            <blockquote>
+              <p>
+                <div id=article_body_${article_id}>
+                    ${escape_html_cs(body)}
+                  </p>
+                  <footer style="color:#fff;">
+                    by ${username}
+                    at ${time.toLocaleTimeString()}
+                    on ${time.toLocaleDateString()}
+                  </footer>
+                <div>
+            </blockquote>
+            `;
+
+        
       if(current_user_id===user_id)
       {
         delete_btn=delete_block.replace('PLACEHOLDER','delete_article_btn_id_'+ article_id);//replaces; id=PLACEHOLDER
@@ -957,16 +1063,48 @@ function article_template(data,comments,log_in_details)//returns html doc
         html_data+=update_btn;
       }
 
+      if (log_in_details==="not logged in")
+      {
+          html_data+=`
+          <div id="mySidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          
+            <div class=text-center style="color:#fff;"><h3>Not logged in!<h3></div>`;
+              html_data+=log_in_block;
+              html_data+=`
+              <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=a/${category}/${article_id} ">
+              </script>
+          </div>      
+        `;
+      }
+      else
+      {
+        html_data+= `
+        <div id="mySidenav" class="sidenav" style="color:#111;">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <textarea rows="2" cols="20" id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!" ></textarea>
+          <br>
+          <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit' onclick="closeNav();"></input><br>
+          `;
+          html_data+=log_out_block+`
+          <!-script for log_out ->
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
+          </script>
+
+          <!-js for inserting comments ->
+          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
+          </script>
+        </div>
+        `;
+      }
+
       html_data+=`
-        <hr>
-        </div>
-        </div>
-          <div class="${category}_comment_head">
-          Comments
-          </div>
-          <!-creating seperate id's for each page by using the article_id from the js obj->
-          <ol id = 'ol_${category}_id_${article_id}' class="${category}_comment_list">
-        
+          <hr>
+          <!-- creating seperate id's for each page by using the article_id from the js obj  -->
+          <div id="main" class="${category}_comment_list"><!--will be displaced by the sidenav-->
+              <h3 class=text-center>Comments</h3>
+              <button class="hover_button" onclick="openNav()"><span>Submit comment!</span></button>
+          <div class="list-group" id = 'ol_${category}_id_${article_id}' style="color:#111;">
         `;
 
         if(comments==='Be the first to comment!')
@@ -980,56 +1118,31 @@ function article_template(data,comments,log_in_details)//returns html doc
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
-              html_data+="<li> <div id=comment_text_" + comment[i].comment_id + ">";
+              html_data+="<div class='list-group-item '><blockquote>"
+              html_data+="<div id=comment_text_" + comment[i].comment_id + ">";
               //to prevent xss attack via sending html code through input
-              html_data+=escape_html_cs(comment[i].text)+"</div><div class='details'>By:";
+              html_data+=escape_html_cs(comment[i].text)+"</div><footer>By:";
               html_data+=escape_html_cs(comment[i].username);
-              html_data+="<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+              html_data+=" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString();
 
               if (comment[i].user_id===current_user_id)
               {
                 
                 delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
                 delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
-                html_data+=delete_btn;
+                html_data+="<br>"+delete_btn;
 
                 update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment[i].comment_id );
                 update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
                 html_data+=update_btn;
               }
 
-              html_data+="</div></li>";
+              html_data+="</footer></blockquote></div>";
             };
         }
-        
-        html_data+="</ol><br><hr>";
 
-        if (log_in_details==="not logged in")
-        {
-          html_data+=`<br><div class=${category}_comment_head>not logged in! </div>`;
-          html_data+=log_in_block;
-          html_data+=`
-          <script type="text/javascript" src="/ui/log_in_page_js/previous_page?previous_page=a/${category}/${article_id} ">
-          </script>
-        `;
-        }
-        else
-        {
-          html_data+= `
-          <textarea rows="2" cols="20" id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!" ></textarea>
-          <br>
-          <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit'></input><br>
-          `;
-          html_data+=log_out_block+`
-          <!-script for log_out ->
-          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
-          </script>
+        html_data+="</div></div><br><hr>";
 
-          <!-js for inserting comments ->
-          <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
-          </script>
-        `; 
-        }
         if(current_user_id===user_id)
         {
           
@@ -1039,6 +1152,8 @@ function article_template(data,comments,log_in_details)//returns html doc
         }
 
         html_data+=`
+        <script type="text/javascript" src="/ui/main.js/">
+          </script>
       </body>
     </html>`;
 
@@ -1049,21 +1164,8 @@ function article_template(data,comments,log_in_details)//returns html doc
 
 function submit_page_template(category)
 {
-  
-    //replcaing PLACEHOLDER with desired value
-    var nav_bar_for_this_category=nav_bar.replace('PLACEHOLDER','/');//href= 
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','HOME');//value in b/w <a> tag
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER','/ui/a/'+category);//href
-    nav_bar_for_this_category=nav_bar_for_this_category.replace('PLACEHOLDER',category);//value in b/w <a> tag
 
-    //replcaing PLACEHOLDER with desired value
-    var layout_for_this_category=article_layout.replace('PLACEHOLDER',category);//first one is for title
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body class 
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category+'_header');//header class
-    layout_for_this_category=layout_for_this_category.replace('PLACEHOLDER',category);//body head
-
-
-    var html_data=layout_for_this_category+nav_bar_for_this_category;
+    var html_data=article_layout_template(category,'logged in','a/'+category);
 
     if (category==='cafe_menu')
       html_data=cafe_layout;
@@ -1182,7 +1284,7 @@ function article_format(res,data,log_in_details)
     });
   }
 
-  else if (data[0]==="categories")
+  else if (data[0]==="all_categories_cs" || data[0]==="all_categories_ss")
   {
     pool.query("SELECT * FROM categories WHERE category != 'cafe_menu' ORDER BY categories",function(err,result)
     {
@@ -1192,7 +1294,10 @@ function article_format(res,data,log_in_details)
       }
       else
       {
-        res.send(JSON.stringify(result.rows));
+        if (data[0]==='all_categories_cs')
+          res.send(JSON.stringify(result.rows));
+        else
+          res.send(all_categories_template(JSON.stringify(result.rows),log_in_details))
       }
     });
   }
@@ -1383,7 +1488,7 @@ function comment_template(category,id)//returns a js code unique for each page
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            var new_comment="<li><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><div class='details'>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><footer>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
             delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
@@ -1395,7 +1500,7 @@ function comment_template(category,id)//returns a js code unique for each page
 
             new_comment+=update_btn;
 
-            old_list.innerHTML+="</div></li>";
+            new_comment+="</footer></blockquote>";
             old_list.innerHTML=new_comment+old_list.innerHTML;
 
             submit_btn.value='Submit';
