@@ -209,7 +209,7 @@ var update_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' va
 
 //function's to prevent xss attack
 
-function escape_html_js(text)
+function escape_html_cs(text)
 {//all output's for the user entered input,will use this function during client side rendering
   var text=document.createTextNode(text);
   var div=document.createElement('div');
@@ -219,7 +219,7 @@ function escape_html_js(text)
 }
 
 
-function escape_html_cs(unsafe)
+function escape_html_ss(unsafe)
 {//all output's for user entered data,from the server side will use this function
  return unsafe
          .replace(/&/g, "&amp;")
@@ -821,7 +821,7 @@ app.get('/ui/a/:category/:article_id/article_comment_js/', function (req, res) {
 
 function article_template_js(category,article_id)
 {
-  var js_data=escape_html_js.toString();
+  var js_data=escape_html_cs.toString();
   update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_article_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'btn btn-primary' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
@@ -886,7 +886,7 @@ function article_template_js(category,article_id)
             var article=request.responseText;
             //updated the value of article
             old_article=document.getElementById('article_body_'+article_id);
-            old_article.innerHTML=escape_html_js(article);
+            old_article.innerHTML=escape_html_cs(article);
 
             //reseting the close_article_btn to update button and onclick to updating_article
             close_article_btn=document.getElementById('update_article_btn_id_'+article_id);
@@ -978,7 +978,7 @@ function article_home_page_template(res,category,articles,log_in_details)
          <div class="panel panel-default">
             <a data-toggle="collapse" data-parent="#this_panel" href="#collapse`+i+`">
               <div class="panel-heading" style="background-color:#fff;">
-                  <h3>${head}</h3>
+                  <h3>${escape_html_ss(head)}</h3>
               </div>
             </a>
             <div class="panel-body">
@@ -989,7 +989,7 @@ function article_home_page_template(res,category,articles,log_in_details)
             <div id="collapse`+i+`" class="panel-collapse collapse">
               <div class="panel-heading" >
                 <a href="/ui/a/${category}/${article_id}" >
-                  <footer>by ${username} at ${localtime} on ${date}</footer>
+                  <footer>by ${escape_html_ss(username)} at ${localtime} on ${date}</footer>
                 </a>  
               </div>
             </div>
@@ -1094,16 +1094,16 @@ function article_template(data,comments,log_in_details)//returns html doc
 
       html_data+=`    
         <div class="container-fluid">
-            <!-- using escape_html_cs to prevent xss attack -->
-            <h1>${escape_html_cs(head)}</h1>
+            <!-- using escape_html_ss to prevent xss attack -->
+            <h1>${escape_html_ss(head)}</h1>
             <blockquote>
               <p>
                 <div id=article_body_${article_id}>
-                    ${escape_html_cs(body)}
+                    ${escape_html_ss(body)}
                 </div>
               </p>    
                   <footer style="color:#fff;">
-                    by ${username}
+                    by ${escape_html_ss(username)}
                     at ${time.toLocaleTimeString()}
                     on ${time.toLocaleDateString()}
                   </footer>
@@ -1187,8 +1187,8 @@ function article_template(data,comments,log_in_details)//returns html doc
               html_data+="<div class='list-group-item '><blockquote>"
               html_data+="<div id=comment_text_" + comment[i].comment_id + ">";
               //to prevent xss attack via sending html code through input
-              html_data+=escape_html_cs(comment[i].text)+"</div><footer>By:";
-              html_data+=escape_html_cs(comment[i].username);
+              html_data+=escape_html_ss(comment[i].text)+"</div><footer>By:";
+              html_data+=escape_html_ss(comment[i].username);
               html_data+=" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString();
 
               if (comment[i].user_id===current_user_id)
@@ -1546,7 +1546,7 @@ app.delete('/ui/a/delete_comment/:category',function(req,res)
 
 function comment_template(category,id)//returns a js code unique for each page
 {   
-   var js_data=escape_html_js.toString();
+   var js_data=escape_html_cs.toString();
    //this function is used to prevent xss attack
 
    js_data+=`
@@ -1579,7 +1579,7 @@ function comment_template(category,id)//returns a js code unique for each page
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><footer>By:"+escape_html_js(comment.username)+" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_cs(comment.text)+"</div><footer>By:"+escape_html_cs(comment.username)+" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
             update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
@@ -1687,7 +1687,7 @@ function comment_template_delete_update_js(category,article_id)
             var comment=request.responseText;
             //updated the value of comment
             old_comment=document.getElementById('comment_text_'+comment_id);
-            old_comment.innerHTML=escape_html_js(comment);
+            old_comment.innerHTML=escape_html_cs(comment);
 
             //reseting the close_btn to update button and onclick to updating_comment
             close_btn=document.getElementById('update_btn_id_'+comment_id);
