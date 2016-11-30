@@ -189,12 +189,15 @@ function article_layout_template(category,log_in_details,previous_page)
 //html for log_out,update delete button's and for log_in_block
 
 var log_in_block=`
-<div class=text-center>
-<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' placeholder='Enter Username'></input><br>
-<input type='password' id ='log_in_password_button' class ="input_box" placeholder="Enter Password"></input><br><br>
-<input type='submit' id ='log_in_submit_button' class = 'btn btn-primary' value='Log in!'></input><br><hr>
-<input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Sign up!'  onClick="sign_up_OnClick();"></input>
-<br><br><br>
+<div class='rows'>
+<div class='col-xs-1 col-md-3'>
+</div>
+  <div class='col-xs-10 col-md-6'>
+    <input type='text' id ='log_in_username_button' class ="form-control " autocomplete='on' placeholder='Enter Username'></input><br>
+    <input type='password' id ='log_in_password_button' class ="form-control" placeholder="Enter Password"></input><br><br>
+    <input type='submit' id ='log_in_submit_button' class = 'btn btn-primary' value='Log in!'></input><br><hr>
+    <input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Sign up!'  onClick="sign_up_OnClick();"></input>
+  </div>
 </div>
 `;
 
@@ -598,11 +601,15 @@ function sign_up_page_template(previous_page)
     Sign Up!
     <hr>
     </h1>
-    <div class=text-center>
-    <input type='text' id ='sign_up_username_button' class ="input_box" placeholder="Enter Username"></input><br>
-    <input type='password' id ='sign_up_password_button' class ="input_box"  placeholder="Enter Password"></input><br><br>
+<div class='rows'>
+  <div class='col-xs-1 col-md-3'>
+  </div>
+  <div class='col-xs-10 col-md-6'>    
+    <input type='text' id ='sign_up_username_button' class ="form-control" placeholder="Enter Username" autofocus></input><br>
+    <input type='password' id ='sign_up_password_button' class ="form-control"  placeholder="Enter Password"></input><br><br>
     <input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Submit'></input>
-    </div>
+  </div>
+  </div>
   </body>
   <script type="text/javascript" src="/ui/sign_up_page_js/previous_page?previous_page=${previous_page} ">
   </script>
@@ -938,7 +945,7 @@ function article_home_page_template(res,category,articles,log_in_details)
   if(log_in_details==="logged in")
   {
     html_data+=`<a href="/ui/a/${category}/submit_page">
-    <button type="button" class="btn btn-link">Submit an Article!</button>
+    <button type="button" class="btn btn-link"><h3>Submit an Article!</h3></button>
     </a>`;
   }
 
@@ -996,9 +1003,9 @@ function article_home_page_template(res,category,articles,log_in_details)
   }
 
     if(log_in_details==="logged in")
-      html_data+=log_out_block+`
+      html_data+=`
           <!-script for log_out ->
-          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}">
           </script>`;
 
       html_data+=`
@@ -1021,35 +1028,45 @@ function all_categories_template(all_categories,log_in_details)
 
   var categories=JSON.parse(all_categories);
 
-    html_data=article_layout_template('home_page',log_in_details,'get/all_categories');
+    var html_data=article_layout_template('home_page',log_in_details,'get/all_categories');
+
+    html_data+="<div class='container-fluid' id=this_panel >";
 
     for(var i=0;i<=categories.length -1;i++)
      {
       category=categories[i].category;
           details=categories[i].details;
-      html_data+=`
-        <div class="panel-group" id="home_page_categories" >
-         <div class="panel panel-default">
-            <div class="panel-heading" style="background-color:#fff;">
-              <h4 class="panel-title" >
-                <a data-toggle="collapse" data-parent="#home_page_categories" href="#collapse`+i+`">
-                <div class="panel-heading">`+category+`</div>
-              </h4>
-            </div>
+          html_data+=`
+          <div class="panel panel-default">
+            <a href="/ui/a/${category}/">
+              <div class="panel-heading" style="background-color:#a8dba8;">
+                  <h3>${category}</h3>
+              </div>
             </a>
+            <div class="panel-body" style="background-color:#cff09e;">
+              <a data-toggle="collapse" data-parent="#this_panel" href="#collapse`+i+`">
+                <button class="btn btn-info">Summary</button>
+              </a>  
+            </div>
             <div id="collapse`+i+`" class="panel-collapse collapse">
-              <div class="panel-body" >
-                <a href="/ui/a/`+category+`" class="list-group-item " style="background-color:#fff;">
-                  <h4>`+details+`</h4>
+              <div class="panel-heading" style="background-color:#feee7d;">
+                <a href="/ui/a/${category}/" >
+                  <h3>
+                  ${details}
+                  </h3>
                 </a>  
               </div>
             </div>
           </div>
-          </div>
-          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=get/all_categories">
-          </script>
           `;
      }
+     html_data+=`
+    </div>
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=get/all_categories">
+          </script>
+          </body>
+          </html>
+     `;
   return html_data;
 }
 
@@ -1083,8 +1100,8 @@ function article_template(data,comments,log_in_details)//returns html doc
               <p>
                 <div id=article_body_${article_id}>
                     ${escape_html_cs(body)}
-                  </p>
                 </div>
+              </p>    
                   <footer style="color:#fff;">
                     by ${username}
                     at ${time.toLocaleTimeString()}
@@ -1096,13 +1113,14 @@ function article_template(data,comments,log_in_details)//returns html doc
         
       if(current_user_id===user_id)
       {
-        delete_btn=delete_block.replace('PLACEHOLDER','delete_article_btn_id_'+ article_id);//replaces; id=PLACEHOLDER
-        delete_btn=delete_btn.replace('PLACEHOLDER','delete_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
-        html_data+='<br>'+delete_btn;
-
         update_btn=update_block.replace('PLACEHOLDER','update_article_btn_id_'+article_id );
         update_btn=update_btn.replace('PLACEHOLDER','updating_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
-        html_data+=update_btn;
+        html_data+='<br>'+update_btn;
+
+        delete_btn=delete_block.replace('PLACEHOLDER','delete_article_btn_id_'+ article_id);//replaces; id=PLACEHOLDER
+        delete_btn=delete_btn.replace('PLACEHOLDER','delete_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
+        html_data+=delete_btn;
+
       }
 
       if (log_in_details==="not logged in")
@@ -1124,9 +1142,15 @@ function article_template(data,comments,log_in_details)//returns html doc
         html_data+= `
         <div id="mySidenav" class="sidenav" style="color:#111;">
           <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-          <textarea rows="2" cols="20" id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!" ></textarea>
-          <br>
-          <input type='submit' id ='sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick="closeNav();"></input><br>
+          <div class='rows'>
+          <div class='col-xs-1 col-md-3'>
+          </div>
+            <div class='col-xs-10 col-md-6'>          
+              <textarea rows="3" cols="30" id ='in_${category}_id_${article_id}' class ="form-control" placeholder="Submit a new comment!" ></textarea>
+              <br>
+              <input type='submit' id ='sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick="closeNav();"></input><br>
+            </div>          
+          </div>
           `;
           html_data+=`
           <!-script for log_out ->
@@ -1219,10 +1243,15 @@ function submit_page_template(category)
     </div>
   `;
   html_data+=`
-  <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title" autofocus ></input><br>
-  <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text" wrap="hard"></textarea><br>
+<div class='rows'>
+<div class='col-xs-1 col-md-3'>
+</div>
+  <div class='col-xs-10 col-md-6'>  
+  <input type='text' id ='article_sumbit_head_button_${category}' class ="form-control" placeholder="Enter A Title" autofocus ></input><br>
+  <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="form-control" placeholder="Enter Some Text" wrap="hard"></textarea><br>
   <input type='submit' id ='article_sumbit_button_${category}' class = "btn btn-primary" value='Submit Article!'></input><br><br><hr>
-
+</div>
+</div>
   `;
 
   html_data+=`  
@@ -1538,7 +1567,9 @@ function comment_template(category,id)//returns a js code unique for each page
         if (request.readyState===XMLHttpRequest.DONE)
         {
           if (request.status === 200)
-          {//take comments from the request and parse them into array 
+          {
+            closeNav();
+            //take comments from the request and parse them into array 
             var comment=request.responseText;
             comment=JSON.parse(comment);
             var time = new Date(comment.time);
