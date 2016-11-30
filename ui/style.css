@@ -7,9 +7,6 @@
 .home_page_header_small{
 	background-color:#a8dba8;
 }
-.featured_pages{
-	
-}
 
 .home_page_categories_head{
 	margin-top: 10px;
@@ -23,16 +20,6 @@
 	font-family: sans-serif;
 }
 
-
-.cafe_menu {
-    font-family: sans-serif;
-    background-color: #FDD692;
-}
-
-
-.cafe_menu_comment_head {
-	font-family: sans-serif;
-}
 
 .header {
 	background-color: #754F44;
@@ -58,32 +45,15 @@
 }
 
 
-.cafe_menu_comment_head {
-	font-family: sans-serif;
-}
-
-
-
 .page_head_block {
 	margin-top: 20px;
 	font-family: sans-serif;
 	font-size: 220%;
 }
 
-.center {
-	margin-top: 50px;
-	margin-left:150px;
-	text-align: left;
-	font-family: sans-serif;
-	font-size: 120%;
-	width:1000px;
-
-}
-
 .input_box {
 	border:2px solid #6d819c;
 	margin-top: 25px;
-	margin-left:150px;
 	text-align: left;
 	font-family: sans-serif;
 	font-size: 120%;
@@ -102,32 +72,6 @@
 	font-size: 100%;
 }
 
-.submit_btn {
-	background-color:#6d819c;
-	margin-top:20px;
-	margin-left:150px;
-	font-family: sans-serif;
-	font-size: 120%;
-}
-
-.submit_btn_small {
-	background-color:#6d819c;
-	font-family: sans-serif;
-	margin-left:10px;
-	width:65px;
-	font-size: 70%;
-
-}
-
-.cafe_menu_comment_list {
-	background-color:#FBFFB9;
-	margin-top: 25px;
-	margin-left:150px;
-	border:1px solid #F6B352;
-	width:600px;
-	font-family: sans-serif;
-	font-size: 120%;
-}
 
 /* for cafe_menu_list in the order_page*/
 #cafe_menu_item_list {
@@ -143,17 +87,9 @@
 	font-size: 120%;
 }
 
-.place_order_submit_btn {
-	background-color:#6d819c;
-	font-family: sans-serif;
-	font-size: 75%;
-	width:100px;
-
-}
-
 #cart{
 	display: inline-block;
-    background-color:#77919d;
+    background-color:#EC7357;
     border: 3px solid ;
     color: white;
 	margin-left:20px;
@@ -163,20 +99,24 @@
     text-decoration: none;
 }
 
-
-
-.side_nav_link{
-	margin-top:-25px;
-	float:right;
-	font-family: sans-serif;
-	font-size: 75%;
-
+.cafe_menu {
+    font-family: sans-serif;
+    background-color: #FDD692;
 }
 
-.side_nav_bar{
-	color:white;
+
+.cafe_menu_header {
+	background-color: #754F44;
 	font-family: sans-serif;
-	font-size: 100%;
+}
+
+.cafe_menu_comment_head {
+	font-family: sans-serif;
+}
+
+.cafe_menu_comment_list {
+	background-color:#FBFFB9;
+	font-family: sans-serif;
 }
 
 
@@ -365,7 +305,7 @@
   color: #FFF;
   text-align: center;
   font-size: 20px;
-  width: 200px;
+  width: 230px;
   transition: all 0.5s;
   cursor: pointer;
   margin-bottom:15px;

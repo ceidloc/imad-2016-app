@@ -44,27 +44,6 @@ pool =new Pool(config);
 
 //html layout's to be used inside templates
 
-var cafe_nav_bar=`
-  <div class=side_cafe_nav_bar>
-  <a href='/'>Home</a>
-  <a href='/ui/cafe_home_page'>Milky Way Cafe</a>
-  <a href='/ui/order/cafe_menu/order_page'>Order</a>
-  </div>
-        `;
-
-var cafe_layout=`
-  <!doctype html>
-  <html>
-  <title>Milky Way Cafe</title>
-    <head>
-        <link href="/ui/style.css" rel="stylesheet" />
-    </head>
-    <body class=cafe_menu> <!-- background="/ui/images/bg_image"> -->
-        <div class="header">Milky Way Cafe
-        </div>
-        <hr>
-`+cafe_nav_bar;
-
 
 function article_layout_template(category,log_in_details,previous_page)
 {
@@ -116,8 +95,24 @@ function article_layout_template(category,log_in_details,previous_page)
 
 <body class="${category}">
 <div class="container-fluid ${category}_header category_header">
+  `;
+  if(category==="cafe_menu")
+  {
+    article_layout+=`
+  <h1 class="text-center page_head" >Milky Way Cafe</h1>
+  <h3 class="text-center ">Menu</h3>
+  `;
+  }
+  else
+  {
+    article_layout+=`
   <h1 class="text-center page_head">${category}</h1>
   <h3 class="text-center">Articles</h3>
+  `; 
+  }
+  
+  article_layout+=`
+  
   <p></p>
 </div>
 
@@ -140,11 +135,27 @@ function article_layout_template(category,log_in_details,previous_page)
                 <li><a href="#">About</a></li>
               </ul>
             </li>
-            <li><a href="/ui/get/all_categories_ss">Articles</a></li>
-            <li><a href="/ui/a/${category}">${category}</a></li>
-          </ul>
           `;
+          if(category==="cafe_menu")
+            {
+              article_layout+=`
+              <li><a href="/ui/cafe_home_page">Milky Way Cafe</a></li>
+              <li><a href="/ui/order/cafe_menu/order_page">Order</a></li>
+            </ul>`;
+            }
+          else
+            {
+              article_layout+=`
+              <li><a href="/ui/get/all_categories_ss">Articles</a></li>`;
+            }
+            if(category!=="home_page" && category!=="cafe_menu")
+            {
+              article_layout+=`
+                   <li><a href="/ui/a/${category}">${category}</a></li>`;
+            }
 
+            article_layout+="</ul>";
+          
           if(log_in_details==="not logged in")
           {
             article_layout+=
@@ -178,18 +189,20 @@ function article_layout_template(category,log_in_details,previous_page)
 //html for log_out,update delete button's and for log_in_block
 
 var log_in_block=`
-<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' autofocus placeholder='Enter Username'></input><br>
-<input type='password' id ='log_in_password_button' class ="input_box" placeholder="Enter Password"></input><br>
-<input type='submit' id ='log_in_submit_button' class = "submit_btn" value='Log in!'></input><br><br><hr>
-<input type='submit' id ='sign_up_submit_button' class = "submit_btn" value='Sign up!'  onClick="sign_up_OnClick();"></input>
+<div class=text-center>
+<input type='text' id ='log_in_username_button' class ="input_box" autocomplete='on' placeholder='Enter Username'></input><br>
+<input type='password' id ='log_in_password_button' class ="input_box" placeholder="Enter Password"></input><br><br>
+<input type='submit' id ='log_in_submit_button' class = 'btn btn-primary' value='Log in!'></input><br><hr>
+<input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Sign up!'  onClick="sign_up_OnClick();"></input>
 <br><br><br>
+</div>
 `;
 
-var log_out_block=`<input type='submit' id ='log_out_submit_button' class = "submit_btn" value='Log Out' onClick="log_out_OnClick();"></input><br>`;
+var log_out_block=`<input type='submit' id ='log_out_submit_button' class = 'btn btn-danger' value='Log Out' onClick="log_out_OnClick();"></input>`;
 
-var delete_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='delete' onClick='PLACEHOLDER;'></input><br>`;
+var delete_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-warning' value='delete' onClick='PLACEHOLDER;'> </input>`;
 
-var update_block=`<input type='submit' id =PLACEHOLDER class = 'submit_btn_small' value='update' onClick='PLACEHOLDER'; autofocus wrap='hard'></input><br>`;
+var update_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' value='update' onClick='PLACEHOLDER'; autofocus wrap='hard'> </input>`;
 
 //function's to prevent xss attack
 
@@ -252,6 +265,11 @@ app.get('/', function (req, res)
   res.sendFile(path.join(__dirname, 'ui', 'index.html'));
 });
 
+app.get('/ui/home_page', function (req, res) 
+{
+  res.sendFile(path.join(__dirname, 'ui', 'index.html'));
+});
+
 app.get('/ui/main.js',function(req, res)
 {
   //res.sendFile(path.join(__dirname,'ui','main.js'));
@@ -260,11 +278,6 @@ app.get('/ui/main.js',function(req, res)
 
 app.get('/ui/style.css', function (req, res) {
   res.sendFile(path.join(__dirname, 'ui', 'style.css'));
-});
-
-app.get('/ui/images/:image_no', function (req, res) {
-  var image_no=req.params.image_no
-  res.sendFile(path.join(__dirname, 'ui', 'images',image_no+'.png'));
 });
 
 
@@ -343,7 +356,7 @@ app.post('/ui/log_in',function(req,res)
 
 //for log_out
 
-app.get('/ui/log_out',function(req,res)
+app.delete('/ui/log_out',function(req,res)
 {
   //if user is logged in delete session token
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -368,16 +381,20 @@ function log_in_page_template(previous_page)
     if (category===undefined)
       category=previous_page.split('/')[0];
 
+    if (category==="cafe_home_page")
+      category="cafe_menu"
+
+    else if (category==="all_categories")
+      category="home_page"
+
     var html_data=article_layout_template(category,'not logged in',previous_page);
     
-    if (category==='cafe_menu'||category==='cafe_home_page')
-      html_data=cafe_layout;
 
   html_data+=`
-    <div class="page_head">
+    <h1 class="text-center">
     Log in!
     <hr>
-    </div>
+    </h1>
   `;
   log_in_block_autofocus=log_in_block.replace("placeholder='Enter Username'>","placeholder='Enter Username' autofocus>");
   html_data+=log_in_block_autofocus;
@@ -484,7 +501,7 @@ function log_out_template_js(previous_page)
               window.location.href = window.location.protocol+"//"+window.location.host+"/ui/${previous_page}";
           }
         }
-        request.open('GET',window.location.protocol+'//'+window.location.host+'/ui/log_out',true);
+        request.open('DELETE',window.location.protocol+'//'+window.location.host+'/ui/log_out',true);
         request.send(null);
     }
 
@@ -568,19 +585,24 @@ function sign_up_page_template(previous_page)
     if (category===undefined)
       category=previous_page.split('/')[0];
     
+    if (category==="cafe_home_page")
+      category="cafe_menu"
+
+    else if (category==="all_categories")
+      category="home_page"
+
     var html_data=article_layout_template(category,'not logged in',previous_page);
 
-    if (category==='cafe_menu'||category==='cafe_home_page')
-      html_data=cafe_layout;
-
   html_data+=`
-    <div class="page_head">
+    <h1 class="text-center">
     Sign Up!
     <hr>
-    </div>
+    </h1>
+    <div class=text-center>
     <input type='text' id ='sign_up_username_button' class ="input_box" placeholder="Enter Username"></input><br>
-    <input type='password' id ='sign_up_password_button' class ="input_box"  placeholder="Enter Password"></input><br>
-    <input type='submit' id ='sign_up_submit_button' class = "submit_btn" value='Submit'></input>
+    <input type='password' id ='sign_up_password_button' class ="input_box"  placeholder="Enter Password"></input><br><br>
+    <input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Submit'></input>
+    </div>
   </body>
   <script type="text/javascript" src="/ui/sign_up_page_js/previous_page?previous_page=${previous_page} ">
   </script>
@@ -660,6 +682,9 @@ app.get('/ui/get/:all_categories',function(req,res)
    log_in_details=["logged in",req.session.auth.user_id.user_id];
 
     //returns all categories
+    if (all_categories==='all_categories')
+      all_categories='all_categories_ss';//calling from the server_side if default is used
+
     article_format(res,[all_categories],log_in_details);
     //categories for server-side,will send to all_categories_template
 
@@ -790,7 +815,7 @@ app.get('/ui/a/:category/:article_id/article_comment_js/', function (req, res) {
 function article_template_js(category,article_id)
 {
   var js_data=escape_html_js.toString();
-  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_article_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn_small' value='update' onclick='PLACEHOLDER'></input>`;
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_article_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'btn btn-primary' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
     
@@ -906,39 +931,28 @@ function article_home_page_template(res,category,articles,log_in_details)
    
   var html_data=article_layout_template(category,log_in_details,'a/'+category);
   
-  if (category==='cafe_menu')
-   { html_data=cafe_layout;
-      html_data+=`
-  <div class="page_head">
-    ${category}`;
-   }
-   else
-   {
     html_data+=`
-  <div class="page_head">
-    Articles`;
-   }
+  <div class="container-fluid ">
+  `;
 
-  html_data+=`
-    <hr>
-    </div>
-    <div class="menu">`;
   if(log_in_details==="logged in")
   {
-    html_data+="<div class=side_nav_link>"+log_out_block+"</div>"; 
-    html_data+=`<a href="/ui/a/${category}/submit_page">Submit New Article</a><br><br> `;
-    html_data+=` <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}"></script>`;
-    
+    html_data+=`<a href="/ui/a/${category}/submit_page">
+    <button type="button" class="btn btn-link">Submit an Article!</button>
+    </a>`;
   }
 
   else
   {
-    html_data+=`<a href='/ui/log_in_page/previous_page?previous_page=a/${category}' id ='log_in_page_link' class = side_nav_link>Log in!<a>`;
-    html_data+=`<a href="/ui/log_in_page/previous_page?previous_page=a/${category}/submit_page">Submit New Article</a><br><br> `;
+    html_data+=`<a href="/ui/log_in_page/previous_page?previous_page=a/${category}/submit_page">
+    <button type="button" class="btn btn-link"><h3>Submit an Article!</h3></button>
+    </a>`;
   }
 
-  html_data+=`</div>
-                <ul class="${category}_comment_list">`;
+  html_data+=`
+  <div id=main class="${category}_comment_list">
+  <h2>Articles</h2>
+      <div id="this_panel" class="panel-group" >`;
 
   if(articles!=="no articles present")
   {
@@ -953,13 +967,27 @@ function article_home_page_template(res,category,articles,log_in_details)
       localtime=time.toLocaleTimeString();
       date=time.toLocaleDateString();
 
-      html_data+=`
-       <li><a href="/ui/a/${category}/${article_id}">${head}</a>
-       <div class='details'>
-       by ${username} <br>at ${localtime} on ${date}
-       </div>
-       </li>
-      `;
+        html_data+=`
+         <div class="panel panel-default">
+            <a data-toggle="collapse" data-parent="#this_panel" href="#collapse`+i+`">
+              <div class="panel-heading" style="background-color:#fff;">
+                  <h3>${head}</h3>
+              </div>
+            </a>
+            <div class="panel-body">
+              <a href="/ui/a/${category}/${article_id}">
+                <button class="btn btn-info">Read</button>
+              </a>  
+            </div>
+            <div id="collapse`+i+`" class="panel-collapse collapse">
+              <div class="panel-heading" >
+                <a href="/ui/a/${category}/${article_id}" >
+                  <footer>by ${username} at ${localtime} on ${date}</footer>
+                </a>  
+              </div>
+            </div>
+          </div>
+      `;      
     }
   }
   else
@@ -967,11 +995,21 @@ function article_home_page_template(res,category,articles,log_in_details)
     html_data+=articles;
   }
 
+    if(log_in_details==="logged in")
+      html_data+=log_out_block+`
+          <!-script for log_out ->
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
+          </script>`;
+
       html_data+=`
-      </ul>
+      </div>
+    </div>
+    <hr>
+   
     </body>
   </html>
   `;
+
   return html_data;
 
 };
@@ -1008,6 +1046,8 @@ function all_categories_template(all_categories,log_in_details)
             </div>
           </div>
           </div>
+          <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=get/all_categories">
+          </script>
           `;
      }
   return html_data;
@@ -1028,12 +1068,12 @@ function article_template(data,comments,log_in_details)//returns html doc
     var time=data.time;
     var category=data.category;
 
+    
+    
       var html_data=article_layout_template(category,log_in_details,'a/'+category+'/'+article_id);//3rd arg is previous_page
 
-      if (category==='cafe_menu')
-        html_data=cafe_layout;
-
-       var time = new Date(time);
+       
+      var time = new Date(time);
 
       html_data+=`    
         <div class="container-fluid">
@@ -1044,12 +1084,12 @@ function article_template(data,comments,log_in_details)//returns html doc
                 <div id=article_body_${article_id}>
                     ${escape_html_cs(body)}
                   </p>
+                </div>
                   <footer style="color:#fff;">
                     by ${username}
                     at ${time.toLocaleTimeString()}
                     on ${time.toLocaleDateString()}
                   </footer>
-                <div>
             </blockquote>
             `;
 
@@ -1086,9 +1126,9 @@ function article_template(data,comments,log_in_details)//returns html doc
           <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
           <textarea rows="2" cols="20" id ='in_${category}_id_${article_id}' class ="input_box" placeholder="Submit a new comment!" ></textarea>
           <br>
-          <input type='submit' id ='sub_${category}_id_${article_id}' class = "submit_btn" value='Submit' onclick="closeNav();"></input><br>
+          <input type='submit' id ='sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick="closeNav();"></input><br>
           `;
-          html_data+=log_out_block+`
+          html_data+=`
           <!-script for log_out ->
           <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
@@ -1111,7 +1151,7 @@ function article_template(data,comments,log_in_details)//returns html doc
 
         if(comments==='Be the first to comment!')
         {   
-          html_data+=comments;//contains 'Be the fisrt to comment!'
+          html_data+="<h4>Be the fisrt to comment!</h4>";
         }
         else
         {
@@ -1129,21 +1169,21 @@ function article_template(data,comments,log_in_details)//returns html doc
 
               if (comment[i].user_id===current_user_id)
               {
-                
-                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
-                delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
-                html_data+="<br>"+delete_btn;
-
                 update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment[i].comment_id );
                 update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
-                html_data+=update_btn;
+                html_data+="<br>"+update_btn;
+
+                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
+                delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
+                html_data+=delete_btn;
+
               }
 
               html_data+="</footer></blockquote></div>";
             };
         }
 
-        html_data+="</div></div><br><hr>";
+        html_data+="</div></div><hr>";
 
         if(current_user_id===user_id)
         {
@@ -1181,7 +1221,7 @@ function submit_page_template(category)
   html_data+=`
   <input type='text' id ='article_sumbit_head_button_${category}' class ="input_box" placeholder="Enter A Title" autofocus ></input><br>
   <textarea rows="4" cols="50" id ='article_sumbit_body_button_${category}' class ="input_box" placeholder="Enter Some Text" wrap="hard"></textarea><br>
-  <input type='submit' id ='article_sumbit_button_${category}' class = "submit_btn" value='Submit Article!'></input><br><br><hr>
+  <input type='submit' id ='article_sumbit_button_${category}' class = "btn btn-primary" value='Submit Article!'></input><br><br><hr>
 
   `;
 
@@ -1288,7 +1328,6 @@ function article_format(res,data,log_in_details)
 
   else if (data[0]==="all_categories_cs" || data[0]==="all_categories_ss")
   {
-    console.log("brokeback");
     pool.query("SELECT * FROM categories WHERE category != 'cafe_menu' ORDER BY categories",function(err,result)
     {
       if (err)
@@ -1298,7 +1337,7 @@ function article_format(res,data,log_in_details)
       else
       {
         if (data[0]==='all_categories_cs')
-          res.send(JSON.stringify(result.rows));
+          res.send(JSON.stringify([result.rows,log_in_details]));
         else
           res.send(all_categories_template(JSON.stringify(result.rows),log_in_details))
       }
@@ -1411,6 +1450,23 @@ function article_format(res,data,log_in_details)
       }
     });
   }
+  else if (data[0]==="cafe_home_page")
+  {
+    //data=['cafe home page',log_in_details]
+    console.log("indside cafe_home_page,pre result");
+    pool.query('SELECT c.item_id,a.head,c.price,c.summary FROM cafe_menu as c LEFT JOIN article_table as a ON c.item_id=a.article_id ORDER BY c.item_id',function(err,result)
+    {
+     if (err)
+      {
+        res.status(500).send(err.toString());
+      }
+      else
+      { 
+        console.log("indside cafe_home_page,result",result);
+        res.send(cafe_home_page_template(JSON.stringify(result.rows),log_in_details));
+      }
+    });
+  }
 };
 
 //section 
@@ -1491,19 +1547,19 @@ function comment_template(category,id)//returns a js code unique for each page
             if (old_list.innerHTML.trim()==='Be the first to comment!' )
               old_list.innerHTML="";
 
-            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><footer>By:"+escape_html_js(comment.username)+"<br>submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
-
-            delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
-            delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
-
-            new_comment+=delete_btn;
+            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_js(comment.text)+"</div><footer>By:"+escape_html_js(comment.username)+" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
 
             update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
 
             new_comment+=update_btn;
 
-            new_comment+="</footer></blockquote>";
+            delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
+            delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
+
+            new_comment+=delete_btn;
+
+            new_comment+="</div></footer></blockquote>";
             old_list.innerHTML=new_comment+old_list.innerHTML;
 
             submit_btn.value='Submit';
@@ -1531,7 +1587,7 @@ function comment_template(category,id)//returns a js code unique for each page
 
 function comment_template_delete_update_js(category,article_id)
 {
-  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_comment_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'submit_btn_small' value='update' onclick='PLACEHOLDER'></input>`;
+  update_text_block=`<textarea rows='4' cols='50' id ='PLACEHOLDER' class ='update_comment_box' ></textarea><br><input type='submit' id ='PLACEHOLDER' class = 'btn btn-primary' value='update' onclick='PLACEHOLDER'></input>`;
 
   js_data+=`
     function delete_comment(comment_id)
@@ -1728,7 +1784,7 @@ app.get('/ui/cafe_home_page',function(req, res){
   if (req.session && req.session.auth && req.session.auth.user_id )
     log_in_details=["logged in",req.session.auth.user_id.user_id];
 
-  res.send(cafe_home_page_template(log_in_details));
+   article_format(res,['cafe_home_page'],log_in_details);
 });
 
 app.get('/ui/cafe_home_page.js',function(req, res){
@@ -1738,53 +1794,84 @@ app.get('/ui/cafe_home_page.js',function(req, res){
 
 //template function's for cafe home page
 
-function cafe_home_page_template(log_in_details)
+function cafe_home_page_template(menu,log_in_details)
 {
 
   //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
   var current_user_id=log_in_details[1];
   log_in_details=log_in_details[0];
 
-  html_data=cafe_layout;
+  var menu=JSON.parse(menu);//contians id,head,price and summary of items
+
+  html_data=article_layout_template("cafe_menu",log_in_details,"cafe_home_page");
+  
   html_data+=`
-  <div class="page_head">
-        MENU
+  </div>
+        <body style="background-color:#F6B352;">
+          <h1 class=" text-center">MENU</h1>
         <hr>
-        </div>
-        <div class="menu">`;
-        if(log_in_details==="logged in")
+        <h2><a href="/ui/order/cafe_menu/order_page">Build an Order!</a></h2>
+        <div class=row>
+        `
+        for(var j=1;j<=2;j++)
         {
-          html_data+="<div class=side_nav_link>"+log_out_block+"</div>";
-        }
-        else
-        {
-          html_data+=`<a href='/ui/log_in_page/previous_page?previous_page=cafe_home_page' id ='log_in_page_link' class = side_nav_link>Log in!<a>`
+          html_data+=`
+          <div class="col-xs-6 c"> 
+            <div class="list-group">
+              `;
+            var k=parseInt(((menu.length)/2)*(j-1),10);//will have value=0 or lenght/2
+            console.log("value of k",k);
+
+            for(var i=k;i<=j*(menu.length-1)/2;i++)
+              {
+                html_data+=`
+                <div class="list-group-item" style="background-color:#FDD692;">
+                     <div class="panel-group" >
+                      <div class="panel panel-default">
+                         <a data-toggle="collapse" href="#collapse`+i+`"> 
+                           <div class="panel-heading" style="background-color:#FBFFB9;">
+                              <h3 style="color:#111;">       `
+                              +menu[i].head+`
+                              </h3>   
+                            </div>
+                          </a>
+                        <div id="collapse`+i+`" class="panel-collapse collapse">
+                          <ul class="list-group">
+                            <!-- will add summary later -->
+                            <a href="/ui/a/cafe_menu/`+menu[i].item_id+`">
+                              <li class="list-group-item"><h3>View Details</h3></li>
+                            </a>
+                            <li class="list-group-item"><h4>Price:`+menu[i].price+`</h4></li>
+                            <li class="list-group-item">
+                              <img src="/ui/images/`+i+`.png" class="img-responsive">
+                                <!-- alt="Chania" width="460" height="345" -->
+                              </img>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                </div>
+
+                `;
+              
+              }
+
+              html_data+=`            
+            </div>
+          </div>
+          `;
         }
 
         html_data+=`
-        Place Your Order! <a href="/ui/order/cafe_menu/order_page">Click Here</a><br><br><br>
-        <img src='/ui/images/0' id="mi_0" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/0">Espresso</a><br><br>
-        <img src='/ui/images/1' id="mi_1" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/1">Espresso Macchiato</a><br><br>
-        <img src='/ui/images/2' id="mi_2" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/2">Espresso con Panna </a><br><br>
-        <img src='/ui/images/3' id="mi_3" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/3">Caffe Latte </a><br><br>
-        <img src='/ui/images/4' id="mi_4" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/4">Flat White </a><br><br>
-        <img src='/ui/images/5' id="mi_5" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/5">Caffe Breve </a><br><br>
-        <img src='/ui/images/6' id="mi_6" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/6">Cappuccino </a><br><br>
-        <img src='/ui/images/7' id="mi_7" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/7">Caffe Mocha </a><br><br>
-        <img src='/ui/images/8' id="mi_8" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/8">Americano </a><br><br>
-        <img src='/ui/images/9' id="mi_9" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/9">Latte Macchiato </a><br><br>
-        <img src='/ui/images/10' id="mi_10" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/10">Red Eye </a><br><br>
-        <img src='/ui/images/11' id="mi_11" class="menu_icon"> <br> <a href="/ui/a/cafe_menu/11">Cafe au Late </a><br><br>
-        </div>
+        </div><!-- end of rows -->
+       </div>   `;
+  
+
+       html_data+=`   
         <script type="text/javascript" src="/ui/cafe_home_page.js">
         </script>
-        `;
-
-        if(log_in_details==="logged in")
-          html_data+=` <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=cafe_home_page">
-            </script>`;
-
-        html_data+=`
     </body>
 </html>
   `;
@@ -1911,7 +1998,7 @@ function order_template(cafe_menu,cart,cart_id)
 { 
   cafe_menu=JSON.parse(cafe_menu);
   cart=JSON.parse(cart);
-  var html_data=cafe_layout;
+  var html_data=article_layout_template('cafe_menu','logged in','order/cafe_menu/order_page');
   html_data+=`
         <div class="page_head">
         Place your order
@@ -1930,7 +2017,7 @@ function order_template(cafe_menu,cart,cart_id)
       <div id='head_for_item_id_${item_id}'>${head}</div>
       <div id='quantity_item_id_${item_id}'></div>
       <div id='price_item_id_${item_id}'>${price}</div>
-      <input type='submit' id='place_this_item_id_${item_id}' class = "place_order_submit_btn" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
+      <input type='submit' id='place_this_item_id_${item_id}' class = "btn btn-primary" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
       </li>
       `;
     };
@@ -1952,9 +2039,9 @@ function order_template(cafe_menu,cart,cart_id)
               //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
               html_data+="<li><div id=cart_item_id_head_"+cart[i].item_id+">"+cafe_menu[cart[i].item_id].head+"</div>"
               +"<ul>"
-              +"<li><div id=cart_item_id_quantitiy_"+cart[i].item_id+">Qty:"+cart[i].quantity+"</div>"
-              +"<input type=submit class=submit_btn_small id=increase_quantity_"+cart[i].item_id+" value='+' onclick='update_quantity("+cart[i].item_id+",1);'></input>"
-              +"<input type=submit class=submit_btn_small id=decrease_quantity_"+cart[i].item_id+" value='-' onclick='update_quantity("+cart[i].item_id+",-1);'></input>"
+              +"<li style='display: inline-block;'><div id=cart_item_id_quantitiy_"+cart[i].item_id+">Qty:"+cart[i].quantity+"</div>"
+              +"<input type=submit class='btn btn-info' id=increase_quantity_"+cart[i].item_id+" value='+' onclick='update_quantity("+cart[i].item_id+",1);'> </input>"
+              +"<input type=submit class='btn btn-warning' id=decrease_quantity_"+cart[i].item_id+" value='-' onclick='update_quantity("+cart[i].item_id+",-1);'></input>"
               +"</li>"
               +"<li id=cart_item_id_price_"+cart[i].item_id+">price:"
               //converting price string($3.22)'s substring into int 
@@ -1964,8 +2051,8 @@ function order_template(cafe_menu,cart,cart_id)
             };
         }
 
-    html_data+="</ul><br><input type=submit class=submit_btn_small id=clear_cart_id_("+cart_id+") value='Clear Cart' onclick='clear_cart("+cart_id+");' "
-    html_data+="<div class=side_nav_link>"+log_out_block+`</div>
+    html_data+="</ul><br><input type=submit class='btn btn-warning' id=clear_cart_id_("+cart_id+") value='Clear Cart' onclick='clear_cart("+cart_id+");' "
+    html_data+=`</div>
     <script type="text/javascript" src="/ui/order/cafe_menu/order_page_js/${cart_id}">
     </script>
     <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=order/cafe_menu/order_page">
@@ -2002,8 +2089,8 @@ function order_template_js(cart_id)
                 new_cart="<li><div id=cart_item_id_head_"+item_id+">"+head+"</div>"
                 +"<ul>"
                 +"<li><div id=cart_item_id_quantitiy_"+item_id+">Qty:"+1+"</div>"
-                +"<input type=submit class=submit_btn_small id=increase_quantity_"+item_id+" value='+' onclick='update_quantity("+item_id+",1);'></input>"
-                +"<input type=submit class=submit_btn_small id=decrease_quantity_"+item_id+" value='-' onclick='update_quantity("+item_id+",-1);'></input>"
+                +"<input type=submit class='btn btn-info' id=increase_quantity_"+item_id+" value='+' onclick='update_quantity("+item_id+",1);'></input>"
+                +"<input type=submit class='btn btn-warning' id=decrease_quantity_"+item_id+" value='-' onclick='update_quantity("+item_id+",-1);'></input>"
                 +"</li>";
 
                 price="<li id=cart_item_id_price_"+item_id+">price:$"+parseFloat(price,10).toFixed(3).toString();
