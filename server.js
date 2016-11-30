@@ -1367,7 +1367,7 @@ function article_format(res,data,log_in_details)
       {
         if (data[0]==='all_categories_cs')
           res.send(JSON.stringify([result.rows,log_in_details]));
-        else
+        else if(data[0]==='all_categories_ss')
           res.send(all_categories_template(JSON.stringify(result.rows),log_in_details))
       }
     });
@@ -1385,7 +1385,8 @@ function article_format(res,data,log_in_details)
         }
         else if (result.rows.length===0)
         {
-          res.send(article_home_page_template(res,category,'no articles present',log_in_details)) 
+         // res.send(article_home_page_template(res,category,'no articles present',log_in_details)) 
+         res.status(404).send("no articles present in this category!");
         }
         else
         { 
@@ -2031,11 +2032,13 @@ function order_template(cafe_menu,cart,cart_id)
   cart=JSON.parse(cart);
   var html_data=article_layout_template('cafe_menu','logged in','order/cafe_menu/order_page');
   html_data+=`
-        <div class="page_head">
-        Place your order
-        </div>
+        <div class="container-fluid">
+        <h1>Place your order</h1>
+        </h1>
         <hr>
-        <ol id = 'cafe_menu_item_list'>
+        <div class='rows'>
+          <div class='col-xs-6 col-md-6'>
+            <div class="list-group" id = 'cafe_menu_item_list'>
         `;
   
     for (var i=0;i<=11;i++)
@@ -2044,19 +2047,21 @@ function order_template(cafe_menu,cart,cart_id)
       var item_id=cafe_menu[i].item_id;
       var head=cafe_menu[i].head;
       var price=cafe_menu[i].price;
-      html_data+=`<li>
-      <div id='head_for_item_id_${item_id}'>${head}</div>
-      <div id='quantity_item_id_${item_id}'></div>
-      <div id='price_item_id_${item_id}'>${price}</div>
-      <input type='submit' id='place_this_item_id_${item_id}' class = "btn btn-primary" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
-      </li>
+      html_data+=`
+      <div class="list-group-item">
+        <div id='head_for_item_id_${item_id}'>${head}</div>
+        <div id='quantity_item_id_${item_id}'></div>
+        <div id='price_item_id_${item_id}'>${price}</div>
+        <input type='submit' id='place_this_item_id_${item_id}' class = "btn btn-primary" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
+      </div>
       `;
     };
   
-
     html_data+=`
-    </ol>
-    <ul id='cart'>`
+      </div>
+    </div>
+    <div class="col-xs-6 col-md-6"> 
+        <ul id='cart'>`;
 
      if (cart==="empty cart")
         { 
@@ -2068,22 +2073,27 @@ function order_template(cafe_menu,cart,cart_id)
           for (var i=0;i<=cart.length-1;i++)    //storing in reverse to show the most recent comment at the top
             { 
               //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
-              html_data+="<li><div id=cart_item_id_head_"+cart[i].item_id+">"+cafe_menu[cart[i].item_id].head+"</div>"
-              +"<ul>"
-              +"<li style='display: inline-block;'><div id=cart_item_id_quantitiy_"+cart[i].item_id+">Qty:"+cart[i].quantity+"</div>"
-              +"<input type=submit class='btn btn-info' id=increase_quantity_"+cart[i].item_id+" value='+' onclick='update_quantity("+cart[i].item_id+",1);'> </input>"
-              +"<input type=submit class='btn btn-warning' id=decrease_quantity_"+cart[i].item_id+" value='-' onclick='update_quantity("+cart[i].item_id+",-1);'></input>"
-              +"</li>"
-              +"<li id=cart_item_id_price_"+cart[i].item_id+">price:"
-              //converting price string($3.22)'s substring into int 
-              +cart[i].price.substr(0,1)
-              +(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString()
-              +"</li></ul></li>";
+              html_data+=`
+                <li id=cart_item_id_head_`+cart[i].item_id+`>`+cafe_menu[cart[i].item_id].head+`
+                <ul>`
+              +`<li>
+                  <div id=cart_item_id_quantitiy_`+cart[i].item_id+`>Qty:`+cart[i].quantity+`</div>`
+                +`<input type=submit class='btn btn-info' id=increase_quantity_`+cart[i].item_id+` value='+' onclick='update_quantity(`+cart[i].item_id+`,1);'> </input>`
+                +`<input type=submit class='btn btn-warning' id=decrease_quantity_`+cart[i].item_id+` value='-' onclick='update_quantity(`+cart[i].item_id+`,-1);'></input>`
+              +`</li>`
+              +`<li id=cart_item_id_price_`+cart[i].item_id+`>price:`
+                //converting price string($3.22)'s substring into int 
+                +cart[i].price.substr(0,1)
+                +(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString()
+              +`</li>
+              </ul>
+              </li>
+              `;
             };
         }
 
     html_data+="</ul><br><input type=submit class='btn btn-warning' id=clear_cart_id_("+cart_id+") value='Clear Cart' onclick='clear_cart("+cart_id+");' "
-    html_data+=`</div>
+    html_data+=`</div></div>
     <script type="text/javascript" src="/ui/order/cafe_menu/order_page_js/${cart_id}">
     </script>
     <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=order/cafe_menu/order_page">
@@ -2145,7 +2155,8 @@ function order_template_js(cart_id)
                 old_total_price=document.getElementById('cart_item_id_price_'+item_id).innerHTML.split('$')[1];
 
                 new_price="<li id=cart_item_id_price_"+item_id+">price:$"
-                +( ( parseFloat(price,10)*parseInt(update_by,10) )+parseFloat(old_total_price,10) ).toFixed(3).toString();
+                +( ( parseFloat(price,10)*parseInt(update_by,10) )+parseFloat(old_total_price,10) ).toFixed(3).toString()
+                +"</li>";
                 //eg (3.220*-1)+32.200
 
                 document.getElementById('cart_item_id_price_'+item_id).innerHTML=new_price;
