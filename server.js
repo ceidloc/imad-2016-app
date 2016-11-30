@@ -543,11 +543,19 @@ app.post('/ui/sign_up',function(req,res)
   var password=req.body.password;
   var salt = crypto.randomBytes(128).toString('hex');
  
-  username=username.trim();
-  password=password.trim();
   var hashedString=hash(password,salt);
-  
-  if (username!=="" && password!=="") 
+ 
+  if (username.trim() === '' || password.trim() === '' || username.length < 5  || username.length > 15 || password.length < 8  || password.length > 15 ) 
+   {
+       res.send("Invalid Username/Password. Please try again");
+   }
+ 
+  else if(!/^[a-zA-Z0-9_.@]+$/.test(username))  //If username contains other than a-z,A-Z,0-9 then true.
+    {
+        res.send("Username can't contain special characters.");
+    } 
+
+  else
   {
      //user_table schema: user_id username password
     pool.query('SELECT username FROM user_table WHERE username=$1',[username],function(err,result)
@@ -639,6 +647,10 @@ function sign_up_page_template_js(previous_page)
           if (res==="successfully logged in")
           {
           window.location.href=window.location.protocol+'//'+window.location.host+'/ui/${previous_page}';
+          }
+          else
+          {
+            submit_btn.value=res;
           }
         }
         else if (request.status === 404) 
