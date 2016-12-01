@@ -2089,11 +2089,10 @@ function order_template(cafe_menu,cart,cart_id)
                   +`<input type=submit class='btn btn-info' id=increase_quantity_`+cart[i].item_id+` value='+' onclick='update_quantity(`+cart[i].item_id+`,1);'> </input>`
                   +`<input type=submit class='btn btn-warning' id=decrease_quantity_`+cart[i].item_id+` value='-' onclick='update_quantity(`+cart[i].item_id+`,-1);'></input>`
                 +`</li>`
-                +`<li><h4>price:</h4>
+                +`<li><h4>price:$</h4>
                     <div id=cart_item_id_price_`+cart[i].item_id+`>`
                     //converting price string($3.22)'s substring into int 
-                    +cart[i].price.substr(0,1)
-                    +(cart[i].quantity * parseFloat(cart[i].price.split('$'),10) ).toFixed(3).toString()+"</div>"
+                    +(cart[i].quantity * parseFloat(cart[i].price.split('$')[1],10) ).toFixed(3).toString()+"</div>"
                 +`</li>
               </ul>
             </li>
