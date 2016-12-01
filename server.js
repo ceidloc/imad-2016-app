@@ -2049,7 +2049,7 @@ function order_template(cafe_menu,cart,cart_id)
             <div class="list-group" id = 'cafe_menu_item_list'>
         `;
   
-    for (var i=0;i<=11;i++)
+    for (var i=0;i<=cafe_menu.length-1;i++)
     {
       //extracting the item_id and head of each item present in the menu_list
       var item_id=cafe_menu[i].item_id;
@@ -2318,7 +2318,7 @@ function cart_bill_format(res,cart_id,data)
       else
       { 
         //selecting all the cafe_menu present in the menu,with its corresponding head from article_table,where article_id=0,aka the cafe shop owner
-         pool.query("SELECT a.head,m.price,m.item_id FROM article_table AS a LEFT JOIN cafe_menu AS m ON a.article_id=m.item_id ORDER BY m.item_id",
+         pool.query("SELECT a.head,m.price,m.item_id FROM  cafe_menu AS m LEFT JOIN article_table AS a  ON m.item_id=a.article_id ORDER BY m.item_id",
           function(err,cafe_menu)
           {
             if (err)
