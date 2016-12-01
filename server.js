@@ -694,7 +694,6 @@ function sign_up_page_template_js(previous_page)
 app.get('/ui/get/:all_categories',function(req,res)
   {
 
-    console.log("/ui/get/all_categories");
   var all_categories=req.params.all_categories;
    var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -1495,7 +1494,6 @@ function article_format(res,data,log_in_details)
   else if (data[0]==="cafe_home_page")
   {
     //data=['cafe home page',log_in_details]
-    console.log("indside cafe_home_page,pre result");
     pool.query('SELECT c.item_id,a.head,c.price,c.summary FROM cafe_menu as c LEFT JOIN article_table as a ON c.item_id=a.article_id ORDER BY c.item_id',function(err,result)
     {
      if (err)
@@ -1504,7 +1502,6 @@ function article_format(res,data,log_in_details)
       }
       else
       { 
-        console.log("indside cafe_home_page,result",result);
         res.send(cafe_home_page_template(JSON.stringify(result.rows),log_in_details));
       }
     });
@@ -1864,7 +1861,6 @@ function cafe_home_page_template(menu,log_in_details)
             <div class="list-group">
               `;
             var k=parseInt(((menu.length)/2)*(j-1),10);//will have value=0 or lenght/2
-            console.log("value of k",k);
 
             for(var i=k;i<=j*(menu.length-1)/2;i++)
               {
@@ -2022,7 +2018,7 @@ app.post('/ui/order/cafe_menu/order_page/update_order', function (req, res) {
   }
 });
 
-//inserts/update's quantity and price of items in cart
+//to clear the cart by deleting item's in the respective cart_id
 app.delete('/ui/order/cafe_menu/order_page/delete_order', function (req, res) {
   if (req.session && req.session.auth && req.session.auth.user_id )
   {
@@ -2063,7 +2059,7 @@ function order_template(cafe_menu,cart,cart_id)
       <div class="list-group-item">
         <div id='head_for_item_id_${item_id}'>${head}</div>
         <div id='quantity_item_id_${item_id}'></div>
-        <div id='price_item_id_${item_id}'>${price}</div>
+        $<div id='price_item_id_${item_id}'>${price.split('$')[1]}</div>
         <input type='submit' id='place_this_item_id_${item_id}' class = "btn btn-primary" value='Add in cart' onclick='update_quantity(${item_id},1);' > </input>
       </div>
       `;
@@ -2086,26 +2082,28 @@ function order_template(cafe_menu,cart,cart_id)
             { 
               //inserting head,stored in menu_iems, of item in cart,referenced by using its item_id 
               html_data+=`
-                <li id=cart_item_id_head_`+cart[i].item_id+`>`+cafe_menu[cart[i].item_id].head+`
-                <ul>`
-              +`<li>
-                  <div id=cart_item_id_quantitiy_`+cart[i].item_id+`>Qty:`+cart[i].quantity+`</div>`
-                +`<input type=submit class='btn btn-info' id=increase_quantity_`+cart[i].item_id+` value='+' onclick='update_quantity(`+cart[i].item_id+`,1);'> </input>`
-                +`<input type=submit class='btn btn-warning' id=decrease_quantity_`+cart[i].item_id+` value='-' onclick='update_quantity(`+cart[i].item_id+`,-1);'></input>`
-              +`</li>`
-              +`<li id=cart_item_id_price_`+cart[i].item_id+`>price:`
-                //converting price string($3.22)'s substring into int 
-                +cart[i].price.substr(0,1)
-                +(cart[i].quantity * parseFloat(cart[i].price.substr(1,4),10) ).toFixed(3).toString()
-              +`</li>
+            <li id=cart_item_id_head_`+cart[i].item_id+`>`+cafe_menu[cart[i].item_id].head+`
+              <ul>`
+                +`<li>
+                    <h4>Qty:</h4><div id=cart_item_id_quantitiy_`+cart[i].item_id+`>`+cart[i].quantity+`</div>`
+                  +`<input type=submit class='btn btn-info' id=increase_quantity_`+cart[i].item_id+` value='+' onclick='update_quantity(`+cart[i].item_id+`,1);'> </input>`
+                  +`<input type=submit class='btn btn-warning' id=decrease_quantity_`+cart[i].item_id+` value='-' onclick='update_quantity(`+cart[i].item_id+`,-1);'></input>`
+                +`</li>`
+                +`<li><h4>price:</h4>
+                    <div id=cart_item_id_price_`+cart[i].item_id+`>`
+                    //converting price string($3.22)'s substring into int 
+                    +cart[i].price.substr(0,1)
+                    +(cart[i].quantity * parseFloat(cart[i].price.split('$'),10) ).toFixed(3).toString()+"</div>"
+                +`</li>
               </ul>
-              </li>
+            </li>
               `;
             };
         }
 
     html_data+="</ul><br><input type=submit class='btn btn-warning' id=clear_cart_id_("+cart_id+") value='Clear Cart' onclick='clear_cart("+cart_id+");' "
-    html_data+=`</div></div>
+    html_data+=`</div> <!-- end of cart col -->
+    </div><!-- end of clas row -->
     <script type="text/javascript" src="/ui/order/cafe_menu/order_page_js/${cart_id}">
     </script>
     <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=order/cafe_menu/order_page">
@@ -2135,19 +2133,19 @@ function order_template_js(cart_id)
               //extracting head ,for this item in cart, from the html doc for this end point,referenced by item_id of item inserted/updated in current cart.
               var head=document.getElementById('head_for_item_id_'+item_id).innerHTML;
               //extracting price of one quantity of the item
-              price=document.getElementById('price_item_id_'+item_id).innerHTML.split('$')[1];
-
+              price=document.getElementById('price_item_id_'+item_id).innerHTML;
+              
               if(response==="inserted successfully")
               {
                 new_cart="<li><div id=cart_item_id_head_"+item_id+">"+head+"</div>"
                 +"<ul>"
-                +"<li><div id=cart_item_id_quantitiy_"+item_id+">Qty:"+1+"</div>"
-                +"<input type=submit class='btn btn-info' id=increase_quantity_"+item_id+" value='+' onclick='update_quantity("+item_id+",1);'></input>"
-                +"<input type=submit class='btn btn-warning' id=decrease_quantity_"+item_id+" value='-' onclick='update_quantity("+item_id+",-1);'></input>"
-                +"</li>";
+                  +"<li><h4>Qty:</h4><div id=cart_item_id_quantitiy_"+item_id+">"+1+"</div>"
+                    +"<input type=submit class='btn btn-info' id=increase_quantity_"+item_id+" value='+' onclick='update_quantity("+item_id+",1);'></input>"
+                    +"<input type=submit class='btn btn-warning' id=decrease_quantity_"+item_id+" value='-' onclick='update_quantity("+item_id+",-1);'></input>"
+                  +"</li>";
 
-                price="<li id=cart_item_id_price_"+item_id+">price:$"+parseFloat(price,10).toFixed(3).toString();
-                new_cart+=price+"</li></ul></li>";
+                new_price="<li><h4>price:$</h4><div id=cart_item_id_price_"+item_id+">"+parseFloat(price,10).toFixed(3).toString()+"</div>";
+                new_cart+=new_price+"</li></ul></li>";
 
                 old_cart=document.getElementById('cart');
                 if (old_cart.innerHTML==="Empty Cart")
@@ -2158,18 +2156,15 @@ function order_template_js(cart_id)
 
               else if(response==="updated successfully")
               {
-                document.getElementById('cart_item_id_head_'+item_id).innerHTML=head;
                 
                 old_quantity=document.getElementById('cart_item_id_quantitiy_'+item_id);
-                old_quantity.innerHTML="Qty:"+(parseInt(old_quantity.innerHTML.split(':')[1],10)+parseInt(update_by,10)).toString();
+                old_quantity.innerHTML=+(parseInt(old_quantity.innerHTML,10)+parseInt(update_by,10)).toString();
 
                 //extracting total price of the item in the cart
-                old_total_price=document.getElementById('cart_item_id_price_'+item_id).innerHTML.split('$')[1];
+                old_total_price=document.getElementById('cart_item_id_price_'+item_id).innerHTML;
 
-                new_price="<li id=cart_item_id_price_"+item_id+">price:$"
-                +( ( parseFloat(price,10)*parseInt(update_by,10) )+parseFloat(old_total_price,10) ).toFixed(3).toString()
-                +"</li>";
-                //eg (3.220*-1)+32.200
+                new_price=( ( parseFloat(price,10)*parseInt(update_by,10) )+parseFloat(old_total_price,10) ).toFixed(3).toString();
+                <!--eg (3.220*-1)+32.200-->
 
                 document.getElementById('cart_item_id_price_'+item_id).innerHTML=new_price;
               }
