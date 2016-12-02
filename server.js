@@ -781,7 +781,6 @@ app.post('/ui/a/:category/:action_on_article', function (req, res)
     
     if (action_on_article==='update_points_on_article')
     {
-      console.log("insdie update_points_on_article end point");
       var article_id=req.body.article_id;
       var update_by=req.body.update_by;
       var data=[action_on_article,user_id,article_id,update_by]
@@ -793,7 +792,7 @@ app.post('/ui/a/:category/:action_on_article', function (req, res)
     {
       var head=req.body.head;
       var body=req.body.body;
-      if (head!=="" && body!=="" &&(action_on_article==='update article' ||action_on_article==='insert article'))
+      if (head!=="" && body!=="" &&(action_on_article==='update article' ||action_on_article==='insert an article'))
       {
         var data=[action_on_article,user_id,category,head,body]
         if (action_on_article==='update article')
@@ -953,7 +952,6 @@ function article_template_js(category,article_id)
 
     function update_points_on_article(article_id,update_by)
     {
-      console.log("insdie update_points_on_article function");
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
@@ -961,11 +959,11 @@ function article_template_js(category,article_id)
         {
           if (request.status === 200)
           {
-            var response=request.responseText;
-            if (response==="updated points successfully")
+            var response=JSON.parse(request.responseText);//['update successfully','updated by 1 or -2, 2 or -1']
+            if (response[0]==="updated points successfully")
             {
               points=document.getElementById('points_on_id_'+article_id);
-              points.innerHTML=(parseInt(points.innerHTML,10)+update_by).toString()+" points";
+              points.innerHTML=(parseInt(points.innerHTML,10)+response[1]).toString()+" points";
             }
           }
         }
@@ -1557,8 +1555,6 @@ function article_format(res,data,log_in_details)
 
     if (update_by===-1)
       update_by_boolean=false;
-    
-    console.log("insdie update_points_on_article pre-query");
 
     pool.query('SELECT points FROM points_on_article_table WHERE user_id=$1 AND article_id=$2',[user_id,article_id],function(err,result)
       { 
@@ -1568,7 +1564,6 @@ function article_format(res,data,log_in_details)
         }
         else if (result.rows.length===0)//new upvote/downvote
         {
-          console.log("insdie update_points_on_article insert query");
           pool.query('INSERT INTO points_on_article_table(user_id,article_id,points) values($1,$2,$3)',[user_id,article_id,update_by_boolean],function(err,result)
           { 
            if (err)
@@ -1583,14 +1578,19 @@ function article_format(res,data,log_in_details)
         }
         else
         {
-          console.log("insdie update_points_on_article,result.rows[0].points",result.rows[0].points);
-
           if (result.rows[0].points===update_by_boolean)//to check multiple upvotes/downvotes
           {
             res.send("unsuccessfull update on points");
           }
           else
           {
+            update_by*=2;
+            //since this is an update on previous upvote/downvote,to reverse the previous value and show the current upvote/downvote value we muliply it by 2
+            //eg . preivously user 1 -> upvoted hence points =1
+            //      after updation,aka downvote,since only one upvote per comment/article so the update will only be the reverse
+            //          points = previous.point + -1 *2
+            //          after completion of update; points =-1
+
             pool.query('UPDATE points_on_article_table SET points=$3 WHERE user_id=$1 AND article_id=$2',[user_id,article_id,update_by_boolean],function(err,result)
             { 
              if (err)
@@ -1611,8 +1611,6 @@ function article_format(res,data,log_in_details)
     //data=['update_points_on_article',article_id,update_by]
     var article_id=data[1];
     var update_by=data[2];;
-    
-    console.log("insdie update points,pre-query");
 
     pool.query('SELECT points FROM article_table WHERE article_id=$1',[article_id],function(err,result)
       { 
@@ -1622,11 +1620,8 @@ function article_format(res,data,log_in_details)
         }
         else
         { 
-          console.log("insdie update points,result.rows[0].points",result.rows[0].points);
 
           points=result.rows[0].points+update_by;
-          console.log("insdie update points,updated points ",points);
-          console.log("insdie update points,article_id ",article_id);
 
           pool.query('UPDATE article_table SET points=$2 WHERE article_id=$1',[article_id,points],function(err,result)
           { 
@@ -1636,7 +1631,7 @@ function article_format(res,data,log_in_details)
             }
             else
             { //selecting the last article inserted by this user in this category,aka the current article just inserted
-              res.send("updated points successfully");
+              res.send( JSON.stringify(["updated points successfully",update_by]) );
             }
           });
 
@@ -1683,7 +1678,7 @@ function article_format(res,data,log_in_details)
 //end points for comments
 
 //post requst to insert/update comment or update points on comment
-app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
+app.post('/ui/a/:category/:article_id/:action_on_comment', function (req, res)
 { //body has comment and may have comment_id for updation of comment
   //can only add comments if logged in!
   if (req.session && req.session.auth && req.session.auth.user_id )
@@ -1693,12 +1688,11 @@ app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
     //url type: ui/3/comment?comment=... here id = 3
     var article_id=req.params.article_id;
     var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
-    var action=req.params.action_on_commnet;
+    var action=req.params.action_on_comment;
     var user_id=log_in_details[1];
 
     if (action==='update_points_on_comment')
     {
-      console.log("insdie update_points_on_article end point");
       var comment_id=req.body.comment_id;
       var update_by=req.body.update_by;
       var data=[action,user_id,comment_id,update_by]
@@ -1708,7 +1702,7 @@ app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
     }
 
     
-    else if (req.body.comment!=="" && (action==='update_comment' || action==='insert comment'))
+    else if (req.body.comment!=="" && (action==='update comment' || action==='insert comment'))
       { 
         var comment=req.body.comment;
         var data=[action,comment]
@@ -1918,7 +1912,6 @@ function comment_template_delete_update_js(category,article_id)
 
     function update_points_on_comment(aritcle_id,comment_id,update_by)
     {
-      console.log("insdie update_points_on_article function");
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
       {
@@ -1926,11 +1919,11 @@ function comment_template_delete_update_js(category,article_id)
         {
           if (request.status === 200)
           {
-            var response=request.responseText;
-            if (response==="updated points successfully")
+            var response=JSON.parse(request.responseText);//['update successfully','updated by 1 or -2, 2 or -1']
+            if (response[0]==="updated points successfully")
             {
               points=document.getElementById('points_on_comment_id_'+comment_id);
-              points.innerHTML=(parseInt(points.innerHTML,10)+update_by).toString()+" points";
+              points.innerHTML=(parseInt(points.innerHTML,10)+response[1]).toString()+" points";
             }
           }
         }
@@ -2006,8 +1999,6 @@ function comment_format(res,data,article_id,log_in_details)
 
     if (update_by===-1)
       update_by_boolean=false;
-    
-    console.log("insdie update_points_on_article pre-query");
 
     pool.query('SELECT points FROM points_on_comment_table WHERE user_id=$1 AND comment_id=$2',[user_id,comment_id],function(err,result)
       { 
@@ -2017,7 +2008,6 @@ function comment_format(res,data,article_id,log_in_details)
         }
         else if (result.rows.length===0)//new upvote/downvote
         {
-          console.log("insdie update_points_on_article insert query");
           pool.query('INSERT INTO points_on_comment_table(user_id,comment_id,points) values($1,$2,$3)',[user_id,comment_id,update_by_boolean],function(err,result)
           { 
            if (err)
@@ -2032,14 +2022,19 @@ function comment_format(res,data,article_id,log_in_details)
         }
         else
         {
-          console.log("insdie update_points_on_article,result.rows[0].points",result.rows[0].points);
-
           if (result.rows[0].points===update_by_boolean)//to check multiple upvotes/downvotes
           {
             res.send("unsuccessfull update on points");
           }
           else
           {
+            update_by*=2;
+            //since this is an update on previous upvote/downvote,to reverse the previous value and show the current upvote/downvote value we muliply it by 2
+            //eg . preivously user 1 -> upvoted hence points =1
+            //      after updation,aka downvote,since only one upvote per comment/article so the update will only be the reverse
+            //          points = previous.point + -1 *2
+            //          after completion of update; points =-1
+
             pool.query('UPDATE points_on_comment_table SET points=$3 WHERE user_id=$1 AND comment_id=$2',[user_id,comment_id,update_by_boolean],function(err,result)
             { 
              if (err)
@@ -2060,8 +2055,6 @@ function comment_format(res,data,article_id,log_in_details)
     //data=['update_points_on_article',article_id,update_by]
     var comment_id=data[1];
     var update_by=data[2];;
-    
-    console.log("insdie update points,pre-query");
 
     pool.query('SELECT points FROM comments WHERE comment_id=$1',[comment_id],function(err,result)
       { 
@@ -2071,11 +2064,7 @@ function comment_format(res,data,article_id,log_in_details)
         }
         else
         { 
-          console.log("insdie update points,result.rows[0].points",result.rows[0].points);
-
           points=result.rows[0].points+update_by;
-          console.log("insdie update points,updated points ",points);
-          console.log("insdie update points,article_id ",article_id);
 
           pool.query('UPDATE comments SET points=$2 WHERE comment_id=$1',[comment_id,points],function(err,result)
           { 
@@ -2085,7 +2074,7 @@ function comment_format(res,data,article_id,log_in_details)
             }
             else
             { //selecting the last article inserted by this user in this category,aka the current article just inserted
-              res.send("updated points successfully");
+              res.send( JSON.stringify(["updated points successfully",update_by]) );
             }
           });
 
