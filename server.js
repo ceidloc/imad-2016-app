@@ -207,6 +207,10 @@ var delete_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-warning'
 
 var update_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' value='update' onClick='PLACEHOLDER'; autofocus wrap='hard'> </input>`;
 
+var upvote_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' value='upvote' onClick='PLACEHOLDER';> </input>`;
+
+var downvote_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-warning' value='downvote' onClick='PLACEHOLDER';> </input>`;
+
 //function's to prevent xss attack
 
 function escape_html_cs(text)
@@ -275,7 +279,6 @@ app.get('/ui/home_page', function (req, res)
 
 app.get('/ui/main.js',function(req, res)
 {
-  //res.sendFile(path.join(__dirname,'ui','main.js'));
   res.sendFile(path.join(__dirname, 'ui', 'main.js'));
 });
 
@@ -655,7 +658,7 @@ function sign_up_page_template_js(previous_page)
         }
         else if (request.status === 404) 
         {
-        submit_btn.value = 'username not available';
+        submit_btn.value = 'username already exists';
         }
         else if (request.status === 500) 
         {
@@ -703,8 +706,9 @@ app.get('/ui/get/:all_categories',function(req,res)
     if (all_categories==='all_categories')
       all_categories='all_categories_ss';//calling from the server_side if default is used
 
-    article_format(res,[all_categories],log_in_details);
-    //categories for server-side,will send to all_categories_template
+    if(all_categories==='all_categories_ss' || all_categories==='all_categories_cs')
+      article_format(res,[all_categories],log_in_details);
+      //categories for server-side,will send to all_categories_template
 
   });
 
@@ -764,7 +768,7 @@ app.get('/ui/a/:category/:article_id', function (req, res) {
   article_format(res,['select an article',article_id,category],log_in_details)
 });
 
-//post requst to insert/update article,belonging to this category
+//post requst to insert/update article,or update points on article,belonging to this category
 app.post('/ui/a/:category/:action_on_article', function (req, res)
 { 
   //can only add article's if logged in!
@@ -774,18 +778,32 @@ app.post('/ui/a/:category/:action_on_article', function (req, res)
     var log_in_details=["logged in",user_id];
     var category=req.params.category;
     var action_on_article=req.params.action_on_article;
-    var head=req.body.head;
-    var body=req.body.body;
-    if (head!=="" && body!=="")
+    
+    if (action_on_article==='update_points_on_article')
     {
-      var data=[action_on_article,user_id,category,head,body]
-      if (action_on_article==='update article')
-      {//need the comment_id to update the connets of the commment
-        var article_id=req.body.article_id;
-        data.push(article_id);
-      }
-      //inserts the article,then load's its page
+      console.log("insdie update_points_on_article end point");
+      var article_id=req.body.article_id;
+      var update_by=req.body.update_by;
+      var data=[action_on_article,user_id,article_id,update_by]
+
       article_format(res,data,log_in_details);
+      
+    }
+    else // insert or update
+    {
+      var head=req.body.head;
+      var body=req.body.body;
+      if (head!=="" && body!=="" &&(action_on_article==='update article' ||action_on_article==='insert article'))
+      {
+        var data=[action_on_article,user_id,category,head,body]
+        if (action_on_article==='update article')
+        {//need the comment_id to update the connets of the commment
+          var article_id=req.body.article_id;
+          data.push(article_id);
+        }
+        //inserts the article,then load's its page
+        article_format(res,data,log_in_details);
+      }
     }
   }
 });
@@ -932,6 +950,35 @@ function article_template_js(category,article_id)
         updating_article(article_id);
       }
     }
+
+    function update_points_on_article(article_id,update_by)
+    {
+      console.log("insdie update_points_on_article function");
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {
+            var response=request.responseText;
+            if (response==="updated points successfully")
+            {
+              points=document.getElementById('points_on_id_'+article_id);
+              points.innerHTML=(parseInt(points.innerHTML,10)+update_by).toString()+" points";
+            }
+          }
+        }
+
+      };
+
+      //making request
+      //sending POST request
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/update_points_on_article',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"article_id":article_id,"update_by":update_by} ) );
+    };
+
   `;
 
   return js_data;
@@ -981,6 +1028,7 @@ function article_home_page_template(res,category,articles,log_in_details)
       var head=article[i].head;
       var username=article[i].username;
       var time=article[i].time;
+      var points=article[i].points;
       time = new Date(time)//takes a string with timestamp value and converts to a date object?
       localtime=time.toLocaleTimeString();
       date=time.toLocaleDateString();
@@ -990,6 +1038,7 @@ function article_home_page_template(res,category,articles,log_in_details)
             <a data-toggle="collapse" data-parent="#this_panel" href="#collapse`+i+`">
               <div class="panel-heading" style="background-color:#fff;">
                   <h3>${escape_html_ss(head)}</h3>
+                  <h4 class=details>${points} points</h4>
               </div>
             </a>
             <div class="panel-body">
@@ -1095,7 +1144,7 @@ function article_template(data,comments,log_in_details)//returns html doc
     var user_id=data.user_id;
     var time=data.time;
     var category=data.category;
-
+    var points=data.points;
     
     
       var html_data=article_layout_template(category,log_in_details,'a/'+category+'/'+article_id);//3rd arg is previous_page
@@ -1119,6 +1168,7 @@ function article_template(data,comments,log_in_details)//returns html doc
                     on ${time.toLocaleDateString()}
                   </footer>
             </blockquote>
+            <h4 id=points_on_id_${article_id} class=details>${points} points</h4>
             `;
 
         
@@ -1132,6 +1182,16 @@ function article_template(data,comments,log_in_details)//returns html doc
         delete_btn=delete_btn.replace('PLACEHOLDER','delete_article('+ article_id+');');//replaces; onclick='PLACEHOLDER'
         html_data+=delete_btn;
 
+      }
+      else if (log_in_details==="logged in")
+      {
+        upvote_btn=upvote_block.replace('PLACEHOLDER','upvote_article_btn_id_'+article_id );
+        upvote_btn=upvote_btn.replace('PLACEHOLDER','update_points_on_article('+ article_id+',1);');//replaces; onclick='PLACEHOLDER'
+        html_data+='<br>'+upvote_btn;
+
+        downvote_btn=downvote_block.replace('PLACEHOLDER','downvote_article_btn_id_'+ article_id);//replaces; id=PLACEHOLDER
+        downvote_btn=downvote_btn.replace('PLACEHOLDER','update_points_on_article('+ article_id+',-1);');//replaces; onclick='PLACEHOLDER'
+        html_data+=downvote_btn;        
       }
 
       if (log_in_details==="not logged in")
@@ -1167,7 +1227,6 @@ function article_template(data,comments,log_in_details)//returns html doc
           <!-script for log_out ->
           <script type="text/javascript" src="/ui/log_out_js/previous_page?previous_page=a/${category}/${article_id} ">
           </script>
-
           <!-js for inserting comments ->
           <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_comment_js/">
           </script>
@@ -1220,16 +1279,18 @@ function article_template(data,comments,log_in_details)//returns html doc
 
         html_data+="</div></div><hr>";
 
-        if(current_user_id===user_id)
+        if(log_in_details==="logged in")
         {
           
-          html_data+=`<!-js for inserting comments ->
+          html_data+=`<!--js for updating, upvoting downvoting articls -->
           <script type="text/javascript" src="/ui/a/${category}/${article_id}/article_template_js/">
-          </script>`;
+          </script>
+          `;
         }
 
         html_data+=`
-        <script type="text/javascript" src="/ui/main.js/">
+        <!-- main.js for open and close nav -->
+          <script type="text/javascript" src="/ui/main.js">
           </script>
       </body>
     </html>`;
@@ -1388,7 +1449,7 @@ function article_format(res,data,log_in_details)
       //selecting all article's from article_table belonging to the given category
       //data=['select all',category]
       var category=data[1];
-      pool.query('SELECT a.head,a.article_id,u.username,u.user_id,a.time FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.category=$1 ORDER BY a.article_id  DESC',[category],function(err,result)
+      pool.query('SELECT a.head,a.article_id,a.points,u.username,u.user_id,a.time FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.category=$1 ORDER BY a.article_id  DESC',[category],function(err,result)
       {
         if (err)
         {
@@ -1411,7 +1472,7 @@ function article_format(res,data,log_in_details)
     //selecting the article details from the article_tabel corresponding to the given article_id
     var article_id=data[1];
     var category=data[2];
-    pool.query('SELECT a.head,a.body,a.category,a.article_id,a.time,u.username,u.user_id FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.article_id=$1 AND a.category=$2 ORDER BY a.article_id',[article_id,category],function(err,result)
+    pool.query('SELECT a.head,a.points,a.body,a.category,a.article_id,a.time,u.username,u.user_id FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.article_id=$1 AND a.category=$2 ORDER BY a.article_id',[article_id,category],function(err,result)
     {
       if (err)
       {
@@ -1472,6 +1533,102 @@ function article_format(res,data,log_in_details)
         }
       });
   }
+   else if (data[0]==="update_points_on_article")
+  {
+    //data=['update_points_on_article',user_id,article_id,update_by]
+    var user_id=data[1];
+    var article_id=data[2];
+    var update_by=data[3];
+    var update_by_boolean=true;
+
+    if (update_by===-1)
+      update_by_boolean=false;
+    
+    console.log("insdie update_points_on_article pre-query");
+
+    pool.query('SELECT points FROM points_on_article_table WHERE user_id=$1 AND article_id=$2',[user_id,article_id],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else if (result.rows.length===0)//new upvote/downvote
+        {
+          console.log("insdie update_points_on_article insert query");
+          pool.query('INSERT INTO points_on_article_table(user_id,article_id,points) values($1,$2,$3)',[user_id,article_id,update_by_boolean],function(err,result)
+          { 
+           if (err)
+            {
+              res.status(500).send(err.toString());
+            }
+            else
+            {
+              article_format(res,['update points',article_id,update_by],log_in_details);
+            }
+          });          
+        }
+        else
+        {
+          console.log("insdie update_points_on_article,result.rows[0].points",result.rows[0].points);
+
+          if (result.rows[0].points===update_by_boolean)//to check multiple upvotes/downvotes
+          {
+            res.send("unsuccessfull update on points");
+          }
+          else
+          {
+            pool.query('UPDATE points_on_article_table SET points=$3 WHERE user_id=$1 AND article_id=$2',[user_id,article_id,update_by_boolean],function(err,result)
+            { 
+             if (err)
+              {
+                res.status(500).send(err.toString());
+              }
+              else
+              {
+                article_format(res,['update points',article_id,update_by],log_in_details);
+              }
+            });          
+          }
+        }
+      });
+  }
+  else if (data[0]==="update points")
+  {
+    //data=['update_points_on_article',article_id,update_by]
+    var article_id=data[1];
+    var update_by=data[2];;
+    
+    console.log("insdie update points,pre-query");
+
+    pool.query('SELECT points FROM article_table WHERE article_id=$1',[article_id],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else
+        { 
+          console.log("insdie update points,result.rows[0].points",result.rows[0].points);
+
+          points=result.rows[0].points+update_by;
+          console.log("insdie update points,updated points ",points);
+          console.log("insdie update points,article_id ",article_id);
+
+          pool.query('UPDATE article_table SET points=$2 WHERE article_id=$1',[article_id,points],function(err,result)
+          { 
+           if (err)
+            {
+              res.status(500).send(err.toString());
+            }
+            else
+            { //selecting the last article inserted by this user in this category,aka the current article just inserted
+              res.send("updated points successfully");
+            }
+          });
+
+        }
+      });
+  }
   else if (data[0]==="select last")
   {
     //selecting the last article inserted by this user in this category,aka the current article just inserted
@@ -1511,7 +1668,7 @@ function article_format(res,data,log_in_details)
 //section 
 //end points for comments
 
-//post requst to insert/update comment
+//post requst to insert/update comment or update points on comment
 app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
 { //body has comment and may have comment_id for updation of comment
   //can only add comments if logged in!
@@ -1525,7 +1682,7 @@ app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
     var action=req.params.action_on_commnet;
 
     var comment=req.body.comment;
-    if (comment!=="")
+    if (comment!=="" && (action==='update_comment' || action==='insert comment'))
       { 
         var data=[action,comment]
         if (action==='update comment')
@@ -1820,7 +1977,6 @@ function comment_format(res,data,article_id,log_in_details)
 //end points for milkyway cafe home page
 
 app.get('/ui/cafe_home_page',function(req, res){
-  //res.sendFile(path.join(__dirname,'ui','main.js'));
   var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for no user
   if (req.session && req.session.auth && req.session.auth.user_id )
     log_in_details=["logged in",req.session.auth.user_id.user_id];
@@ -1829,7 +1985,6 @@ app.get('/ui/cafe_home_page',function(req, res){
 });
 
 app.get('/ui/cafe_home_page.js',function(req, res){
-  //res.sendFile(path.join(__dirname,'ui','main.js'));
   res.send(cafe_home_page_template_js(11));
 });
 
