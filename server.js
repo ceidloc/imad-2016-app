@@ -1254,12 +1254,17 @@ function article_template(data,comments,log_in_details)//returns html doc
           for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
             {
               var time = new Date(comment[i].time);
+              var points=comment[i].points;
               html_data+="<div class='list-group-item '><blockquote>"
               html_data+="<div id=comment_text_" + comment[i].comment_id + ">";
               //to prevent xss attack via sending html code through input
               html_data+=escape_html_ss(comment[i].text)+"</div><footer>By:";
               html_data+=escape_html_ss(comment[i].username);
               html_data+=" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString();
+              html_data+=`</footer></blockquote>
+              <h4 id='points_on_comment_id_`+comment[i].comment_id+`' class=details>
+              ${points} points
+              </h4>`;
 
               if (comment[i].user_id===current_user_id)
               {
@@ -1272,8 +1277,17 @@ function article_template(data,comments,log_in_details)//returns html doc
                 html_data+=delete_btn;
 
               }
+               else if (log_in_details==="logged in")
+                {
+                  upvote_btn=upvote_block.replace('PLACEHOLDER','upvote_comment_btn_id_'+comment[i].comment_id );
+                  upvote_btn=upvote_btn.replace('PLACEHOLDER','update_points_on_comment('+article_id+','+ comment[i].comment_id+',1);');//replaces; onclick='PLACEHOLDER'
+                  html_data+='<br>'+upvote_btn;
 
-              html_data+="</footer></blockquote></div>";
+                  downvote_btn=downvote_block.replace('PLACEHOLDER','downvote_comment_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
+                  downvote_btn=downvote_btn.replace('PLACEHOLDER','update_points_on_comment('+article_id+','+ comment[i].comment_id+',-1);');//replaces; onclick='PLACEHOLDER'
+                  html_data+=downvote_btn;        
+                }
+                html_data+="</div>";
             };
         }
 
@@ -1680,10 +1694,23 @@ app.post('/ui/a/:category/:article_id/:action_on_commnet', function (req, res)
     var article_id=req.params.article_id;
     var article_id=parseInt(article_id,10);//convertin id containg string type  value to int type decimal value
     var action=req.params.action_on_commnet;
+    var user_id=log_in_details[1];
 
-    var comment=req.body.comment;
-    if (comment!=="" && (action==='update_comment' || action==='insert comment'))
+    if (action==='update_points_on_comment')
+    {
+      console.log("insdie update_points_on_article end point");
+      var comment_id=req.body.comment_id;
+      var update_by=req.body.update_by;
+      var data=[action,user_id,comment_id,update_by]
+
+      comment_format(res,data,log_in_details);
+      
+    }
+
+    
+    else if (req.body.comment!=="" && (action==='update_comment' || action==='insert comment'))
       { 
+        var comment=req.body.comment;
         var data=[action,comment]
         if (action==='update comment')
         {//need the comment_id to update the connets of the commment
@@ -1888,6 +1915,35 @@ function comment_template_delete_update_js(category,article_id)
         updating_comment(comment_id);
       }
     }
+
+    function update_points_on_comment(aritcle_id,comment_id,update_by)
+    {
+      console.log("insdie update_points_on_article function");
+      var request=new XMLHttpRequest();
+      request.onreadystatechange= function()
+      {
+        if (request.readyState===XMLHttpRequest.DONE)
+        {
+          if (request.status === 200)
+          {
+            var response=request.responseText;
+            if (response==="updated points successfully")
+            {
+              points=document.getElementById('points_on_comment_id_'+comment_id);
+              points.innerHTML=(parseInt(points.innerHTML,10)+update_by).toString()+" points";
+            }
+          }
+        }
+
+      };
+
+      //making request
+      //sending POST request
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${article_id}/update_points_on_comment',true);
+      request.setRequestHeader('Content-Type','application/json');
+      request.send(JSON.stringify ( {"comment_id":comment_id,"update_by":update_by} ) );
+    };
+
   `;
   return js_data;
 }
@@ -1940,9 +1996,105 @@ function comment_format(res,data,article_id,log_in_details)
         }
       } );
   }
+    else if (data[0]==="update_points_on_comment")
+  {
+    //data=['update_points_on_article',user_id,article_id,update_by]
+    var user_id=data[1];
+    var comment_id=data[2];
+    var update_by=data[3];
+    var update_by_boolean=true;
+
+    if (update_by===-1)
+      update_by_boolean=false;
+    
+    console.log("insdie update_points_on_article pre-query");
+
+    pool.query('SELECT points FROM points_on_comment_table WHERE user_id=$1 AND comment_id=$2',[user_id,comment_id],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else if (result.rows.length===0)//new upvote/downvote
+        {
+          console.log("insdie update_points_on_article insert query");
+          pool.query('INSERT INTO points_on_comment_table(user_id,comment_id,points) values($1,$2,$3)',[user_id,comment_id,update_by_boolean],function(err,result)
+          { 
+           if (err)
+            {
+              res.status(500).send(err.toString());
+            }
+            else
+            {
+              comment_format(res,['update points',comment_id,update_by],log_in_details);
+            }
+          });          
+        }
+        else
+        {
+          console.log("insdie update_points_on_article,result.rows[0].points",result.rows[0].points);
+
+          if (result.rows[0].points===update_by_boolean)//to check multiple upvotes/downvotes
+          {
+            res.send("unsuccessfull update on points");
+          }
+          else
+          {
+            pool.query('UPDATE points_on_comment_table SET points=$3 WHERE user_id=$1 AND comment_id=$2',[user_id,comment_id,update_by_boolean],function(err,result)
+            { 
+             if (err)
+              {
+                res.status(500).send(err.toString());
+              }
+              else
+              {
+                comment_format(res,['update points',comment_id,update_by],log_in_details);
+              }
+            });          
+          }
+        }
+   });
+  }
+  else if (data[0]==="update points")
+  {
+    //data=['update_points_on_article',article_id,update_by]
+    var comment_id=data[1];
+    var update_by=data[2];;
+    
+    console.log("insdie update points,pre-query");
+
+    pool.query('SELECT points FROM comments WHERE comment_id=$1',[comment_id],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else
+        { 
+          console.log("insdie update points,result.rows[0].points",result.rows[0].points);
+
+          points=result.rows[0].points+update_by;
+          console.log("insdie update points,updated points ",points);
+          console.log("insdie update points,article_id ",article_id);
+
+          pool.query('UPDATE comments SET points=$2 WHERE comment_id=$1',[comment_id,points],function(err,result)
+          { 
+           if (err)
+            {
+              res.status(500).send(err.toString());
+            }
+            else
+            { //selecting the last article inserted by this user in this category,aka the current article just inserted
+              res.send("updated points successfully");
+            }
+          });
+
+        }
+      });
+  }
   else
   {
-    pool.query('SELECT c.comment_id,c.text,c.time,u.username,u.user_id from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
+    pool.query('SELECT c.comment_id,c.points,c.text,c.time,u.username,u.user_id from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
       ,[article_id],function(err,comments)
         {
           if (err)
