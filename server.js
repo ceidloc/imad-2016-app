@@ -201,15 +201,16 @@ var log_in_block=`
 </div>
 `;
 
-var log_out_block=`<input type='submit' id ='log_out_submit_button' class = 'btn btn-danger' value='Log Out' onClick="log_out_OnClick();"></input>`;
+var log_out_block=`<input type='submit' id ='log_out_submit_button' class = 'btn btn-danger navbar-btn' value='Log Out' onClick="log_out_OnClick();"></input>`;
 
 var delete_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-warning' value='delete' onClick='PLACEHOLDER;'> </input>`;
 
 var update_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' value='update' onClick='PLACEHOLDER'; autofocus wrap='hard'> </input>`;
 
-var upvote_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-info' value='upvote' onClick='PLACEHOLDER';> </input>`;
+var upvote_block=`<button type='submit' id =PLACEHOLDER class = 'btn btn-success'  onClick='PLACEHOLDER';><span class="glyphicon glyphicon-thumbs-up"></span> </button>`;
 
-var downvote_block=`<input type='submit' id =PLACEHOLDER class = 'btn btn-warning' value='downvote' onClick='PLACEHOLDER';> </input>`;
+var downvote_block=`<button type='submit' id =PLACEHOLDER class = 'btn btn-danger' onClick='PLACEHOLDER';><span class="glyphicon glyphicon-thumbs-down"></span></button>`;
+
 
 //function's to prevent xss attack
 
@@ -550,7 +551,7 @@ app.post('/ui/sign_up',function(req,res)
  
   if (username.trim() === '' || password.trim() === '' || username.length < 5  || username.length > 15 || password.length < 8  || password.length > 15 ) 
    {
-       res.send("Invalid Username/Password. Please try again");
+       res.send("Invalid Username/Password.Please try again");
    }
  
   else if(!/^[a-zA-Z0-9_.@]+$/.test(username))  //If username contains other than a-z,A-Z,0-9 then true.
@@ -616,8 +617,10 @@ function sign_up_page_template(previous_page)
   <div class='col-xs-1 col-md-3'>
   </div>
   <div class='col-xs-10 col-md-6'>    
-    <input type='text' id ='sign_up_username_button' class ="form-control" placeholder="Enter Username" autofocus></input><br>
-    <input type='password' id ='sign_up_password_button' class ="form-control"  placeholder="Enter Password"></input><br><br>
+    <h4 class="text-left">Enter Username </h4>
+    <input type='text' id ='sign_up_username_button' class ="form-control" placeholder="username length in between 5 and 15" autofocus></input><br>
+    <h4 class="text-left">Enter Password </h4>
+    <input type='password' id ='sign_up_password_button' class ="form-control"  placeholder="password length in between 8 and 20"></input><br><br>
     <input type='submit' id ='sign_up_submit_button' class = 'btn btn-primary' value='Submit'></input>
   </div>
   </div>
@@ -1128,7 +1131,7 @@ function all_categories_template(all_categories,log_in_details)
   return html_data;
 }
 
-function article_template(data,comments,log_in_details)//returns html doc
+function article_template(data,log_in_details)//returns html doc
 {   
     //extracting log_in_details as ['logged in'/'not logged in' , user_id], note if not logged in user_id=-1
     var current_user_id=log_in_details[1];
@@ -1213,12 +1216,13 @@ function article_template(data,comments,log_in_details)//returns html doc
           <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
           <div class='rows'>
           <div class='col-xs-1 col-md-3'>
-          </div>
-            <div class='col-xs-10 col-md-6'>          
-              <textarea rows="3" cols="30" id ='in_${category}_id_${article_id}' class ="form-control" placeholder="Submit a new comment!" ></textarea>
-              <br>
-              <input type='submit' id ='sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick="closeNav();"></input><br>
-            </div>          
+            </div>
+              <div class='col-xs-10 col-md-6'>          
+                <textarea rows="3" cols="30" id ='in_${category}_id_${article_id}' class ="form-control" placeholder="Submit a new comment!" ></textarea>
+                <br>
+                <input type='submit' id ='sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick="closeNav();"></input><br>
+              </div>          
+            </div>
           </div>
           `;
           html_data+=`
@@ -1238,58 +1242,8 @@ function article_template(data,comments,log_in_details)//returns html doc
           <div id="main" class="${category}_comment_list"><!--will be displaced by the sidenav-->
               <h3 class=text-center>Comments</h3>
               <button class="hover_button" onclick="openNav()"><span>Submit comment!</span></button>
-          <div class="list-group" id = 'ol_${category}_id_${article_id}' style="color:#111;">
+          <div class="list-group" id = 'comments_body_${article_id}' style="color:#111;">
         `;
-
-        if(comments==='Be the first to comment!')
-        {   
-          html_data+="<h4>Be the fisrt to comment!</h4>";
-        }
-        else
-        {
-          comment=JSON.parse(comments);
-          //creating a string to render in the inner html of ol on this article page
-          for (var i=comment.length-1;i>=0;i--)    //storing in reverse to show the most recent comment at the top
-            {
-              var time = new Date(comment[i].time);
-              var points=comment[i].points;
-              html_data+="<div class='list-group-item '><blockquote>"
-              html_data+="<div id=comment_text_" + comment[i].comment_id + ">";
-              //to prevent xss attack via sending html code through input
-              html_data+=escape_html_ss(comment[i].text)+"</div><footer>By:";
-              html_data+=escape_html_ss(comment[i].username);
-              html_data+=" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString();
-              html_data+=`</footer></blockquote>
-              <h4 id='points_on_comment_id_`+comment[i].comment_id+`' class=details>
-              ${points} points
-              </h4>`;
-
-              if (comment[i].user_id===current_user_id)
-              {
-                update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment[i].comment_id );
-                update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
-                html_data+="<br>"+update_btn;
-
-                delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
-                delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment[i].comment_id+');');//replaces; onclick='PLACEHOLDER'
-                html_data+=delete_btn;
-
-              }
-               else if (log_in_details==="logged in")
-                {
-                  upvote_btn=upvote_block.replace('PLACEHOLDER','upvote_comment_btn_id_'+comment[i].comment_id );
-                  upvote_btn=upvote_btn.replace('PLACEHOLDER','update_points_on_comment('+article_id+','+ comment[i].comment_id+',1);');//replaces; onclick='PLACEHOLDER'
-                  html_data+='<br>'+upvote_btn;
-
-                  downvote_btn=downvote_block.replace('PLACEHOLDER','downvote_comment_btn_id_'+ comment[i].comment_id);//replaces; id=PLACEHOLDER
-                  downvote_btn=downvote_btn.replace('PLACEHOLDER','update_points_on_comment('+article_id+','+ comment[i].comment_id+',-1);');//replaces; onclick='PLACEHOLDER'
-                  html_data+=downvote_btn;        
-                }
-                html_data+="</div>";
-            };
-        }
-
-        html_data+="</div></div><hr>";
 
         if(log_in_details==="logged in")
         {
@@ -1303,6 +1257,9 @@ function article_template(data,comments,log_in_details)//returns html doc
         html_data+=`
         <!-- main.js for open and close nav -->
           <script type="text/javascript" src="/ui/main.js">
+          </script>
+          <!-- load_comments.js for open and close nav -->
+          <script type="text/javascript" src="/ui/load_comments.js">
           </script>
       </body>
     </html>`;
@@ -1461,7 +1418,7 @@ function article_format(res,data,log_in_details)
       //selecting all article's from article_table belonging to the given category
       //data=['select all',category]
       var category=data[1];
-      pool.query('SELECT a.head,a.article_id,a.points,u.username,u.user_id,a.time FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.category=$1 ORDER BY a.article_id  DESC',[category],function(err,result)
+      pool.query('SELECT a.head,a.article_id,a.points,u.username,u.user_id,a.time FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.category=$1 ORDER BY a.points  DESC',[category],function(err,result)
       {
         if (err)
         {
@@ -1484,7 +1441,7 @@ function article_format(res,data,log_in_details)
     //selecting the article details from the article_tabel corresponding to the given article_id
     var article_id=data[1];
     var category=data[2];
-    pool.query('SELECT a.head,a.points,a.body,a.category,a.article_id,a.time,u.username,u.user_id FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.article_id=$1 AND a.category=$2 ORDER BY a.article_id',[article_id,category],function(err,result)
+    pool.query('SELECT a.head,a.points,a.body,a.category,a.article_id,a.time,u.username,u.user_id FROM article_table as a LEFT JOIN user_table as u ON u.user_id=a.user_id WHERE a.article_id=$1 AND a.category=$2 ',[article_id,category],function(err,result)
     {
       if (err)
       {
@@ -1496,9 +1453,14 @@ function article_format(res,data,log_in_details)
       }
       else
       {
+        //passing data to article_template to generate article page
+         res.send( article_template(result.rows[0],log_in_details) );
+
+         //alternate to load comment's of this article page from server side
         //selcting comments and rendering from the server side
         //after comments on this article are queried,the current article page data along with comments will be sent to article_template
-        comment_format(res,["select",JSON.stringify( result.rows[0] )],article_id,log_in_details);  
+        //comment_format(res,["select",JSON.stringify( result.rows[0] )],article_id,log_in_details);  
+       
       }
     });
   }
@@ -1677,6 +1639,28 @@ function article_format(res,data,log_in_details)
 //section 
 //end points for comments
 
+//end point to get all comment's of a specific parent, belonging to a specific  article
+app.get('/ui/parent/:article_id/:parent',function(req,res)
+{
+  var log_in_details=["not logged in",-1];//2nd element is user_id,-1 for not logged in user
+  if (req.session && req.session.auth && req.session.auth.user_id )
+    log_in_details=["logged in",req.session.auth.user_id.user_id];
+
+  var article_id=req.params.article_id;
+  var parent=req.params.parent;
+
+  var data=["select all for this parent",article_id,parent];
+  comment_format(res,data,article_id,log_in_details);
+});
+
+
+//js for loading comments on the article page
+app.get('/ui/load_comments.js',function(req,res)
+{
+  res.sendFile(path.join(__dirname, 'ui', 'load_comments.js'));
+});
+
+
 //post requst to insert/update comment or update points on comment
 app.post('/ui/a/:category/:article_id/:action_on_comment', function (req, res)
 { //body has comment and may have comment_id for updation of comment
@@ -1697,17 +1681,21 @@ app.post('/ui/a/:category/:article_id/:action_on_comment', function (req, res)
       var update_by=req.body.update_by;
       var data=[action,user_id,comment_id,update_by]
 
-      comment_format(res,data,log_in_details);
-      
+      comment_format(res,data,log_in_details); 
     }
-
-    
     else if (req.body.comment!=="" && (action==='update comment' || action==='insert comment'))
       { 
         var comment=req.body.comment;
         var data=[action,comment]
-        if (action==='update comment')
-        {//need the comment_id to update the connets of the commment
+        if (action==='insert comment')
+        {
+          //need to add reply_comment_id
+          var reply_comment_id=req.body.reply_comment_id;
+          data.push(reply_comment_id);
+        }
+        else if (action==='update comment')
+        {
+          //need the comment_id to update the connets of the commment
           var comment_id=req.body.comment_id;
           data.push(comment_id);
         }
@@ -1731,7 +1719,7 @@ app.delete('/ui/a/delete_comment/:category',function(req,res)
 
 //template functions for comment
 
-function comment_template(category,id)//returns a js code unique for each page
+function comment_template(category,article_id)//returns a js code unique for each page
 {   
    var js_data=escape_html_cs.toString();
    //this function is used to prevent xss attack
@@ -1742,9 +1730,71 @@ function comment_template(category,id)//returns a js code unique for each page
     var delete_block="${delete_block}";
     var update_block="${update_block}";
    
-    submit_btn=document.getElementById('sub_${category}_id_${id}');
+    default_navbar=document.getElementById('mySidenav').innerHTML;
 
+    submit_btn=document.getElementById('sub_${category}_id_${article_id}');
     submit_btn.onclick=function ()
+    {
+      input=document.getElementById('in_${category}_id_${article_id}');
+      data=input.value;
+
+      insert_comment(submit_btn,data,-1);
+    }
+
+    function reply_comment(reply_comment_id)
+    {
+      //changing the innerHTML of mySidenav
+
+      reply_comment_text=document.getElementById('comment_text_'+reply_comment_id);
+
+      new_navbar=" <a href='javascript:void(0)' class='closebtn' onclick='close_new_nav()'>&times;</a>"
+      new_navbar+="   <div class='rows'>"
+      new_navbar+="     <div class='col-xs-1 col-md-3'>"
+      new_navbar+="     </div>"
+      new_navbar+="   <div class='col-xs-10 col-md-6'>"
+      //adding the reply_comment_text
+      new_navbar+="     <div class='container-fluid' style='background-color:#fff;'><h3>"+reply_comment_text.innerHTML+"</h3></div>"
+      new_navbar+="     <textarea rows='3' cols='30' id ='reply_in_${category}_id_${article_id}' class ='form-control' placeholder='Submit a new comment!' ></textarea>"
+      new_navbar+="     <br>"
+      new_navbar+="     <input type='submit' id ='reply_sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick='close_new_nav();'></input><br>"
+      new_navbar+="   </div>"          
+      new_navbar+="   </div>"
+
+          
+      //changing the navbar
+      old_nav_bar=document.getElementById('mySidenav')
+      old_nav_bar.innerHTML=new_navbar;
+
+      openNav();
+
+      reply_btn=document.getElementById('reply_sub_${category}_id_${article_id}');
+      reply_btn.onclick=function()
+      {
+        input=document.getElementById('reply_in_${category}_id_${article_id}');
+        data=input.value;
+        insert_comment(reply_btn,data,reply_comment_id); 
+      }
+    }
+
+    function close_new_nav()
+    {
+      new_navbar=document.getElementById('mySidenav');      
+      closeNav();
+      //changing the reply navbar back to default
+      console.log('default navbar',default_navbar);
+      new_navbar.innerHTML=default_navbar;
+
+      submit_btn=document.getElementById('sub_${category}_id_${article_id}');
+      submit_btn.onclick=function ()
+      {
+        input=document.getElementById('in_${category}_id_${article_id}');
+        data=input.value;
+
+        insert_comment(submit_btn,data,-1);
+      }
+    }
+
+    function insert_comment(submit_btn,data,reply_comment_id)
     {
       var request=new XMLHttpRequest();
       request.onreadystatechange= function()
@@ -1756,17 +1806,13 @@ function comment_template(category,id)//returns a js code unique for each page
         {
           if (request.status === 200)
           {
-            closeNav();
+            
             //take comments from the request and parse them into array 
             var comment=request.responseText;
             comment=JSON.parse(comment);
             var time = new Date(comment.time);
-            var old_list=document.getElementById('ol_${category}_id_${id}');
-            
-            if (old_list.innerHTML.trim()==='Be the first to comment!' )
-              old_list.innerHTML="";
 
-            var new_comment="<div class='list-group-item '><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_cs(comment.text)+"</div><footer>By:"+escape_html_cs(comment.username)+" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"<br>";
+            var new_comment="<div class='list-group-item ' id=comment_body_"+comment.comment_id+"><blockquote><div id=comment_text_"+comment.comment_id+">"+escape_html_cs(comment.text)+"</div><footer>By:"+escape_html_cs(comment.username)+" submitted at:"+time.toLocaleTimeString()+" on:"+time.toLocaleDateString()+"</footer></blockquote>";
 
             update_btn=update_block.replace('PLACEHOLDER','update_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             update_btn=update_btn.replace('PLACEHOLDER','updating_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
@@ -1776,10 +1822,31 @@ function comment_template(category,id)//returns a js code unique for each page
             delete_btn=delete_block.replace('PLACEHOLDER','delete_btn_id_'+comment.comment_id );//replace's id=PLACEHOLDER
             delete_btn=delete_btn.replace('PLACEHOLDER','delete_comment('+ comment.comment_id+');');//replaces onclick='PLACEHOLDER'
 
-            new_comment+=delete_btn;
+            new_comment+=' '+delete_btn;
 
-            new_comment+="</div></footer></blockquote>";
-            old_list.innerHTML=new_comment+old_list.innerHTML;
+            new_comment+="</div>";
+
+
+            if(reply_comment_id===-1)
+            {
+              //inserting inside the main list
+              var old_list=document.getElementById('comments_body_${article_id}');
+
+              if (old_list.innerHTML.trim()==='Be the first to comment!' )
+                old_list.innerHTML="";
+
+              old_list.innerHTML=new_comment+old_list.innerHTML;
+              //close_new_nav changes the innerHTML of the nav back to default
+              closeNav();
+            }
+            else
+            {
+              //inserting inside the parent comment div
+              var old_list=document.getElementById('comment_body_'+reply_comment_id);
+              
+              old_list.innerHTML+=new_comment;
+              close_new_nav();
+            }
 
             submit_btn.value='Submit';
           }
@@ -1788,13 +1855,10 @@ function comment_template(category,id)//returns a js code unique for each page
       };
 
       //making request
-      input=document.getElementById('in_${category}_id_${id}');
-      data=input.value;
       //sending request to page with id=current_id
-      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${id}/insert comment',true);
-      //request.open('POST','http://ceidloc.imad.hasura-app.io/ui/a/${category}/${id}',true);
+      request.open('POST',window.location.protocol+'//'+window.location.host+'/ui/a/${category}/${article_id}/insert comment',true);
       request.setRequestHeader('Content-Type','application/json');
-      request.send(JSON.stringify ( {comment:data} ) );
+      request.send(JSON.stringify ( {comment:data,"reply_comment_id":reply_comment_id} ) );
     };
 
     `
@@ -1802,6 +1866,7 @@ function comment_template(category,id)//returns a js code unique for each page
   return js_data;
     
 }
+
 
 
 function comment_template_delete_update_js(category,article_id)
@@ -1962,9 +2027,9 @@ function comment_format(res,data,article_id,log_in_details)
   }
   else
   if (data[0]==='insert comment')
-    //data=['insert comments',comment]
+    //data=['insert comments',comment,reply]
   { 
-    pool.query('INSERT into comments(text,article_id,user_id) values($1,$2,$3)',[data[1],article_id,log_in_details[1]],function(err,result)//data[1]=comment
+    pool.query('INSERT into comments(text,article_id,user_id,parent) values($1,$2,$3,$4)',[data[1],article_id,log_in_details[1],data[2]],function(err,result)//data[1]=comment,data[2]=reply_comment_id
       {
         if (err)
         { 
@@ -2081,6 +2146,27 @@ function comment_format(res,data,article_id,log_in_details)
         }
       });
   }
+  else if (data[0]==="select all for this parent")
+  {
+    //data=['update_points_on_article',article_id,update_by]
+    var article_id=data[1];
+    var parent=data[2];
+
+    pool.query("SELECT c.comment_id,c.points,c.text,c.time,u.username,u.user_id from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id and c.parent=$2 ORDER BY c.points",
+      [article_id,parent],function(err,result)
+      { 
+       if (err)
+        {
+          res.status(500).send(err.toString());
+        }
+        else
+        { 
+          //adding log_in_details to result and sending to load_comments.js
+          result.rows.push(log_in_details);
+          res.send(  JSON.stringify( result.rows ) ) ;
+        }
+      });
+  }
   else
   {
     pool.query('SELECT c.comment_id,c.points,c.text,c.time,u.username,u.user_id from comments as c,user_table as u WHERE c.article_id=$1 and c.user_id=u.user_id ORDER BY c.comment_id'
@@ -2096,7 +2182,7 @@ function comment_format(res,data,article_id,log_in_details)
             //sending only the last result,aka the just now inserted comment
             res.send(  comments.rows[comments.rows.length-1] ) ;
           }
-          else
+          else//used if loading all comment's from sever side
           { 
             //two parametrs ,one is a json object and the other is an array of comments,are sent to the template
             //return(JSON.stringify( comments.rows ) );
