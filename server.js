@@ -1753,7 +1753,7 @@ function comment_template(category,article_id)//returns a js code unique for eac
       new_navbar+="     </div>"
       new_navbar+="   <div class='col-xs-10 col-md-6'>"
       //adding the reply_comment_text
-      new_navbar+="     <div class='container-fluid' style='background-color:#fff;'><h3>"+reply_comment_text.innerHTML+"</h3></div>"
+      new_navbar+="     <div class='panel' style='background-color:#fff;'><h3>"+reply_comment_text.innerHTML+"</h3></div>"
       new_navbar+="     <textarea rows='3' cols='30' id ='reply_in_${category}_id_${article_id}' class ='form-control' placeholder='Submit a new comment!' ></textarea>"
       new_navbar+="     <br>"
       new_navbar+="     <input type='submit' id ='reply_sub_${category}_id_${article_id}' class = 'btn btn-primary' value='Submit' onclick='close_new_nav();'></input><br>"

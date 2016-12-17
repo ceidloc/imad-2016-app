@@ -21,7 +21,7 @@ function escape_html_cs(text)
 }
 
 
-function find_children(article_id,stack,parent_comment_id)
+function find_children(article_id,stack,parent_comment_id,bg_color)
 {
 	//finding all of it's children 
 	//parent_comment_id = -1, mean's comment has no parent
@@ -70,7 +70,7 @@ function find_children(article_id,stack,parent_comment_id)
 
 					var time = new Date(comment.time);
 					
-					html_data+="<div class='list-group-item ' id=comment_body_"+comment.comment_id+">";
+					html_data+="<div class='list-group-item ' id=comment_body_"+comment.comment_id+" style='background-color:"+bg_color+";' >";
 
 					html_data+=`
 		              <h4 id='points_on_comment_id_`+comment.comment_id+`' class=details>
@@ -124,11 +124,12 @@ function find_children(article_id,stack,parent_comment_id)
 					//adding all the children to the parent comment
 					parent.innerHTML+=html_data;
 
-					//updating the main stack
-					//stack.push.apply(stack, children_stack.reverse() );
-					//console.log("\n\n new stack",stack,":parent",parent_comment_id);
+					if (bg_color==='#fff')
+						new_bg_color="#F8FAFF";
+					else
+						new_bg_color='#fff'
 
-					load_comment(article_id, children_stack.reverse() );
+					load_comment(article_id, children_stack.reverse() ,new_bg_color);
 				}
 
 			}
@@ -147,7 +148,7 @@ function find_children(article_id,stack,parent_comment_id)
 }
 
 
-function load_comment(article_id,stack)
+function load_comment(article_id,stack,bg_color)
 {
 	while(stack.length !==0)//while stack is not empty
 	{	
@@ -155,7 +156,7 @@ function load_comment(article_id,stack)
 		//extracting the top comment_id from stack
 		var parent_comment_id=stack.pop();
 
-		find_children(article_id,stack,parent_comment_id);
+		find_children(article_id,stack,parent_comment_id,bg_color);
 	}
 }
 
@@ -164,4 +165,4 @@ var parent=document.getElementById('comments_body_'+current_article_id);
 parent.innerHTML="<h4 class=text-center>loading...</h4>";
 
 //calls funtion load_comment on load
-load_comment(current_article_id,[-1]);
+load_comment(current_article_id,[-1],'#fff');
